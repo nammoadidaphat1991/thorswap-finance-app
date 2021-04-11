@@ -31,6 +31,8 @@ const initialState: State = {
   txDataLoading: false,
   txTrackers: [],
   txCollapsed: true,
+  mimirLoading: false,
+  mimir: {},
 }
 
 const slice = createSlice({
@@ -176,6 +178,17 @@ const slice = createSlice({
       })
       .addCase(midgardActions.getActions.rejected, (state) => {
         state.txDataLoading = true
+      })
+      // get thorchain mimir
+      .addCase(midgardActions.getMimir.pending, (state) => {
+        state.mimirLoading = true
+      })
+      .addCase(midgardActions.getMimir.fulfilled, (state, action) => {
+        state.mimirLoading = false
+        state.mimir = action.payload
+      })
+      .addCase(midgardActions.getMimir.rejected, (state) => {
+        state.mimirLoading = true
       })
       // poll Tx
       .addCase(midgardActions.pollTx.fulfilled, (state, action) => {

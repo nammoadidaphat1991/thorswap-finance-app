@@ -37,6 +37,16 @@ export interface TxTracker {
   refunded: boolean | null
 }
 
+export type MimirData = {
+  'mimir//CHURNINTERVAL'?: number
+  'mimir//FUNDMIGRATIONINTERVAL'?: number
+  'mimir//MINIMUMBONDINRUNE'?: number
+  'mimir//MINRUNEPOOLDEPTH'?: number
+  'mimir//NEWPOOLCYCLE'?: number
+  'mimir//ROTATEPERBLOCKHEIGHT'?: number
+  'mimir//MAXLIQUIDITYRUNE'?: number
+}
+
 export interface State {
   pools: Pool[]
   poolLoading: boolean
@@ -60,4 +70,6 @@ export interface State {
   txDataLoading: boolean
   txTrackers: TxTracker[]
   txCollapsed: boolean
+  mimirLoading: boolean
+  mimir: MimirData
 }

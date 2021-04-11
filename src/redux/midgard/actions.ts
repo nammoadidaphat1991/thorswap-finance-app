@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { midgardApi } from 'services/midgard'
+import { getThorchainMimir } from 'services/thornode'
 
 import { TxTracker } from './types'
 
@@ -84,5 +85,14 @@ export const pollTx = createAsyncThunk(
       txId,
     })
     return response
+  },
+)
+
+export const getMimir = createAsyncThunk(
+  'thorchain/getThorchainMimir',
+  async () => {
+    const { data } = await getThorchainMimir()
+
+    return data
   },
 )
