@@ -215,7 +215,7 @@ export class EthChain implements IEthChain {
    * @returns approved status
    */
   approve = async ({ spender, sender }: ApproveParams): Promise<TxHash> => {
-    const response = await this.client.approve(spender, sender)
+    const response = await this.client.approve({ spender, sender })
 
     return response.hash
   }

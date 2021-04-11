@@ -101,7 +101,8 @@ export class Liquidity implements ILiquidity {
     const numerator = assetAddAmount.mul(R).sub(T.mul(runeAddAmount))
     const denominator = T.mul(runeAddAmount).add(R.mul(T))
 
-    return new Percent(numerator.div(denominator).assetAmount)
+    // set absolute value of percentage, no negative allowed
+    return new Percent(numerator.div(denominator).assetAmount.absoluteValue())
   }
 
   getWithdrawAmount(percent: Percent): WithdrawAmount {

@@ -519,6 +519,9 @@ export class MultiChain implements IMultiChain {
         chain,
       )
 
+      const assetAddress = this.getWalletAddressByChain(chain) || ''
+      const thorAddress = this.getWalletAddressByChain(THORChain) || ''
+
       // sym stake
       if (
         runeAmount &&
@@ -526,21 +529,18 @@ export class MultiChain implements IMultiChain {
         assetAmount &&
         assetAmount.gt(assetAmount._0_AMOUNT)
       ) {
-        const assetAddress = this.getWalletAddressByChain(chain) || ''
-        const thorAddress = this.getWalletAddressByChain(THORChain) || ''
-
-        // 1. send rune (NOTE: recipient should be empty string)
-        const runeTx = await this.transfer({
-          assetAmount: runeAmount,
-          recipient: THORCHAIN_POOL_ADDRESS,
-          memo: Memo.depositMemo(pool.asset, assetAddress),
-        })
-
-        // 2. send asset
+        // 1. send asset tx
         const assetTx = await this.transfer({
           assetAmount,
           recipient: poolAddress,
           memo: Memo.depositMemo(pool.asset, thorAddress),
+        })
+
+        // 2. send rune tx (NOTE: recipient should be empty string)
+        const runeTx = await this.transfer({
+          assetAmount: runeAmount,
+          recipient: THORCHAIN_POOL_ADDRESS,
+          memo: Memo.depositMemo(pool.asset, assetAddress),
         })
 
         return {
@@ -558,7 +558,7 @@ export class MultiChain implements IMultiChain {
         const assetTx = await this.transfer({
           assetAmount,
           recipient: poolAddress,
-          memo: Memo.depositMemo(pool.asset),
+          memo: Memo.depositMemo(pool.asset, thorAddress),
         })
 
         return {
@@ -567,14 +567,14 @@ export class MultiChain implements IMultiChain {
       }
 
       // asym deposit for rune
-      const assetTx = await this.transfer({
+      const runeTx = await this.transfer({
         assetAmount: runeAmount,
-        recipient: poolAddress,
-        memo: Memo.depositMemo(pool.asset),
+        recipient: THORCHAIN_POOL_ADDRESS,
+        memo: Memo.depositMemo(pool.asset, assetAddress),
       })
 
       return {
-        assetTx,
+        runeTx,
       }
     } catch (error) {
       return Promise.reject(error)
