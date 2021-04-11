@@ -10,7 +10,11 @@ import { ethers } from 'ethers'
 
 import { ETH_DECIMAL } from 'multichain-sdk/constants'
 
-import { ETHERSCAN_API_KEY, INFURA_PROJECT_ID } from '../config'
+import {
+  ETHERSCAN_API_KEY,
+  ETHPLORER_API_KEY,
+  INFURA_PROJECT_ID,
+} from '../config'
 import { erc20ABI } from '../constants/erc20.abi'
 import { ETHAssets } from '../constants/erc20Assets'
 import { TCRopstenAbi } from '../constants/thorchain-ropsten.abi'
@@ -45,6 +49,7 @@ export class EthChain implements IEthChain {
       network,
       phrase,
       etherscanApiKey: ETHERSCAN_API_KEY,
+      ethplorerApiKey: ETHPLORER_API_KEY,
       infuraCreds: { projectId: INFURA_PROJECT_ID },
     })
   }
