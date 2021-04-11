@@ -16,7 +16,7 @@ import {
 } from 'components'
 import { ActionTypeEnum } from 'midgard-sdk'
 import {
-  getWalletAssets,
+  getInputAssets,
   Amount,
   Asset,
   AssetAmount,
@@ -80,10 +80,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
     return assets
   }, [pools])
-  const walletAssets = useMemo(
-    () => (wallet ? getWalletAssets(wallet) : poolAssets),
-    [wallet, poolAssets],
-  )
+
+  const inputAssets = useMemo(() => getInputAssets({ wallet, pools }), [
+    wallet,
+    pools,
+  ])
 
   const [inputAmount, setInputAmount] = useState<Amount>(
     Amount.fromAssetAmount(0, 8),
@@ -434,7 +435,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
       <AssetInputCard
         title="send"
         asset={inputAsset}
-        assets={walletAssets}
+        assets={inputAssets}
         amount={inputAmount}
         balance={inputAssetBalance}
         onChange={handleChangeInputAmount}

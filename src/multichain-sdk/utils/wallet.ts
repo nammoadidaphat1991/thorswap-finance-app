@@ -19,6 +19,34 @@ export const getWalletAssets = (wallet: Wallet | null) => {
   return assets
 }
 
+export const getInputAssets = ({
+  wallet,
+  pools,
+}: {
+  wallet: Wallet | null
+  pools: Pool[]
+}) => {
+  const assets: Asset[] = []
+
+  const poolAssets = pools.map((pool) => pool.asset)
+  poolAssets.push(Asset.RUNE())
+
+  if (!wallet) return poolAssets
+
+  if (pools.length === 0) return []
+
+  Object.keys(wallet).map((chain) => {
+    const chainWallet = wallet[chain as SupportedChain]
+    chainWallet.balance.forEach((data: AssetAmount) => {
+      if (poolAssets.find((poolAsset) => poolAsset.eq(data.asset))) {
+        assets.push(data.asset)
+      }
+    })
+  })
+
+  return assets
+}
+
 export const getWalletAddressByChain = (
   wallet: Wallet,
   chain: Chain,

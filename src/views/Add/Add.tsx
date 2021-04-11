@@ -16,7 +16,7 @@ import {
 } from 'components'
 import { ActionTypeEnum, MemberPool } from 'midgard-sdk'
 import {
-  getWalletAssets,
+  getInputAssets,
   Amount,
   Asset,
   getAssetBalance,
@@ -90,16 +90,11 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   const { submitTransaction, pollTransaction } = useTxTracker()
 
   const poolAsset = useMemo(() => pool.asset, [pool])
-  const poolAssets = useMemo(() => {
-    const assets = pools.map((poolData) => poolData.asset)
-    assets.push(Asset.RUNE())
 
-    return assets
-  }, [pools])
-  const walletAssets = useMemo(
-    () => (wallet ? getWalletAssets(wallet) : poolAssets),
-    [wallet, poolAssets],
-  )
+  const inputAssets = useMemo(() => getInputAssets({ wallet, pools }), [
+    wallet,
+    pools,
+  ])
 
   const [liquidityType, setLiquidityType] = useState(
     LiquidityTypeOption.SYMMETRICAL,
@@ -468,7 +463,7 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       <AssetInputCard
         title="Add"
         asset={poolAsset}
-        assets={walletAssets}
+        assets={inputAssets}
         amount={assetAmount}
         balance={poolAssetBalance}
         onChange={handleChangeAssetAmount}
