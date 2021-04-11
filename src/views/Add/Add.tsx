@@ -200,6 +200,17 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [wallet])
 
+  const handleSelectLiquidityType = useCallback((type: LiquidityTypeOption) => {
+    if (type === LiquidityTypeOption.ASSET) {
+      setRuneAmount(Amount.fromAssetAmount(0, 8))
+    } else if (type === LiquidityTypeOption.RUNE) {
+      setAssetAmount(Amount.fromAssetAmount(0, 8))
+    }
+
+    setLiquidityType(type)
+    setPercent(0)
+  }, [])
+
   const handleSelectPoolAsset = useCallback(
     (poolAssetData: Asset) => {
       history.push(getAddLiquidityRoute(poolAssetData))
@@ -228,22 +239,26 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
     [poolAssetBalance, pool, isSymDeposit],
   )
 
-  const handleChangeAssetPercent = useCallback(
+  const handleChangePercent = useCallback(
     (p: number) => {
       setPercent(p)
-      const newAmount = poolAssetBalance.mul(p).div(100)
-      setAssetAmount(newAmount)
 
-      if (isSymDeposit) {
-        setRuneAmount(newAmount.mul(pool.assetPriceInRune))
+      if (liquidityType === LiquidityTypeOption.ASSET || isSymDeposit) {
+        setAssetAmount(poolAssetBalance.mul(p).div(100))
+      }
+
+      if (liquidityType === LiquidityTypeOption.RUNE || isSymDeposit) {
+        setRuneAmount(
+          poolAssetBalance.mul(p).div(100).mul(pool.assetPriceInRune),
+        )
       }
     },
-    [poolAssetBalance, isSymDeposit, pool],
+    [poolAssetBalance, isSymDeposit, pool, liquidityType],
   )
 
   const handleSelectAssetMax = useCallback(() => {
-    handleChangeAssetPercent(100)
-  }, [handleChangeAssetPercent])
+    handleChangePercent(100)
+  }, [handleChangePercent])
 
   const handleChangeRuneAmount = useCallback(
     (amount: Amount) => {
@@ -255,6 +270,7 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
         }
       } else {
         setRuneAmount(amount)
+        setPercent(amount.div(runeBalance).mul(100).assetAmount.toNumber())
 
         if (isSymDeposit) {
           setAssetAmount(amount.mul(pool.runePriceInAsset))
@@ -445,7 +461,7 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       <LiquidityType
         poolAsset={poolAsset}
         selected={liquidityType}
-        onSelect={setLiquidityType}
+        onSelect={handleSelectLiquidityType}
       />
       <AssetInputCard
         title="Add"
@@ -461,11 +477,7 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       />
       <Styled.ToolContainer>
         <Styled.SliderWrapper>
-          <Slider
-            value={percent}
-            onChange={handleChangeAssetPercent}
-            withLabel
-          />
+          <Slider value={percent} onChange={handleChangePercent} withLabel />
         </Styled.SliderWrapper>
         <Styled.SwitchPair>
           <PlusOutlined />
