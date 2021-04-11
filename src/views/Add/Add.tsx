@@ -31,6 +31,7 @@ import {
 import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
+import { useMimir } from 'hooks/useMimir'
 import useNetworkFee from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
@@ -88,6 +89,8 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   const { wallet } = useWallet()
   const { getMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction } = useTxTracker()
+
+  const { isFundsCapReached } = useMimir()
 
   const poolAsset = useMemo(() => pool.asset, [pool])
 
@@ -375,16 +378,27 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   }, [poolAsset, wallet])
 
   const handleAddLiquidity = useCallback(() => {
-    if (wallet) {
-      setVisibleConfirmModal(true)
-    } else {
+    if (!wallet) {
       Notification({
         type: 'info',
         message: 'Wallet Not Found',
         description: 'Please connect wallet',
       })
+      return
     }
-  }, [wallet])
+
+    if (isFundsCapReached) {
+      Notification({
+        type: 'info',
+        message: 'Funds Cap Reached',
+        description:
+          'You cannot add due to 90% Funds Cap has been reached. Please try again later.',
+      })
+      return
+    }
+
+    setVisibleConfirmModal(true)
+  }, [wallet, isFundsCapReached])
 
   const handleApprove = useCallback(() => {
     if (wallet) {
@@ -450,6 +464,22 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       </Styled.ConfirmModalContent>
     )
   }, [poolAsset, assetAmount, runeAmount, networkFee])
+
+  const isAddLiquidityValid = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
+      return runeAmount.gt(0) && assetAmount.gt(0)
+    }
+
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return assetAmount.gt(0)
+    }
+
+    if (liquidityType === LiquidityTypeOption.RUNE) {
+      return runeAmount.gt(0)
+    }
+
+    return false
+  }, [liquidityType, runeAmount, assetAmount])
 
   const title = useMemo(() => `Add ${poolAsset.ticker} Liquidity`, [poolAsset])
 
@@ -523,7 +553,12 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       )}
       {!wallet && (
         <Styled.ConfirmButtonContainer>
-          <FancyButton onClick={handleAddLiquidity}>Add Liquidity</FancyButton>
+          <FancyButton
+            onClick={handleAddLiquidity}
+            error={!isAddLiquidityValid}
+          >
+            Add Liquidity
+          </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
 

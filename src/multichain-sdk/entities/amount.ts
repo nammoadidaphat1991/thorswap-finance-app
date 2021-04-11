@@ -44,11 +44,11 @@ export interface IAmount {
   times(value: Amount): Amount
   mul(value: BigNumber.Value | Amount): Amount
   div(value: BigNumber.Value | Amount): Amount
-  gte(amount: Amount): boolean
-  gt(amount: Amount): boolean
-  lte(amount: Amount): boolean
-  lt(amount: Amount): boolean
-  eq(amount: Amount): boolean
+  gte(amount: Amount | BigNumber.Value): boolean
+  gt(amount: Amount | BigNumber.Value): boolean
+  lte(amount: Amount | BigNumber.Value): boolean
+  lt(amount: Amount | BigNumber.Value): boolean
+  eq(amount: Amount | BigNumber.Value): boolean
   toSignificant(
     significantDigits?: number,
     format?: BigNumber.Format,
@@ -175,24 +175,44 @@ export class Amount implements IAmount {
     )
   }
 
-  gte(amount: Amount): boolean {
-    return this.assetAmount.isGreaterThanOrEqualTo(amount.assetAmount)
+  gte(amount: Amount | BigNumber.Value): boolean {
+    if (amount instanceof Amount) {
+      return this.assetAmount.isGreaterThanOrEqualTo(amount.assetAmount)
+    }
+
+    return this.assetAmount.isGreaterThanOrEqualTo(amount)
   }
 
-  gt(amount: Amount): boolean {
-    return this.assetAmount.isGreaterThan(amount.assetAmount)
+  gt(amount: Amount | BigNumber.Value): boolean {
+    if (amount instanceof Amount) {
+      return this.assetAmount.isGreaterThan(amount.assetAmount)
+    }
+
+    return this.assetAmount.isGreaterThan(amount)
   }
 
-  lte(amount: Amount): boolean {
-    return this.assetAmount.isLessThanOrEqualTo(amount.assetAmount)
+  lte(amount: Amount | BigNumber.Value): boolean {
+    if (amount instanceof Amount) {
+      return this.assetAmount.isLessThanOrEqualTo(amount.assetAmount)
+    }
+
+    return this.assetAmount.isLessThanOrEqualTo(amount)
   }
 
-  lt(amount: Amount): boolean {
-    return this.assetAmount.isLessThan(amount.assetAmount)
+  lt(amount: Amount | BigNumber.Value): boolean {
+    if (amount instanceof Amount) {
+      return this.assetAmount.isLessThan(amount.assetAmount)
+    }
+
+    return this.assetAmount.isLessThan(amount)
   }
 
-  eq(amount: Amount): boolean {
-    return this.assetAmount.isEqualTo(amount.assetAmount)
+  eq(amount: Amount | BigNumber.Value): boolean {
+    if (amount instanceof Amount) {
+      return this.assetAmount.isEqualTo(amount.assetAmount)
+    }
+
+    return this.assetAmount.isEqualTo(amount)
   }
 
   toSignificant(
