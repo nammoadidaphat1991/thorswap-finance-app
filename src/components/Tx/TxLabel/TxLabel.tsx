@@ -29,7 +29,7 @@ export const TxLabel: React.FC<Props> = (props: Props): JSX.Element => {
   }
 
   if (type === ActionTypeEnum.AddLiquidity) {
-    label = 'add liquidity'
+    label = 'add'
     TxIcon = <DoubleRightOutlined />
   }
 

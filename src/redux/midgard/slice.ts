@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { ActionStatusEnum, ActionTypeEnum } from 'midgard-sdk'
+import moment from 'moment'
 import { Pool } from 'multichain-sdk'
 
 import * as midgardActions from './actions'
@@ -218,6 +219,45 @@ const slice = createSlice({
 
             return tracker
           })
+        }
+      })
+      // poll Upgrade Tx
+      .addCase(midgardActions.pollUpgradeTx.fulfilled, (state, action) => {
+        const { arg: txTracker } = action.meta
+        const { actions } = action.payload
+        const txData = actions?.[0]
+        const {
+          submitTx: { submitDate },
+        } = txTracker
+
+        if (submitDate && txData) {
+          const { date } = txData
+
+          if (
+            moment.unix(Number(date) / 1000000000).isAfter(moment(submitDate))
+          ) {
+            state.txTrackers = state.txTrackers.map((tracker: TxTracker) => {
+              if (tracker.uuid === txTracker.uuid) {
+                const status =
+                  txData.status === ActionStatusEnum.Pending
+                    ? TxTrackerStatus.Pending
+                    : TxTrackerStatus.Success
+
+                const refunded =
+                  status === TxTrackerStatus.Success &&
+                  txData.type === ActionTypeEnum.Refund
+
+                return {
+                  ...tracker,
+                  action: txData,
+                  status,
+                  refunded,
+                }
+              }
+
+              return tracker
+            })
+          }
         }
       })
   },

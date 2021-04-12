@@ -8,9 +8,9 @@ import {
   FancyButton,
   ConfirmModal,
   Information,
-  Notification,
   Label,
 } from 'components'
+import { ActionTypeEnum } from 'midgard-sdk'
 import {
   Amount,
   Asset,
@@ -23,6 +23,7 @@ import {
 import { useWallet } from 'redux/wallet/hooks'
 
 import useNetworkFee from 'hooks/useNetworkFee'
+import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
 
@@ -59,6 +60,8 @@ const UpgradePanel = ({
   runeToUpgrade: Asset[]
   wallet: Wallet
 }) => {
+  const { submitTransaction, pollTransaction } = useTxTracker()
+
   const [selectedAsset, setSelectedAsset] = useState<Asset>(runeToUpgrade[0])
 
   const [upgradeAmount, setUpgradeAmount] = useState<Amount>(
@@ -119,27 +122,55 @@ const UpgradePanel = ({
 
   const handleConfirmUpgrade = useCallback(async () => {
     setVisibleConfirmModal(false)
+    const recipient = multichain.getWalletAddressByChain('THOR')
 
-    if (selectedAsset) {
+    if (selectedAsset && recipient) {
       const runeAmount = new AssetAmount(selectedAsset, upgradeAmount)
+
+      // register to tx tracker
+      const trackId = submitTransaction({
+        type: ActionTypeEnum.Switch,
+        submitTx: {
+          inAssets: [
+            {
+              asset: selectedAsset.toString(),
+              amount: upgradeAmount.toFixed(3),
+            },
+          ],
+          outAssets: [
+            {
+              asset: Asset.RUNE().toString(),
+              amount: upgradeAmount.toFixed(3),
+            },
+          ],
+        },
+      })
 
       const txHash = await multichain.upgrade({ runeAmount })
 
-      const txURL = multichain.getExplorerTxUrl(selectedAsset.chain, txHash)
-
-      Notification({
-        type: 'open',
-        message: 'View Upgrade Tx.',
-        description: 'Transaction submitted successfully!',
-        btn: (
-          <a href={txURL} target="_blank" rel="noopener noreferrer">
-            View Transaction
-          </a>
-        ),
-        duration: 20,
+      // start polling
+      pollTransaction({
+        uuid: trackId,
+        submitTx: {
+          inAssets: [
+            {
+              asset: selectedAsset.toString(),
+              amount: upgradeAmount.toFixed(3),
+            },
+          ],
+          outAssets: [
+            {
+              asset: Asset.RUNE().toString(),
+              amount: upgradeAmount.toFixed(3),
+            },
+          ],
+          txID: txHash,
+          submitDate: new Date(),
+          recipient,
+        },
       })
     }
-  }, [selectedAsset, upgradeAmount])
+  }, [selectedAsset, upgradeAmount, submitTransaction, pollTransaction])
 
   const handleCancelUpgrade = useCallback(() => {
     setVisibleConfirmModal(false)

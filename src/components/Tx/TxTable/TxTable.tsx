@@ -32,11 +32,21 @@ import {
 type Column = 'address' | 'date' | 'type' | 'in' | 'out'
 
 const tags: Record<ActionTypeEnum, string> = {
+  switch: '#7a2df5',
   swap: '#2db7f5',
-  addLiquidity: '#87d068',
+  addLiquidity: '#4346ff',
   withdraw: '#f50',
   donate: '#2db7f5',
   refund: '#f50',
+}
+
+const tagNames: Record<ActionTypeEnum, string> = {
+  switch: 'Upgrade',
+  swap: 'Swap',
+  addLiquidity: 'Add Liquidity',
+  withdraw: 'Withdraw',
+  donate: 'Donate',
+  refund: 'Refund',
 }
 
 type Props = {
@@ -137,7 +147,9 @@ export const TxTable: React.FC<Props> = React.memo(
         },
         type: (_, row) => {
           return (
-            <Tag color={tags[row?.type ?? ActionTypeEnum.Swap]}>{row.type}</Tag>
+            <Tag color={tags[row?.type ?? ActionTypeEnum.Swap]}>
+              {tagNames?.[row?.type] ?? 'tx'}
+            </Tag>
           )
         },
         in: (_, row) => renderTxAssets(row.in),

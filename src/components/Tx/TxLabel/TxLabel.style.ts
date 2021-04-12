@@ -21,6 +21,7 @@ export const TxLabelWrapper = styled.div`
   `}
   p {
     margin-right: 10px;
+    margin-bottom: 0;
     ${media.sm`
       width: 100px;
       text-align: right;

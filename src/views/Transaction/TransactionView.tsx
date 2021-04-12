@@ -213,10 +213,10 @@ const Transaction: React.FC = (): JSX.Element => {
         width: 200,
         render: (text: string, rowData: Action) => {
           return (
-            <Label>
+            <Label align="center">
               {moment
                 .unix(Number(rowData?.date ?? 0) / 1000000000)
-                .format('YY-MM-DD')}
+                .format('YYYY-MM-DD hh:mm:ss')}
             </Label>
           )
         },

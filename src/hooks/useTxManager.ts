@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 
+import { ActionTypeEnum } from 'midgard-sdk'
+
 import { useMidgard } from 'redux/midgard/hooks'
 import { TxTracker, TxTrackerStatus } from 'redux/midgard/types'
 
@@ -18,6 +20,7 @@ const POLL_TX_INTERVAL = 5000 // poll tx from midgard every 5s
 export const useTxManager = () => {
   const {
     pollTx,
+    pollUpgradeTx,
     txTrackers,
     txCollapsed,
     setTxCollapsed,
@@ -32,7 +35,13 @@ export const useTxManager = () => {
 
   useInterval(
     () => {
-      pendingTransactions.forEach((tracker: TxTracker) => pollTx(tracker))
+      pendingTransactions.forEach((tracker: TxTracker) => {
+        if (tracker.type === ActionTypeEnum.Switch) {
+          pollUpgradeTx(tracker)
+        } else {
+          pollTx(tracker)
+        }
+      })
     },
     pendingTransactions.length ? POLL_TX_INTERVAL : null,
   )

@@ -235,6 +235,59 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
       )
     }
 
+    if (type === ActionTypeEnum.Switch) {
+      const { inAssets, outAssets } = submitTx
+      const { asset: sendAsset, amount: sendAmount } = inAssets[0]
+      const { amount: receiveAmount } = outAssets[0]
+
+      return (
+        <>
+          <Styled.TxInformation>
+            <ProgressIcon
+              status={
+                status === TxTrackerStatus.Submitting ? 'pending' : 'success'
+              }
+            />
+            <Label color="primary">
+              Send {sendAmount} {Asset.fromAssetString(sendAsset)?.chain}{' '}
+              {Asset.fromAssetString(sendAsset)?.ticker}
+            </Label>
+            {status !== TxTrackerStatus.Submitting && (
+              <Styled.ExternalLinkWrapper
+                link={getSwapInTxUrl(txTracker)}
+                color="primary"
+              >
+                <ExternalLink />
+              </Styled.ExternalLinkWrapper>
+            )}
+          </Styled.TxInformation>
+          {status !== TxTrackerStatus.Submitting && (
+            <Styled.TxInformation border>
+              <ProgressIcon
+                status={
+                  status === TxTrackerStatus.Success ? 'success' : 'pending'
+                }
+              />
+              <Label color="primary">
+                {status === TxTrackerStatus.Pending &&
+                  `Receive ${receiveAmount} Native RUNE`}
+                {status === TxTrackerStatus.Success &&
+                  `Received ${receiveAmount} Native RUNE`}
+              </Label>
+              {status === TxTrackerStatus.Success && (
+                <Styled.ExternalLinkWrapper
+                  link={getSwapOutTxUrl(txTracker)}
+                  color="primary"
+                >
+                  <ExternalLink />
+                </Styled.ExternalLinkWrapper>
+              )}
+            </Styled.TxInformation>
+          )}
+        </>
+      )
+    }
+
     return null
   }, [txTracker, outTxData])
 

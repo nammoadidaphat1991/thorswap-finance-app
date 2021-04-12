@@ -26,6 +26,8 @@ export interface SubmitTx {
   inAssets: Coin[]
   outAssets: Coin[]
   txID?: string
+  submitDate?: Date
+  recipient?: string
 }
 
 export interface TxTracker {

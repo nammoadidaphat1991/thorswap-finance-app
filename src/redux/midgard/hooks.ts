@@ -116,6 +116,13 @@ export const useMidgard = () => {
     [dispatch],
   )
 
+  const pollUpgradeTx = useCallback(
+    (txTracker: TxTracker) => {
+      dispatch(actions.pollUpgradeTx(txTracker))
+    },
+    [dispatch],
+  )
+
   const clearTxTrackers = useCallback(() => {
     dispatch(sliceActions.clearTxTrackers())
   }, [dispatch])
@@ -140,5 +147,6 @@ export const useMidgard = () => {
     clearTxTrackers,
     setTxCollapsed,
     pollTx,
+    pollUpgradeTx,
   }
 }

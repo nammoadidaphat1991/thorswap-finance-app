@@ -32,6 +32,7 @@ export type ActionType =
   | 'withdraw'
   | 'donate'
   | 'refund'
+  | 'switch'
 
 export type ActionListParams = {
   address?: string

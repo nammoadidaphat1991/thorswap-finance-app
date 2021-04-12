@@ -29,6 +29,7 @@ export const DesktopButton = styled(Button)`
   display: none !important;
   ${media.sm`
     display: flex !important;
+    width: 150px !important;
   `}
 `
 

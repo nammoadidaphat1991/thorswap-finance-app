@@ -76,6 +76,17 @@ export const getTxTitle = (txTracker: TxTracker): string => {
     }
   }
 
+  if (type === ActionTypeEnum.Switch) {
+    const { inAssets } = submitTx
+    const { asset: sendAsset, amount: sendAmount } = inAssets[0]
+
+    const info = `Upgrade ${sendAmount} ${
+      Asset.fromAssetString(sendAsset)?.chain
+    } ${Asset.fromAssetString(sendAsset)?.ticker} for Native RUNE`
+
+    return info
+  }
+
   return 'Transaction'
 }
 

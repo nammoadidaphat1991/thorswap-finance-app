@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import { ActionTypeEnum } from 'midgard-sdk'
 
 import { midgardApi } from 'services/midgard'
 import { getThorchainMimir } from 'services/thornode'
@@ -68,6 +69,27 @@ export const getDepthHistory = createAsyncThunk(
 export const getMemberDetail = createAsyncThunk(
   'midgard/getMemberDetail',
   midgardApi.getMemberDetail,
+)
+
+export const pollUpgradeTx = createAsyncThunk(
+  'midgard/pollUpgradeTx',
+  async (txTracker: TxTracker) => {
+    const {
+      submitTx: { recipient },
+    } = txTracker
+
+    if (recipient) {
+      const response = await midgardApi.getActions({
+        limit: 1,
+        offset: 0,
+        address: recipient,
+        type: ActionTypeEnum.Switch,
+      })
+      return response
+    }
+
+    throw Error('no recipient')
+  },
 )
 
 export const pollTx = createAsyncThunk(
