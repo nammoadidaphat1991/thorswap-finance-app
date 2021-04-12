@@ -30,6 +30,7 @@ export const useMimir = () => {
   }, [totalPooledRune, maxLiquidityRune])
 
   return {
+    maxLiquidityRune,
     isFundsCapReached,
   }
 }

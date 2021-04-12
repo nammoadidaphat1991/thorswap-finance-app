@@ -17,7 +17,7 @@ export const TxInfo: React.FC<Props> = (props: Props): JSX.Element => {
 
   // swap tx
   const slipValueLabel = new Percent(
-    Number(metadata?.swap?.tradeSlip ?? 0) / 100,
+    Number(metadata?.swap?.swapSlip ?? 0) / 100,
     AmountType.BASE_AMOUNT,
   ).toFixed(3)
 

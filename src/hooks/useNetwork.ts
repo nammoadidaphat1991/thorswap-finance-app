@@ -2,6 +2,8 @@ import { Amount } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
 
+import { useMimir } from './useMimir'
+
 export enum QueueLevel {
   GOOD = 'GOOD', // queue < 10
   SLOW = 'SLOW', // 10 < queue < 30
@@ -13,6 +15,7 @@ const QUEUE_SLOW_LEVEL = 10
 
 const useNetwork = () => {
   const { networkData, queue } = useMidgard()
+  const { isFundsCapReached, maxLiquidityRune } = useMimir()
 
   const outboundQueue = Number(queue?.outbound ?? 0)
 
@@ -43,24 +46,19 @@ const useNetwork = () => {
   }
   const statusColor: StatusColor = statusColors[outboundQueueLevel]
 
-  const maxPooledRuneAmount: Amount | null = null
-
   const totalPooledRune: Amount = Amount.fromMidgard(
     networkData?.totalPooledRune ?? 0,
   )
 
-  const globalRunePooledStatus = `TOTAL ${totalPooledRune.toFixed(
-    0,
-  )} RUNE POOLED`
-
-  // totalStake / maxStake < 95% OR maxStakeRuneAmount is 0
-  const isValidFundCaps: boolean =
-    !maxPooledRuneAmount ||
-    totalPooledRune.div(maxPooledRuneAmount).assetAmount.isLessThan(0.95)
+  const globalRunePooledStatus = maxLiquidityRune.gt(0)
+    ? `TOTAL ${totalPooledRune.toFixed(0)} / ${maxLiquidityRune.toFixed(
+        0,
+      )} RUNE POOLED`
+    : `TOTAL ${totalPooledRune.toFixed(0)} RUNE POOLED`
 
   return {
     globalRunePooledStatus,
-    isValidFundCaps,
+    isValidFundCaps: isFundsCapReached,
     QueueLevel,
     outboundQueueLevel,
     isOutboundDelayed,
