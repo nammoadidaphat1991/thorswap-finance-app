@@ -21,6 +21,10 @@ export const getAssetIconUrl = (asset: Asset): string => {
     return 'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg'
   }
 
+  if (asset.ticker === 'SUSHI') {
+    return 'https://assets.coingecko.com/coins/images/12271/thumb/512x512_Logo_no_chop.png'
+  }
+
   const logoSymbol = assetIconMap[asset.ticker]
 
   if (logoSymbol) {

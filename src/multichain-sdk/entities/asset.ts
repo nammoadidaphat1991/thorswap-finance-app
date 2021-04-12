@@ -156,7 +156,7 @@ export class Asset implements IAsset {
     this.chain = chain
     this.symbol = symbol
     this.ticker = Asset.getTicker(symbol)
-    this.type = getChainName(chain)
+    this.type = getChainName(chain, this.ticker)
 
     this.decimal = Asset.getDecimalByChain(chain)
   }

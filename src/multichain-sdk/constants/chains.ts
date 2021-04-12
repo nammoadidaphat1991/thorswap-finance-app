@@ -8,7 +8,7 @@ import {
   THORChain,
 } from '@xchainjs/xchain-util'
 
-export const getChainName = (chain: Chain): string => {
+export const getChainName = (chain: Chain, ticker: string): string => {
   if (
     chain === BTCChain ||
     chain === LTCChain ||
@@ -23,6 +23,8 @@ export const getChainName = (chain: Chain): string => {
   }
 
   if (chain === ETHChain) {
+    if (ticker === 'ETH') return 'Native'
+
     return 'ERC20'
   }
 
