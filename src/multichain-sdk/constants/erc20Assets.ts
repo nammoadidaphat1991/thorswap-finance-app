@@ -1,8 +1,9 @@
 import { AssetETH, Asset } from '@xchainjs/xchain-util'
 
+// toxic tether https://ropsten.etherscan.io/token/0xa3910454bf2cb59b8b3a401589a3bacc5ca42306
 export const AssetUSDTERC20: Asset = {
   chain: 'ETH',
-  symbol: 'USDT-0x62e273709da575835c7f6aef4a31140ca5b1d190',
+  symbol: 'USDT-0xa3910454bf2cb59b8b3a401589a3bacc5ca42306',
   ticker: 'USDT',
 }
 
