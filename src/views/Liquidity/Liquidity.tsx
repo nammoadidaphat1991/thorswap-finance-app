@@ -27,7 +27,7 @@ const LiquidityView = () => {
         <>
           <Styled.ToolContainer>
             <Link to={getAddLiquidityRoute(Asset.BTC())}>
-              <FancyButton>Add Liquidity</FancyButton>
+              <FancyButton>Add</FancyButton>
             </Link>
           </Styled.ToolContainer>
           {memberDetails.pools.map((memberPool: MemberPool, index: number) => (

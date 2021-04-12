@@ -1,8 +1,8 @@
-import getMidgardBaseUrl from '@thorchain/asgardex-midgard'
+// import getMidgardBaseUrl from '@thorchain/asgardex-midgard'
 
 import { DefaultApi } from './api'
 import { Configuration } from './api/configuration'
-import { MIDGARD_TESTNET_URL } from './config'
+import { MIDGARD_TESTNET_URL, MIDGARD_CHAOSNET_URL } from './config'
 import {
   NetworkType,
   Health,
@@ -82,19 +82,24 @@ class MidgardV2 implements MidgardSDKV2 {
   /**
    * set midgard base url
    */
-  private setBaseUrl = async (noCache = false) => {
+  private setBaseUrl = async () => {
     if (this.network === 'testnet') {
       this.baseUrl = MIDGARD_TESTNET_URL
     } else {
-      this.baseUrl = await getMidgardBaseUrl(this.network, noCache)
+      this.baseUrl = MIDGARD_CHAOSNET_URL
     }
+
+    // set BFT url in the mainnet
+    // else {
+    //   this.baseUrl = await getMidgardBaseUrl(this.network, noCache)
+    // }
   }
 
   /**
    * get midgard base url
    */
-  getMidgard = async (noCache = false): Promise<DefaultApi> => {
-    await this.setBaseUrl(noCache)
+  getMidgard = async (): Promise<DefaultApi> => {
+    await this.setBaseUrl()
 
     const apiConfig = new Configuration({ basePath: this.baseUrl })
     return new DefaultApi(apiConfig)
@@ -357,7 +362,7 @@ class MidgardV2 implements MidgardSDKV2 {
     } catch (error) {
       // try again
       try {
-        const midgard = await this.getMidgard(true)
+        const midgard = await this.getMidgard()
         const { data } = await midgard.getProxiedInboundAddresses()
         return data
       } catch (err) {

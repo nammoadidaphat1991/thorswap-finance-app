@@ -201,12 +201,17 @@ const Home = () => {
   )
 
   const filteredPools = useMemo(() => {
-    if (!keyword) return pools
-
-    return pools.filter((pool) =>
-      pool.asset.toString().toLowerCase().includes(keyword),
+    const poolsByStatus = pools.filter(
+      (pool) => pool.detail.status === selectedPoolStatus,
     )
-  }, [pools, keyword])
+    if (keyword) {
+      return poolsByStatus.filter((pool) =>
+        pool.asset.toString().toLowerCase().includes(keyword),
+      )
+    }
+
+    return poolsByStatus
+  }, [pools, keyword, selectedPoolStatus])
 
   const renderPoolview = useMemo(
     () => (

@@ -75,6 +75,12 @@ const routes: Routes = [
     component: lazy(() => import('views/Withdraw')),
     background: false,
   },
+  // {
+  //   exact: true,
+  //   path: `${CREATE_LIQUIDITY_ROUTE}/:asset`,
+  //   component: lazy(() => import('views/Create')),
+  //   background: false,
+  // },
   {
     exact: true,
     path: TX_ROUTE,

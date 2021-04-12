@@ -11,3 +11,6 @@ export type Config = {
 export const config: Config = {
   network: safeEnv('testnet', process.env.REACT_APP_NETWORK) as Network,
 }
+
+export const IS_TESTNET =
+  safeEnv('testnet', process.env.REACT_APP_NETWORK) === 'testnet'

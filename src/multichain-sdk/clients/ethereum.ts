@@ -69,7 +69,7 @@ export class EthChain implements IEthChain {
     try {
       let balances: Balance[] = await this.client.getBalance(
         this.client.getAddress(),
-        ETHAssets,
+        this.client.getNetwork() === 'testnet' ? ETHAssets : undefined,
       )
 
       balances = balances.filter((balance: Balance) => balance.amount.gt(0))
