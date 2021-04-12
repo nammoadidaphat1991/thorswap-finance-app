@@ -92,7 +92,8 @@ export enum ActionTypeEnum {
     AddLiquidity = 'addLiquidity',
     Withdraw = 'withdraw',
     Donate = 'donate',
-    Refund = 'refund'
+    Refund = 'refund',
+    Switch = 'switch'
 }
 
 /**
