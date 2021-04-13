@@ -1,0 +1,1 @@
+export { PhraseModal } from './PhraseModal'

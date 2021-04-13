@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 
-import { SyncOutlined } from '@ant-design/icons'
+import { SyncOutlined, EyeOutlined } from '@ant-design/icons'
 import { SupportedChain, Asset } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
@@ -11,6 +11,7 @@ import { useWallet } from 'redux/wallet/hooks'
 import { getSendRoute } from 'settings/constants'
 
 import { BalanceView } from '../BalanceView'
+import { PhraseModal } from '../Modals'
 import { CoreButton } from '../UIElements/CoreButton'
 import { Label } from '../UIElements/Label'
 import { Drawer } from './WalletDrawer.style'
@@ -23,6 +24,8 @@ export type WalletDrawerProps = {
 
 export const WalletDrawer = (props: WalletDrawerProps) => {
   const { visible, onClose = () => {} } = props
+
+  const [showPhraseModal, setShowPhraseModal] = useState(false)
 
   const history = useHistory()
   const dispatch = useDispatch()
@@ -59,16 +62,20 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
       visible={visible}
       onClose={onClose}
       placement="right"
+      maskStyle={{ opacity: 0, zIndex: 0 }}
       closable={false}
       width={350}
     >
       <Styled.ActionHeader>
         <Styled.Refresh onClick={handleRefresh}>
-          <Label size="big" color="primary">
-            Refresh
-          </Label>
           <SyncOutlined spin={walletLoading} />
         </Styled.Refresh>
+        <CoreButton onClick={() => setShowPhraseModal(true)}>
+          <EyeOutlined />
+          <Label size="big" color="primary">
+            Phrase
+          </Label>
+        </CoreButton>
         <CoreButton onClick={disconnectWallet}>
           <Label size="big" color="warning">
             Disconnect
@@ -83,6 +90,12 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
           chainWalletLoading={chainWalletLoading}
           onReloadChain={handleReloadChain}
           onSendAsset={handleSendAsset}
+        />
+      )}
+      {wallet && (
+        <PhraseModal
+          visible={showPhraseModal}
+          onCancel={() => setShowPhraseModal(false)}
         />
       )}
     </Drawer>

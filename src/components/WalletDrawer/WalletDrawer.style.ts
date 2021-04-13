@@ -19,6 +19,11 @@ export const ActionHeader = styled.div`
 
   button {
     margin-right: 4px;
+
+    svg {
+      color: ${palette('primary', 0)};
+      margin-right: 4px;
+    }
   }
 `
 

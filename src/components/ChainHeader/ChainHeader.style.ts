@@ -36,15 +36,15 @@ export const InfoLabel = styled(Label)``
 export const Address = styled.div`
   display: flex;
   align-items: center;
+
+  button {
+    margin-left: 0;
+  }
 `
 
 export const AddressLabel = styled(Label)`
   margin-right: 4px;
   cursor: pointer;
-
-  &:hover {
-    background: ${palette('gray', 1)};
-  }
 `
 
 export const Tools = styled.div`

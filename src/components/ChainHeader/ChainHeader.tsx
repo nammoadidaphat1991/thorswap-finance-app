@@ -1,13 +1,14 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { ExternalLink } from 'react-feather'
 
-import { CopyOutlined, SyncOutlined } from '@ant-design/icons'
+import { CopyOutlined, SyncOutlined, QrcodeOutlined } from '@ant-design/icons'
 import { chainToString, Chain } from '@xchainjs/xchain-util'
 import copy from 'copy-to-clipboard'
 
 import { multichain } from 'services/multichain'
 
+import { QRCodeModal } from '../Modals'
 import { CoreButton, Tooltip } from '../UIElements'
 import * as Styled from './ChainHeader.style'
 
@@ -19,8 +20,15 @@ export type ChainHeaderProps = {
   walletLoading?: boolean
 }
 
+type QrCodeData = {
+  chain: string
+  address: string
+}
+
 export const ChainHeader = (props: ChainHeaderProps) => {
   const { chain, address, onReload, walletLoading = false } = props
+
+  const [qrCode, setQrcode] = useState<QrCodeData>()
 
   const miniAddress = useMemo(
     () => `${address.slice(0, 3)}...${address.slice(-3)}`,
@@ -35,6 +43,16 @@ export const ChainHeader = (props: ChainHeaderProps) => {
   const handleCopyAddress = useCallback(() => {
     copy(address)
   }, [address])
+
+  const handleViewQRCode = useCallback(
+    (text: string) => {
+      setQrcode({
+        chain: chainToString(chain),
+        address: text,
+      })
+    },
+    [chain],
+  )
 
   return (
     <Styled.Container>
@@ -55,10 +73,21 @@ export const ChainHeader = (props: ChainHeaderProps) => {
       </Styled.ChainInfo>
       <Styled.Address onClick={handleCopyAddress}>
         <Tooltip placement="top" tooltip="Copy">
-          <Styled.AddressLabel weight="bold">{miniAddress}</Styled.AddressLabel>
+          <CoreButton onClick={handleCopyAddress}>
+            <Styled.AddressLabel weight="bold">
+              {miniAddress}
+            </Styled.AddressLabel>
+          </CoreButton>
         </Tooltip>
         <Tooltip placement="top" tooltip="Copy">
-          <CopyOutlined />
+          <CoreButton onClick={handleCopyAddress}>
+            <CopyOutlined />
+          </CoreButton>
+        </Tooltip>
+        <Tooltip placement="top" tooltip="QRCode">
+          <CoreButton onClick={() => handleViewQRCode(address)}>
+            <QrcodeOutlined />
+          </CoreButton>
         </Tooltip>
       </Styled.Address>
       <Styled.Tools>
@@ -70,6 +99,12 @@ export const ChainHeader = (props: ChainHeaderProps) => {
           </a>
         </Tooltip>
       </Styled.Tools>
+      <QRCodeModal
+        visible={!!qrCode}
+        chain={qrCode?.chain ?? ''}
+        text={qrCode?.address ?? ''}
+        onCancel={() => setQrcode(undefined)}
+      />
     </Styled.Container>
   )
 }

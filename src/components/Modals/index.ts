@@ -1,3 +1,5 @@
 export * from './ConfirmModal'
 export * from './VerifyModal'
 export * from './SlipVerifyModal'
+export * from './QRCodeModal'
+export * from './PhraseModal'
