@@ -88,12 +88,14 @@ const Home = () => {
 
         return (
           <Styled.ActionContainer>
-            <Link to={swapRouter} onClick={(e) => e.stopPropagation()}>
-              <Button round style={{ marginRight: '8px' }}>
-                <SwapOutlined />
-                SWAP
-              </Button>
-            </Link>
+            {pool.detail.status === 'available' && (
+              <Link to={swapRouter} onClick={(e) => e.stopPropagation()}>
+                <Button round style={{ marginRight: '8px' }}>
+                  <SwapOutlined />
+                  SWAP
+                </Button>
+              </Link>
+            )}
             <Link to={liquidityRouter} onClick={(e) => e.stopPropagation()}>
               <Button round>Liquidity</Button>
             </Link>

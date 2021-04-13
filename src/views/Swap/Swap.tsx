@@ -70,10 +70,14 @@ const SwapView = () => {
 const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const history = useHistory()
   const { wallet } = useWallet()
-  const { pools, poolLoading } = useMidgard()
+  const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction } = useTxTracker()
 
+  const pools = useMemo(
+    () => allPools.filter((data) => data.detail.status === 'available'),
+    [allPools],
+  )
   const poolAssets = useMemo(() => {
     const assets = pools.map((pool) => pool.asset)
     assets.push(Asset.RUNE())

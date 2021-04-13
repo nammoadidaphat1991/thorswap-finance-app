@@ -43,12 +43,14 @@ const PoolDetailView = ({ pool }: { pool: Pool }) => {
           <AssetData asset={pool.asset} />
         </Styled.PoolInfo>
         <Styled.PoolAction>
-          <Link to={swapRouter}>
-            <Button round style={{ marginRight: '8px' }}>
-              <SwapOutlined />
-              SWAP
-            </Button>
-          </Link>
+          {pool.detail.status === 'available' && (
+            <Link to={swapRouter}>
+              <Button round style={{ marginRight: '8px' }}>
+                <SwapOutlined />
+                SWAP
+              </Button>
+            </Link>
+          )}
           <Link to={liquidityRouter}>
             <Button round>Liquidity</Button>
           </Link>
