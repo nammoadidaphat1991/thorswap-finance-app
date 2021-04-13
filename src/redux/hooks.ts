@@ -13,7 +13,7 @@ import { useApp } from './app/hooks'
  */
 export const useGlobalState = () => {
   const dispatch = useDispatch()
-  const { actions, pools } = useMidgard()
+  const { actions, pools, getTxData } = useMidgard()
   const { baseCurrency } = useApp()
 
   const loadInitialData = useCallback(() => {
@@ -22,7 +22,10 @@ export const useGlobalState = () => {
     dispatch(actions.getNetworkData())
     dispatch(actions.getMimir())
     dispatch(actions.getQueue())
-  }, [dispatch, actions])
+    getTxData({
+      offset: 0,
+    })
+  }, [dispatch, actions, getTxData])
 
   const refreshPage = useCallback(() => {
     loadInitialData()
