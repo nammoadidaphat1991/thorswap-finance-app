@@ -316,7 +316,10 @@ export class MultiChain implements IMultiChain {
 
   getExplorerAddressUrl = (chain: Chain, address: string): string => {
     if (chain === THORChain) {
-      return `https://viewblock.io/thorchain/address/${address}`
+      if (this.network === 'mainnet') {
+        return `https://viewblock.io/thorchain/address/${address}`
+      }
+      return `https://viewblock.io/thorchain/address/${address}?network=testnet`
     }
 
     const chainClient = this.getChainClient(chain)
