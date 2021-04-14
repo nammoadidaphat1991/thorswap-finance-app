@@ -8,9 +8,8 @@ import Icon, {
 } from '@ant-design/icons'
 import { ExternalButtonLink, ButtonLink } from 'components'
 
-import { TelegramIcon } from 'components/Icons'
-import { Logo } from 'components/Logo'
-
+import { TelegramIcon } from '../Icons'
+import { Logo } from '../Logo'
 import { StyledFooter, FooterContainer, FooterItem } from './Footer.style'
 
 export const Footer: React.FC = (): JSX.Element => {

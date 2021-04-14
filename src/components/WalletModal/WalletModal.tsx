@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react'
 
 import { Keystore as KeystoreType } from '@xchainjs/xchain-crypto'
-import { Overlay } from 'components'
 
 import { useWallet } from 'redux/wallet/hooks'
 
+import { Overlay } from '../UIElements'
 import ConnectKeystoreView from './ConnectKeystore'
 import CreateKeystoreView from './CreateKeystore'
 import * as Styled from './WalletModal.style'
