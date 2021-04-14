@@ -565,7 +565,7 @@ export class MultiChain implements IMultiChain {
         const assetTx = await this.transfer({
           assetAmount,
           recipient: poolAddress,
-          memo: Memo.depositMemo(pool.asset, thorAddress),
+          memo: Memo.depositMemo(pool.asset),
         })
 
         return {
@@ -577,7 +577,7 @@ export class MultiChain implements IMultiChain {
       const runeTx = await this.transfer({
         assetAmount: runeAmount,
         recipient: THORCHAIN_POOL_ADDRESS,
-        memo: Memo.depositMemo(pool.asset, assetAddress),
+        memo: Memo.depositMemo(pool.asset),
       })
 
       return {

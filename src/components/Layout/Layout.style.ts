@@ -10,6 +10,7 @@ const { Content } = AntLayout
 export const LayoutWrapper = styled.div``
 
 export const ContentWrapper = styled(Content)<{ transparent: boolean }>`
+  position: relative;
   display: flex;
   flex-direction: column;
 

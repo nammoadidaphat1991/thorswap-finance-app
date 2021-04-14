@@ -12,7 +12,7 @@ import { multichain } from 'services/multichain'
 import { Overlay, Input } from '../../UIElements'
 import * as Styled from './ConfirmModal.style'
 
-const MODAL_DISMISS_TIME = 25 * 1000 // 25s
+const MODAL_DISMISS_TIME = 60 * 1000 // 60s
 
 export type ConfirmModalProps = {
   visible: boolean
@@ -32,7 +32,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
   const [invalidPassword, setInvalidPassword] = useState(false)
   const [validating, setValidating] = useState(false)
 
-  // dismiss modal after 25s
+  // dismiss modal after 60s
   useTimeout(() => {
     handleCancel()
   }, MODAL_DISMISS_TIME)

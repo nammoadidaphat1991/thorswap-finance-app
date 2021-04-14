@@ -82,7 +82,7 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
   return (
     <Styled.Container>
       <Helmet title="Create Wallet" content="Create Wallet" />
-      <Form onFinish={handleCreate}>
+      <Form>
         <Styled.Content>
           <Styled.PasswordInput>
             <Styled.PasswordLabel>
@@ -127,7 +127,6 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
         <Styled.Footer>
           <Styled.FooterContent>
             <Button
-              htmlType="submit"
               onClick={handleCreate}
               disabled={!ready}
               round

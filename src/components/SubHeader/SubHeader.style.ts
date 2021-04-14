@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 
 export const Container = styled.div`
   position: absolute;
-  top: 70px;
+  top: 0px;
   left: 20px;
   display: flex;
   flex-direction: row;

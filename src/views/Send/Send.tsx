@@ -277,10 +277,14 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     )
   }, [networkFee, sendAsset, recipientAddress])
 
+  const title = useMemo(() => `${sendAsset.chain} ${sendAsset.ticker}`, [
+    sendAsset,
+  ])
+
   return (
     <Styled.Container>
-      <Helmet title={`Send ${asset}`} content={`Send ${asset}`} />
-      <ContentTitle>Send {asset}</ContentTitle>
+      <Helmet title={`Send ${title}`} content={`Send ${title}`} />
+      <ContentTitle>Send {title}</ContentTitle>
       <Styled.ContentPanel>
         <AssetInputCard
           title="send"

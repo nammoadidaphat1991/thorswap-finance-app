@@ -25,6 +25,26 @@ export const getAssetIconUrl = (asset: Asset): string => {
     return 'https://assets.coingecko.com/coins/images/12271/thumb/512x512_Logo_no_chop.png'
   }
 
+  if (asset.ticker === 'AAVE') {
+    return 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png'
+  }
+
+  if (asset.ticker === 'YFI') {
+    return 'https://assets.coingecko.com/coins/images/11849/thumb/yfi-192x192.png'
+  }
+
+  if (asset.ticker === 'ALPHA') {
+    return 'https://etherscan.io/token/images/alpha_32.png'
+  }
+
+  if (asset.ticker === 'SNX') {
+    return 'https://etherscan.io/token/images/snx_32.png'
+  }
+
+  if (asset.ticker === 'PERP') {
+    return 'https://etherscan.io/token/images/perpetual_32.png'
+  }
+
   const logoSymbol = assetIconMap[asset.ticker]
 
   if (logoSymbol) {

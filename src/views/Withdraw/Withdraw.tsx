@@ -149,11 +149,11 @@ const WithdrawPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
       const outAssets = [
         {
           asset: Asset.RUNE().toString(),
-          amount: runeAmount.toFixed(3),
+          amount: runeAmount.toFixed(4),
         },
         {
           asset: pool.asset.toString(),
-          amount: assetAmount.toFixed(3),
+          amount: assetAmount.toFixed(4),
         },
       ]
 

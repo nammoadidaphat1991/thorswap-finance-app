@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useHistory } from 'react-router'
 
+import { Alert } from 'antd'
 import { getRuneToUpgrade } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
@@ -60,6 +61,12 @@ export const Layout = (props: Props) => {
 
   return (
     <Styled.LayoutWrapper>
+      <Alert
+        message="MCCN is still in BETA, Take your own Risk! Back up your seed phrase, keystore, and password seriously. Please do not play with large funds."
+        type="warning"
+        showIcon
+        closable
+      />
       <Header />
       <Styled.ContentWrapper transparent={transparent}>
         {isTxPage && oldRune && (
