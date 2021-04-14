@@ -9,8 +9,9 @@ import {
 } from '@ant-design/icons'
 import { decryptFromKeystore, Keystore } from '@xchainjs/xchain-crypto'
 import { Form, Tooltip } from 'antd'
-import { Helmet, Button, Input, Label } from 'components'
 
+import { Helmet } from '../../Helmet'
+import { Button, Input, Label } from '../../UIElements'
 import * as Styled from './Keystore.style'
 
 type Props = {

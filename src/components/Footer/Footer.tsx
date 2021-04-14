@@ -6,9 +6,9 @@ import Icon, {
   MediumOutlined,
   GithubOutlined,
 } from '@ant-design/icons'
-import { ExternalButtonLink, ButtonLink } from 'components'
 
 import { TelegramIcon } from '../Icons'
+import { ExternalButtonLink, ButtonLink } from '../Link'
 import { Logo } from '../Logo'
 import { StyledFooter, FooterContainer, FooterItem } from './Footer.style'
 

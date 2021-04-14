@@ -8,10 +8,11 @@ import {
   Keystore,
 } from '@xchainjs/xchain-crypto'
 import { Form, Tooltip } from 'antd'
-import { Helmet, Button, Input, Label } from 'components'
 
 import { downloadAsFile } from 'helpers/download'
 
+import { Helmet } from '../../Helmet'
+import { Button, Input, Label } from '../../UIElements'
 import * as Styled from './Keystore.style'
 
 type Props = {

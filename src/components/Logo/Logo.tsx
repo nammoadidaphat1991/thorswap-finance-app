@@ -7,8 +7,7 @@ import {
   ThorswapWhiteIcon,
   ThorChainIcon,
   ThorswapMiniIcon,
-} from 'components/Icons'
-
+} from '../Icons'
 import { LogoWrapper } from './Logo.style'
 
 export type Props = {

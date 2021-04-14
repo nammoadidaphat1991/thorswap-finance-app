@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Link } from 'react-router-dom'
 
-import { IconButton } from 'components/UIElements'
+import { IconButton } from '../UIElements'
 
 export const ExternalLink = ({
   link,
