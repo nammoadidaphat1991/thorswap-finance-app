@@ -31,22 +31,22 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const statsData = React.useMemo(() => {
     return [
       {
+        title: 'Rune Price',
+        value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`,
+      },
+      {
         title: 'Total Volume',
         value: runeToCurrency(totalVolume).toCurrencyFormat(0),
       },
       {
-        title: 'Total Tx',
-        value: totalTx.toFixed(0),
-      },
-      {
-        title: 'Total Rune Depth',
+        title: 'Total Liquidity',
         value: runeToCurrency(
-          Amount.fromMidgard(stats?.runeDepth),
+          Amount.fromMidgard(stats?.runeDepth).mul(2),
         ).toCurrencyFormat(0),
       },
       {
-        title: 'Monthly Active Users',
-        value: Amount.fromNormalAmount(stats?.monthlyActiveUsers).toFixed(0),
+        title: 'Total Tx',
+        value: totalTx.toFixed(0),
       },
       {
         title: 'Bonding APY',

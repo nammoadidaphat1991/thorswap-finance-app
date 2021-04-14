@@ -30,22 +30,30 @@ const StatisticsView: React.FC = (): JSX.Element => {
   const statsData = React.useMemo(() => {
     return [
       {
+        title: 'Rune Price',
+        value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(4)}`,
+      },
+      {
         title: 'Total Volume',
         value: runeToCurrency(totalVolume).toCurrencyFormat(0),
+      },
+      {
+        title: 'Total Liquidity',
+        value: runeToCurrency(
+          Amount.fromMidgard(stats?.runeDepth).mul(2),
+        ).toCurrencyFormat(0),
       },
       {
         title: 'Total Tx',
         value: totalTx.toFixed(),
       },
       {
-        title: 'Total Rune Depth',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.runeDepth),
-        ).toCurrencyFormat(0),
+        title: 'Bonding APY',
+        value: bondingAPYLabel,
       },
       {
-        title: 'Rune Price in USD',
-        value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(4)}`,
+        title: 'Liquidity APY',
+        value: liquidityAPYLabel,
       },
       {
         title: 'Swap Count',
@@ -98,7 +106,7 @@ const StatisticsView: React.FC = (): JSX.Element => {
         value: Amount.fromNormalAmount(stats?.dailyActiveUsers).toFixed(0),
       },
       {
-        title: 'Total Pooled',
+        title: 'Total Pooled RUNE',
         value: runeToCurrency(
           Amount.fromMidgard(networkData?.totalPooledRune),
         ).toCurrencyFormat(2),
@@ -122,14 +130,6 @@ const StatisticsView: React.FC = (): JSX.Element => {
       {
         title: 'Next Churn Height',
         value: Amount.fromNormalAmount(networkData?.nextChurnHeight).toFixed(0),
-      },
-      {
-        title: 'Bonding APY',
-        value: bondingAPYLabel,
-      },
-      {
-        title: 'Liquidity APY',
-        value: liquidityAPYLabel,
       },
     ]
   }, [
