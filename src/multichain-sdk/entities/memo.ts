@@ -1,4 +1,4 @@
-import { MULTICHAIN_DECIMAL } from '../constants/decimals'
+import { getTradeLimitWithIdentifier } from '../utils/memo'
 import { Amount } from './amount'
 import { Asset } from './asset'
 import { Percent } from './percent'
@@ -14,12 +14,7 @@ export class Memo {
     const { chain } = asset
     const { symbol } = asset
 
-    // should be standard 1e8 format, even for ETH chain assets
-    // 1. get asset amount
-    // 2. switch to 1e8 base amount
-    const limitString = limit
-      ? limit.mul(MULTICHAIN_DECIMAL).assetAmount.toFixed(0)
-      : ''
+    const limitString = getTradeLimitWithIdentifier(limit)
 
     return `SWAP:${chain}.${symbol}:${address}:${limitString}`
   }
