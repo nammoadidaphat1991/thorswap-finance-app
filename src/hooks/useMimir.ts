@@ -17,17 +17,17 @@ export const useMimir = () => {
     dispatch(actions.getMimir())
   }, [dispatch, actions])
 
-  const maxLiquidityRune = Amount.fromMidgard(
-    mimir?.['mimir//MAXLIQUIDITYRUNE'],
-  )
+  const maxLiquidityRuneMimir = mimir?.['mimir//MAXLIQUIDITYRUNE']
+
+  const maxLiquidityRune = Amount.fromMidgard(maxLiquidityRuneMimir)
   const totalPooledRune = Amount.fromMidgard(networkData?.totalPooledRune)
 
   const isFundsCapReached: boolean = useMemo(() => {
-    if (!maxLiquidityRune) return false
+    if (!maxLiquidityRuneMimir) return false
 
     // totalPooledRune >= 90% of maxLiquidityRune
     return maxLiquidityRune.mul(0.9).lte(totalPooledRune)
-  }, [totalPooledRune, maxLiquidityRune])
+  }, [totalPooledRune, maxLiquidityRune, maxLiquidityRuneMimir])
 
   return {
     maxLiquidityRune,
