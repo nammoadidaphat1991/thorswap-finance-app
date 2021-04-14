@@ -449,10 +449,6 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
     return (
       <Styled.ConfirmModalContent>
         <Information
-          title="Add"
-          description={`${assetAmount.toFixed()} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toFixed()} RUNE`}
-        />
-        <Information
           title="Approve Transaction"
           description={`${poolAsset.ticker.toUpperCase()}`}
         />
@@ -463,7 +459,7 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
         />
       </Styled.ConfirmModalContent>
     )
-  }, [poolAsset, assetAmount, runeAmount, networkFee])
+  }, [poolAsset, networkFee])
 
   const isAddLiquidityValid = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
@@ -480,6 +476,18 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
 
     return false
   }, [liquidityType, runeAmount, assetAmount])
+
+  const isApproveRequired = useMemo(() => {
+    if (
+      liquidityType !== LiquidityTypeOption.RUNE &&
+      isApproved !== null &&
+      !isApproved
+    ) {
+      return true
+    }
+
+    return false
+  }, [isApproved, liquidityType])
 
   const title = useMemo(() => `Add ${poolAsset.ticker} Liquidity`, [poolAsset])
 
@@ -541,12 +549,15 @@ const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
 
       {isApproved !== null && wallet && (
         <Styled.ConfirmButtonContainer>
-          {!isApproved && (
+          {isApproveRequired && (
             <Styled.ApproveBtn onClick={handleApprove}>
               Approve
             </Styled.ApproveBtn>
           )}
-          <FancyButton disabled={!isApproved} onClick={handleAddLiquidity}>
+          <FancyButton
+            disabled={isApproveRequired}
+            onClick={handleAddLiquidity}
+          >
             Add
           </FancyButton>
         </Styled.ConfirmButtonContainer>
