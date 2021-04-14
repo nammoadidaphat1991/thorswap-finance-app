@@ -52,11 +52,11 @@ export const MemberPoolCard = ({ data }: MemberPoolCardProps) => {
           <Styled.Content>
             <Information
               title="Pooled Rune"
-              description={`${Amount.fromMidgard(runeAdded).toFixed(2)} RUNE`}
+              description={`${Amount.fromMidgard(runeAdded).toFixed(4)} RUNE`}
             />
             <Information
               title="Pooled Asset"
-              description={`${Amount.fromMidgard(assetAdded).toFixed(2)} ${
+              description={`${Amount.fromMidgard(assetAdded).toFixed(4)} ${
                 poolAsset.ticker
               }`}
             />
