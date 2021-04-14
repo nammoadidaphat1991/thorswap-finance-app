@@ -53,7 +53,7 @@ const StatisticsView: React.FC = (): JSX.Element => {
       },
       {
         title: 'Unique Swapper Count',
-        value: Amount.fromMidgard(stats?.uniqueSwapperCount).toFixed(0),
+        value: Amount.fromNormalAmount(stats?.uniqueSwapperCount).toFixed(0),
       },
       {
         title: 'Swap Count 24H',
