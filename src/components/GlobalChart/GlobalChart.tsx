@@ -5,6 +5,8 @@ import { Amount } from 'multichain-sdk'
 
 import { Label } from 'components/UIElements'
 
+// import { useApp } from 'redux/app/hooks'
+// import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
 import { Chart } from '../Chart'
@@ -13,6 +15,9 @@ import { ChartDetail, ChartValues, ChartData } from '../Chart/types'
 // display volume and earning time series graph
 export const GlobalChart = () => {
   const isDesktopView = Grid.useBreakpoint()?.md ?? true
+
+  // const { baseCurrency } = useApp()
+  // const { runeToCurrency } = useGlobalState()
 
   const {
     getGlobalHistory,
@@ -27,27 +32,35 @@ export const GlobalChart = () => {
   }, [getGlobalHistory])
 
   const [volumeChartIndex, setVolumeChartIndex] = useState('Total')
-  const [earningChartIndex, setEarningChartIndex] = useState('Total')
+  const [liquidityChartIndex, setLiquidityChartIndex] = useState('Total')
   const volumeChartIndexes = useMemo(
     () =>
       isDesktopView ? ['Total', 'Swap', 'Add', 'Withdraw'] : ['Total', 'Swap'],
     [isDesktopView],
   )
-  const earningChartIndexes = useMemo(
+  const liquidityChartIndexes = useMemo(
     () =>
       isDesktopView
-        ? ['Total', 'Liquidity', 'Fee', 'Bonding']
-        : ['Total', 'Liquidity'],
+        ? ['Rune Price', 'Liquidity Earning']
+        : ['Rune Price', 'Liquidity Earning'],
     [isDesktopView],
   )
 
   const chartValueUnit = 'ᚱ'
+  // const chartValueUnit = useMemo(() => {
+  //   const baseCurrencyAsset = Asset.fromAssetString(baseCurrency)
+  //   if (!baseCurrencyAsset) return 'ᚱ'
+  //   if (baseCurrencyAsset?.isRUNE()) return 'ᚱ'
+  //   if (baseCurrencyAsset?.ticker === 'USD') return '$'
+
+  //   return baseCurrencyAsset.ticker
+  // }, [baseCurrency])
 
   const initialChartData = useMemo(() => {
     const initialData: ChartData = {}
     const defaultChartValues: ChartValues = []
 
-    const chartIndexes = [...volumeChartIndexes, ...earningChartIndexes]
+    const chartIndexes = [...volumeChartIndexes, ...liquidityChartIndexes]
 
     chartIndexes.forEach((chartIndex) => {
       initialData[chartIndex] = {
@@ -57,7 +70,7 @@ export const GlobalChart = () => {
     })
 
     return initialData
-  }, [volumeChartIndexes, earningChartIndexes])
+  }, [volumeChartIndexes, liquidityChartIndexes])
 
   const volumeChartData: ChartData = useMemo(() => {
     if (isGlobalHistoryLoading || !swapHistory || !liquidityHistory) {
@@ -118,61 +131,53 @@ export const GlobalChart = () => {
         unit: chartValueUnit,
       },
     }
-  }, [swapHistory, liquidityHistory, isGlobalHistoryLoading, initialChartData])
+  }, [
+    swapHistory,
+    liquidityHistory,
+    isGlobalHistoryLoading,
+    initialChartData,
+    chartValueUnit,
+  ])
 
-  const earningChartData: ChartData = useMemo(() => {
+  const liquidityChartData: ChartData = useMemo(() => {
     if (isGlobalHistoryLoading || !earningsHistory) {
       return initialChartData
     }
 
     const earningsData = earningsHistory.intervals || []
 
-    const totalEarning: ChartDetail[] = []
-    const bondingEarning: ChartDetail[] = []
+    const runePrice: ChartDetail[] = []
     const liquidityEarning: ChartDetail[] = []
-    const liquidityFee: ChartDetail[] = []
 
     earningsData.forEach((data) => {
       const time = Number(data?.startTime ?? 0)
-      totalEarning.push({
+
+      runePrice.push({
         time,
-        value: Amount.fromMidgard(data?.earnings).assetAmount.toString(),
-      })
-      bondingEarning.push({
-        time,
-        value: Amount.fromMidgard(data?.bondingEarnings).assetAmount.toString(),
+        value: Amount.fromNormalAmount(data?.runePriceUSD).toFixed(2),
       })
       liquidityEarning.push({
         time,
-        value: Amount.fromMidgard(
-          data?.liquidityEarnings,
-        ).assetAmount.toString(),
-      })
-      liquidityFee.push({
-        time,
-        value: Amount.fromMidgard(data?.liquidityFees).assetAmount.toString(),
+        value: Amount.fromMidgard(data?.liquidityEarnings).toFixed(2),
       })
     })
 
     return {
-      Total: {
-        values: totalEarning,
-        unit: chartValueUnit,
+      'Rune Price': {
+        values: runePrice,
+        unit: '$',
       },
-      Liquidity: {
+      'Liquidity Earning': {
         values: liquidityEarning,
         unit: chartValueUnit,
       },
-      Bonding: {
-        values: bondingEarning,
-        unit: chartValueUnit,
-      },
-      Fee: {
-        values: liquidityFee,
-        unit: chartValueUnit,
-      },
     }
-  }, [earningsHistory, isGlobalHistoryLoading, initialChartData])
+  }, [
+    earningsHistory,
+    isGlobalHistoryLoading,
+    initialChartData,
+    chartValueUnit,
+  ])
 
   return (
     <Row gutter={[12, 12]}>
@@ -189,13 +194,13 @@ export const GlobalChart = () => {
       </Col>
       <Col xs={24} md={12}>
         <Label size="big" color="primary">
-          Earnings
+          Liquidity
         </Label>
         <Chart
-          chartIndexes={earningChartIndexes}
-          chartData={earningChartData}
-          selectedIndex={earningChartIndex}
-          selectChart={setEarningChartIndex}
+          chartIndexes={liquidityChartIndexes}
+          chartData={liquidityChartData}
+          selectedIndex={liquidityChartIndex}
+          selectChart={setLiquidityChartIndex}
         />
       </Col>
     </Row>
