@@ -16,11 +16,17 @@ import * as Styled from './Keystore.style'
 
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
-  toggleMode: () => void
+  onCreate: () => void
+  onPhraseImport: () => void
   loading?: boolean
 }
 
-const KeystoreView = ({ onConnect, toggleMode, loading = false }: Props) => {
+const KeystoreView = ({
+  onConnect,
+  onCreate,
+  onPhraseImport,
+  loading = false,
+}: Props) => {
   const [keystore, setKeystore] = useState<Keystore>()
   const [password, setPassword] = useState<string>('')
   const [invalideStatus, setInvalideStatus] = useState(false)
@@ -87,6 +93,7 @@ const KeystoreView = ({ onConnect, toggleMode, loading = false }: Props) => {
   return (
     <Styled.Container>
       <Helmet title="Connect Wallet" content="Connect Wallet" />
+      <Styled.Header>Connect wallet using keystore file</Styled.Header>
       <Form onFinish={unlock}>
         <Styled.Content>
           <Styled.FormLabel weight="bold" color="normal">
@@ -128,7 +135,6 @@ const KeystoreView = ({ onConnect, toggleMode, loading = false }: Props) => {
         <Styled.Footer>
           <Styled.FooterContent>
             <Button
-              htmlType="submit"
               onClick={unlock}
               disabled={!ready}
               round
@@ -137,8 +143,11 @@ const KeystoreView = ({ onConnect, toggleMode, loading = false }: Props) => {
             >
               Unlock
             </Button>
-            <Styled.ActionButton onClick={toggleMode}>
+            <Styled.ActionButton onClick={onCreate}>
               <Label color="primary">Create Wallet</Label>
+            </Styled.ActionButton>
+            <Styled.ActionButton onClick={onPhraseImport}>
+              <Label color="primary">Import Phrase</Label>
             </Styled.ActionButton>
           </Styled.FooterContent>
         </Styled.Footer>

@@ -7,17 +7,20 @@ import {
   Keystore,
 } from '@xchainjs/xchain-crypto'
 import { Form, Tooltip } from 'antd'
-import { Button, Input, Label } from 'components'
 
 import { downloadAsFile } from 'helpers/download'
 
+import { Helmet } from '../../Helmet'
+import { Button, Input, Label } from '../../UIElements'
 import * as Styled from './Phrase.style'
 
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
+  onCreate: () => void
+  onKeystore: () => void
 }
 
-const PhraseView = ({ onConnect }: Props) => {
+const PhraseView = ({ onConnect, onCreate, onKeystore }: Props) => {
   const [phrase, setPhrase] = useState('')
   const [invalidPhrase, setInvalidPhrase] = useState(false)
 
@@ -69,6 +72,7 @@ const PhraseView = ({ onConnect }: Props) => {
     }
   }, [phrase, password, onConnect])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleUnlock = useCallback(async () => {
     if (phrase && password) {
       setProcessing(true)
@@ -82,7 +86,6 @@ const PhraseView = ({ onConnect }: Props) => {
         }
 
         const keystore = await encryptToKeyStore(phrase, password)
-        console.log('keystore', keystore)
 
         // clean up
         setPassword('')
@@ -102,10 +105,12 @@ const PhraseView = ({ onConnect }: Props) => {
 
   return (
     <Styled.Container>
-      <Form onFinish={handleUnlock}>
+      <Helmet title="Import Phrase" content="Import Phrase" />
+      <Styled.Header>Import Phrase and Backup Keystore</Styled.Header>
+      <Form>
         <Styled.Content>
           <Styled.FormLabel weight="bold" color="normal">
-            Please Enter Phrase
+            Please Enter 12 Seed Phrase
           </Styled.FormLabel>
           <Input
             value={phrase}
@@ -113,6 +118,7 @@ const PhraseView = ({ onConnect }: Props) => {
             placeholder="Phrase"
             allowClear
             sizevalue="big"
+            multiple
           />
           {invalidPhrase && <Label color="error">Phrase is invalid</Label>}
           <Styled.PasswordInput>
@@ -130,7 +136,7 @@ const PhraseView = ({ onConnect }: Props) => {
             <Input
               value={password}
               onChange={handlePasswordChange}
-              placeholder="Password"
+              placeholder="Password for keystore backup"
               allowClear
               disabled={!phrase}
               type="password"
@@ -141,9 +147,13 @@ const PhraseView = ({ onConnect }: Props) => {
         </Styled.Content>
         <Styled.Footer>
           <Styled.FooterContent>
-            <Label color="primary">Create Wallet</Label>
+            <Styled.ActionButton onClick={onKeystore}>
+              <Label color="primary">Connect</Label>
+            </Styled.ActionButton>
+            <Styled.ActionButton onClick={onCreate}>
+              <Label color="primary">Create</Label>
+            </Styled.ActionButton>
             <Button
-              htmlType="submit"
               onClick={handleBackupKeystore}
               disabled={!ready}
               round
@@ -151,16 +161,6 @@ const PhraseView = ({ onConnect }: Props) => {
               fixedWidth={false}
             >
               Backup Keystore
-            </Button>
-            <Button
-              htmlType="submit"
-              onClick={handleUnlock}
-              disabled={!ready}
-              round
-              loading={processing}
-              fixedWidth={false}
-            >
-              Unlock Wallet
             </Button>
           </Styled.FooterContent>
         </Styled.Footer>

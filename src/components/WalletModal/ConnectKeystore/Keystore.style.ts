@@ -37,6 +37,15 @@ export const Content = styled.div`
   }
 `
 
+export const Header = styled(Label).attrs({
+  size: 'big',
+  weight: 'bold',
+})`
+  margin: 10px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid ${palette('gray', 0)};
+`
+
 export const FormLabel = styled(Label)`
   margin-bottom: 10px;
 `

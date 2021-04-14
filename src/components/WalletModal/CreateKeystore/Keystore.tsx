@@ -17,10 +17,11 @@ import * as Styled from './Keystore.style'
 
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
-  toggleMode: () => void
+  onKeystore: () => void
+  onPhraseImport: () => void
 }
 
-const KeystoreView = ({ onConnect, toggleMode }: Props) => {
+const KeystoreView = ({ onConnect, onKeystore, onPhraseImport }: Props) => {
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const [invalideStatus, setInvalideStatus] = useState(false)
@@ -63,8 +64,6 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
 
         const keystore = await encryptToKeyStore(phrase, password)
 
-        console.log(keystore)
-
         await downloadAsFile('asgardex-keystore.txt', JSON.stringify(keystore))
 
         // clean up
@@ -83,9 +82,10 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
   return (
     <Styled.Container>
       <Helmet title="Create Wallet" content="Create Wallet" />
+      <Styled.Header>Create Wallet and Download keystore</Styled.Header>
       <Form>
         <Styled.Content>
-          <Styled.PasswordInput>
+          <div>
             <Styled.PasswordLabel>
               <Label weight="bold" color="normal">
                 Input Password
@@ -106,7 +106,7 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
               sizevalue="big"
               autoComplete="new-password"
             />
-          </Styled.PasswordInput>
+          </div>
           <Styled.PasswordInput>
             <Styled.FormLabel weight="bold" color="normal">
               Confirm Password
@@ -136,8 +136,11 @@ const KeystoreView = ({ onConnect, toggleMode }: Props) => {
             >
               Create
             </Button>
-            <Styled.ActionButton onClick={toggleMode}>
+            <Styled.ActionButton onClick={onKeystore}>
               <Label color="primary">Connect Wallet</Label>
+            </Styled.ActionButton>
+            <Styled.ActionButton onClick={onPhraseImport}>
+              <Label color="primary">Import Phrase</Label>
             </Styled.ActionButton>
           </Styled.FooterContent>
         </Styled.Footer>
