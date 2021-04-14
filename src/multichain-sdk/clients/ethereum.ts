@@ -168,9 +168,7 @@ export class EthChain implements IEthChain {
 
     const { asset } = assetAmount
 
-    const amount = asset.isETH()
-      ? baseAmount(0)
-      : baseAmount(assetAmount.amount.baseAmount)
+    const amount = baseAmount(assetAmount.amount.baseAmount)
 
     const checkSummedAddress = this.getCheckSumAddress(asset)
 
