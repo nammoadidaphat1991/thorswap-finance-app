@@ -185,6 +185,7 @@ export class EthChain implements IEthChain {
       memo,
       asset.isETH()
         ? {
+            from: this.client.getAddress(),
             value: amount.amount().toFixed(0, BigNumber.ROUND_DOWN),
             gasPrice,
           }

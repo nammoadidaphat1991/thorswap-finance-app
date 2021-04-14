@@ -522,9 +522,10 @@ export class MultiChain implements IMultiChain {
       const { pool, runeAmount, assetAmount } = params
       const { chain } = pool.asset
 
-      const { address: poolAddress } = await this.getPoolAddressDataByChain(
-        chain,
-      )
+      const {
+        address: poolAddress,
+        router,
+      } = await this.getPoolAddressDataByChain(chain)
 
       const assetAddress = this.getWalletAddressByChain(chain) || ''
       const thorAddress = this.getWalletAddressByChain(THORChain) || ''
@@ -541,6 +542,7 @@ export class MultiChain implements IMultiChain {
           assetAmount,
           recipient: poolAddress,
           memo: Memo.depositMemo(pool.asset, thorAddress),
+          router,
         })
 
         // 2. send rune tx (NOTE: recipient should be empty string)
@@ -566,6 +568,7 @@ export class MultiChain implements IMultiChain {
           assetAmount,
           recipient: poolAddress,
           memo: Memo.depositMemo(pool.asset),
+          router,
         })
 
         return {
