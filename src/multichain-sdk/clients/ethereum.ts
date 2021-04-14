@@ -167,8 +167,12 @@ export class EthChain implements IEthChain {
     } = params
 
     const { asset } = assetAmount
+    const decimal = await this.getERC20AssetDecimal(asset)
 
-    const amount = baseAmount(assetAmount.amount.baseAmount)
+    const amount = Amount.fromAssetAmount(
+      assetAmount.amount.assetAmount,
+      decimal,
+    ).baseAmount.toFixed(0, BigNumber.ROUND_DOWN)
 
     const checkSummedAddress = this.getCheckSumAddress(asset)
 
@@ -176,21 +180,23 @@ export class EthChain implements IEthChain {
     const gasAmount = await this.client.estimateGasPrices()
 
     // get gas amount based on the fee option
-    const gasPrice = gasAmount?.[feeOptionKey].amount().toFixed(0)
+    const gasPrice = gasAmount[feeOptionKey].amount().toFixed(0)
 
     const contractParams = [
       recipient, // vault address
       checkSummedAddress, // asset checksum address
-      amount.amount().toFixed(0, BigNumber.ROUND_DOWN), // deposit amount
+      amount, // deposit amount
       memo,
       asset.isETH()
         ? {
             from: this.client.getAddress(),
-            value: amount.amount().toFixed(0, BigNumber.ROUND_DOWN),
+            value: amount,
             gasPrice,
           }
         : { gasPrice },
     ]
+
+    console.log('contracParams', JSON.parse(JSON.stringify(contractParams)))
 
     if (!router) {
       throw Error('invalid router')
@@ -229,7 +235,7 @@ export class EthChain implements IEthChain {
    * @param asset ERC20 token
    * @returns decimal number
    */
-  getERC20AssetDecimal = async (asset: Asset) => {
+  getERC20AssetDecimal = async (asset: Asset): Promise<number> => {
     if (asset.chain === 'ETH') {
       if (asset.symbol === 'ETH') {
         return ETH_DECIMAL

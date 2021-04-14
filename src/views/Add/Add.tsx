@@ -77,22 +77,28 @@ const AddLiquidityView = () => {
     getAssetEntity()
   }, [asset])
 
-  if (pool && pools.length) {
-    return <AddLiquidityPanel pool={pool} pools={pools} />
+  if (pool && pools.length && assetObj) {
+    return <AddLiquidityPanel assetObj={assetObj} pool={pool} pools={pools} />
   }
 
   return null
 }
 
-const AddLiquidityPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
+const AddLiquidityPanel = ({
+  pool,
+  pools,
+  assetObj: poolAsset,
+}: {
+  assetObj: Asset
+  pool: Pool
+  pools: Pool[]
+}) => {
   const history = useHistory()
   const { wallet } = useWallet()
   const { getMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction } = useTxTracker()
 
   const { isFundsCapReached } = useMimir()
-
-  const poolAsset = useMemo(() => pool.asset, [pool])
 
   const inputAssets = useMemo(() => getInputAssets({ wallet, pools }), [
     wallet,

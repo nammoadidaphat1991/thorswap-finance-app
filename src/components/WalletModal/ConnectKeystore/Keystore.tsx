@@ -135,7 +135,7 @@ const KeystoreView = ({
         <Styled.Footer>
           <Styled.FooterContent>
             <Button
-              onClick={unlock}
+              htmlType="submit"
               disabled={!ready}
               round
               loading={processing || loading}
