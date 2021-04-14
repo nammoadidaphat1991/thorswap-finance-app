@@ -45,6 +45,10 @@ export const getAssetIconUrl = (asset: Asset): string => {
     return 'https://etherscan.io/token/images/perpetual_32.png'
   }
 
+  if (asset.ticker === 'CREAM') {
+    return 'https://etherscan.io/token/images/CreamFinance_32.png'
+  }
+
   const logoSymbol = assetIconMap[asset.ticker]
 
   if (logoSymbol) {
