@@ -81,8 +81,6 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
   const history = useHistory()
   const { pools } = useMidgard()
 
-  const asset = useMemo(() => sendAsset.symbol, [sendAsset])
-
   const poolAssets = useMemo(() => {
     const assets = pools.map((pool) => pool.asset)
     assets.push(Asset.RUNE())
