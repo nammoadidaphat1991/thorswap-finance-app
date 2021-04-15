@@ -22,7 +22,7 @@ export const getAssetIconUrl = (asset: Asset): string => {
   }
 
   if (asset.ticker === 'SUSHI') {
-    return 'https://assets.coingecko.com/coins/images/12271/thumb/512x512_Logo_no_chop.png'
+    return 'https://etherscan.io/token/images/sushitoken_32.png'
   }
 
   if (asset.ticker === 'AAVE') {
