@@ -63,6 +63,8 @@ export interface IMultiChain {
   ltc: LtcChain
   bch: BchChain
 
+  resetClients(): void
+
   getPhrase(): string
   setPhrase(phrase: string): void
   validateKeystore(keystore: Keystore, password: string): Promise<boolean>
@@ -153,6 +155,18 @@ export class MultiChain implements IMultiChain {
     this.eth = new EthChain({ network: this.network, phrase })
 
     this.initWallet()
+  }
+
+  resetClients = () => {
+    this.phrase = ''
+
+    // reset all clients
+    this.thor = new ThorChain({ network: this.network, phrase: '' })
+    this.bnb = new BnbChain({ network: this.network, phrase: '' })
+    this.btc = new BtcChain({ network: this.network, phrase: '' })
+    this.eth = new EthChain({ network: this.network, phrase: '' })
+    this.ltc = new LtcChain({ network: this.network, phrase: '' })
+    this.bch = new BchChain({ network: this.network, phrase: '' })
   }
 
   getPhrase = () => {

@@ -40,14 +40,18 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
   } = useWallet()
 
   const handleRefresh = useCallback(() => {
-    dispatch(loadAllWallets())
-  }, [loadAllWallets, dispatch])
+    if (wallet) {
+      dispatch(loadAllWallets())
+    }
+  }, [wallet, loadAllWallets, dispatch])
 
   const handleReloadChain = useCallback(
     (chain: SupportedChain) => {
-      dispatch(getWalletByChain(chain))
+      if (wallet) {
+        dispatch(getWalletByChain(chain))
+      }
     },
-    [dispatch, getWalletByChain],
+    [wallet, dispatch, getWalletByChain],
   )
 
   const handleSendAsset = useCallback(
@@ -66,24 +70,28 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
       closable={false}
       width={350}
     >
-      <Styled.ActionHeader>
-        <Styled.Refresh onClick={handleRefresh}>
-          <SyncOutlined spin={walletLoading} />
-        </Styled.Refresh>
-        <CoreButton onClick={() => setShowPhraseModal(true)}>
-          <EyeOutlined />
-          <Label size="big" color="primary">
-            Phrase
-          </Label>
-        </CoreButton>
-        <CoreButton onClick={disconnectWallet}>
-          <Label size="big" color="warning">
-            Disconnect
-          </Label>
-        </CoreButton>
-      </Styled.ActionHeader>
+      {wallet && (
+        <Styled.ActionHeader>
+          <Styled.Refresh onClick={handleRefresh}>
+            <SyncOutlined spin={walletLoading} />
+          </Styled.Refresh>
+          <CoreButton onClick={() => setShowPhraseModal(true)}>
+            <EyeOutlined />
+            <Label size="big" color="primary">
+              Phrase
+            </Label>
+          </CoreButton>
+          <CoreButton onClick={disconnectWallet}>
+            <Label size="big" color="warning">
+              Disconnect
+            </Label>
+          </CoreButton>
+        </Styled.ActionHeader>
+      )}
 
-      {!wallet && !walletLoading && <Label>Please connect wallet.</Label>}
+      {!wallet && !walletLoading && (
+        <Styled.WarningLabel>Please connect wallet.</Styled.WarningLabel>
+      )}
       {wallet && (
         <BalanceView
           wallet={wallet}

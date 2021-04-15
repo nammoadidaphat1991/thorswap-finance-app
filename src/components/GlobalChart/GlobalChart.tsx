@@ -32,7 +32,7 @@ export const GlobalChart = () => {
   }, [getGlobalHistory])
 
   const [volumeChartIndex, setVolumeChartIndex] = useState('Total')
-  const [liquidityChartIndex, setLiquidityChartIndex] = useState('Total')
+  const [liquidityChartIndex, setLiquidityChartIndex] = useState('Rune Price')
   const volumeChartIndexes = useMemo(
     () =>
       isDesktopView ? ['Total', 'Swap', 'Add', 'Withdraw'] : ['Total', 'Swap'],

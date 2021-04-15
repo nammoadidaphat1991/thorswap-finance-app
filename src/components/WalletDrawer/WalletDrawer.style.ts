@@ -2,7 +2,7 @@ import { Drawer as AntDrawer } from 'antd'
 import styled from 'styled-components/macro'
 import { palette } from 'styled-theme'
 
-import { CoreButton } from '../UIElements'
+import { CoreButton, Label } from '../UIElements'
 
 export const Drawer = styled(AntDrawer)`
   .ant-drawer-body {
@@ -40,4 +40,11 @@ export const Refresh = styled(CoreButton)`
     font-size: 18px;
     color: ${palette('primary', 0)};
   }
+`
+
+export const WarningLabel = styled(Label).attrs({
+  color: 'warning',
+  weight: 'bold',
+})`
+  margin-top: 20px;
 `

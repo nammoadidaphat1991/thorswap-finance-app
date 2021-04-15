@@ -34,6 +34,8 @@ export const useWallet = () => {
   )
 
   const disconnectWallet = useCallback(() => {
+    multichain.resetClients()
+
     dispatch(actions.disconnect())
   }, [dispatch])
 
