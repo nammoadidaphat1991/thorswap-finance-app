@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { THORChain } from '@xchainjs/xchain-util'
 import { ActionListParams, HistoryInterval } from 'midgard-sdk'
+import moment from 'moment'
 
 import * as actions from 'redux/midgard/actions'
 import { actions as sliceActions } from 'redux/midgard/slice'
@@ -32,10 +33,14 @@ export const useMidgard = () => {
 
   // get earnings, swap, liquidity history
   const getGlobalHistory = useCallback(() => {
+    // fetch historical data till past day
+
+    const pastDay = moment().subtract(1, 'days').unix()
     dispatch(
       actions.getEarningsHistory({
         interval: PER_DAY,
         count: MAX_HISTORY_COUNT,
+        to: pastDay,
       }),
     )
     dispatch(
@@ -43,6 +48,7 @@ export const useMidgard = () => {
         query: {
           interval: PER_DAY,
           count: MAX_HISTORY_COUNT,
+          to: pastDay,
         },
       }),
     )
@@ -51,6 +57,7 @@ export const useMidgard = () => {
         query: {
           interval: PER_DAY,
           count: MAX_HISTORY_COUNT,
+          to: pastDay,
         },
       }),
     )
@@ -58,11 +65,15 @@ export const useMidgard = () => {
 
   const getPoolHistory = useCallback(
     (pool: string) => {
+      // fetch historical data till past day
+
+      const pastDay = moment().subtract(1, 'days').unix()
       const query = {
         pool,
         query: {
           interval: PER_DAY,
           count: MAX_HISTORY_COUNT,
+          to: pastDay,
         },
       }
       dispatch(actions.getSwapHistory(query))

@@ -70,24 +70,28 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
       closable={false}
       width={350}
     >
-      {wallet && (
-        <Styled.ActionHeader>
+      <Styled.ActionHeader>
+        {(wallet || walletLoading) && (
           <Styled.Refresh onClick={handleRefresh}>
             <SyncOutlined spin={walletLoading} />
           </Styled.Refresh>
+        )}
+        {wallet && (
           <CoreButton onClick={() => setShowPhraseModal(true)}>
             <EyeOutlined />
             <Label size="big" color="primary">
               Phrase
             </Label>
           </CoreButton>
+        )}
+        {wallet && (
           <CoreButton onClick={disconnectWallet}>
             <Label size="big" color="warning">
               Disconnect
             </Label>
           </CoreButton>
-        </Styled.ActionHeader>
-      )}
+        )}
+      </Styled.ActionHeader>
 
       {!wallet && !walletLoading && (
         <Styled.WarningLabel>Please connect wallet.</Styled.WarningLabel>
