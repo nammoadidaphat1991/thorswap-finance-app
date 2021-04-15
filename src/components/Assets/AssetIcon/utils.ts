@@ -53,6 +53,10 @@ export const getAssetIconUrl = (asset: Asset): string => {
     return 'https://etherscan.io/token/images/encrypgen2_28.png'
   }
 
+  if (asset.ticker === 'TVK') {
+    return 'https://etherscan.io/token/images/terravirtua_32.png'
+  }
+
   const logoSymbol = assetIconMap[asset.ticker]
 
   if (logoSymbol) {
