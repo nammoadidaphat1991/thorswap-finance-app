@@ -77,19 +77,19 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
           </Styled.Refresh>
         )}
         {wallet && (
-          <CoreButton onClick={() => setShowPhraseModal(true)}>
-            <EyeOutlined />
-            <Label size="big" color="primary">
-              Phrase
-            </Label>
-          </CoreButton>
-        )}
-        {wallet && (
-          <CoreButton onClick={disconnectWallet}>
-            <Label size="big" color="warning">
-              Disconnect
-            </Label>
-          </CoreButton>
+          <Styled.HeaderAction>
+            <CoreButton onClick={() => setShowPhraseModal(true)}>
+              <EyeOutlined />
+              <Label size="big" color="primary">
+                Phrase
+              </Label>
+            </CoreButton>
+            <CoreButton onClick={disconnectWallet}>
+              <Label size="big" color="warning">
+                Disconnect
+              </Label>
+            </CoreButton>
+          </Styled.HeaderAction>
         )}
       </Styled.ActionHeader>
 

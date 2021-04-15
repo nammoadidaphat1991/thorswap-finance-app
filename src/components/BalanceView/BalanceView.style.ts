@@ -1,7 +1,8 @@
 import styled from 'styled-components/macro'
 import { palette } from 'styled-theme'
 
-import { Button } from 'components/UIElements'
+import { AssetData } from '../Assets'
+import { Button } from '../UIElements'
 
 export const Container = styled.div`
   display: flex;
@@ -33,3 +34,7 @@ export const BalanceRow = styled.div`
 export const SendBtn = styled(Button).attrs({
   sizevalue: 'small',
 })``
+
+export const BalanceAssetData = styled(AssetData)`
+  flex: 1;
+`

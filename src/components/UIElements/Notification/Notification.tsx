@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import { NotificationPlacement } from 'antd/lib/notification'
 
 import { getAppContainer } from 'helpers/element'
 
@@ -7,6 +8,7 @@ type NotificationType = {
   message: string
   description?: React.ReactNode
   duration?: number
+  placement?: NotificationPlacement
   btn?: React.ReactNode
 }
 
@@ -15,6 +17,7 @@ export const Notification = ({
   message,
   description = '',
   duration = 10,
+  placement = 'topRight',
   btn,
 }: NotificationType) => {
   notification[type]({
@@ -22,6 +25,7 @@ export const Notification = ({
     description,
     duration,
     btn,
+    placement,
     getContainer: getAppContainer,
   })
 }

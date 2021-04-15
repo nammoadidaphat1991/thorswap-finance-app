@@ -13,13 +13,11 @@ import {
   isOldRune,
 } from 'multichain-sdk'
 
-import { AssetData } from 'components/Assets'
-import { ChainHeader } from 'components/ChainHeader'
-
 import { useMidgard } from 'redux/midgard/hooks'
 
 import { getSwapRoute, UPGRADE_RUNE_ROUTE } from 'settings/constants'
 
+import { ChainHeader } from '../ChainHeader'
 import * as Styled from './BalanceView.style'
 
 export type BalanceViewProps = {
@@ -68,7 +66,7 @@ export const BalanceView = (props: BalanceViewProps) => {
         if (isOldRune(data.asset)) {
           return (
             <Styled.BalanceRow key={index} onClick={handleUpgradeRune}>
-              <AssetData
+              <Styled.BalanceAssetData
                 asset={data.asset}
                 amount={data.amount}
                 decimal={3}
@@ -92,11 +90,12 @@ export const BalanceView = (props: BalanceViewProps) => {
             key={index}
             onClick={() => handleGotoSwap(data.asset)}
           >
-            <AssetData
+            <Styled.BalanceAssetData
               asset={data.asset}
               amount={data.amount}
               decimal={3}
               size="small"
+              labelSize="normal"
             />
             <Styled.SendBtn
               onClick={(e) => {

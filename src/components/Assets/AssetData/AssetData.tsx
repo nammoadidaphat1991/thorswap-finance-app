@@ -20,6 +20,7 @@ export type Props = {
   amount?: Amount
   price?: Price
   size?: Styled.AssetDataSize
+  labelSize?: 'small' | 'normal' | 'big'
   showLabel?: boolean
   decimal?: number
 }
@@ -30,15 +31,18 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
     amount,
     price,
     size = 'normal',
+    labelSize = 'big',
     showLabel = true,
     decimal = 2,
     ...others
   } = props
 
-  const labelSize = useMemo(() => {
+  const labelSizeValue = useMemo(() => {
+    if (labelSize) return labelSize
+
     if (size === 'big') return 'large'
     return 'big'
-  }, [size])
+  }, [size, labelSize])
 
   return (
     <Styled.Wrapper {...others}>
@@ -48,7 +52,7 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
       {showLabel && (
         <Col>
           <Styled.TickerRow>
-            <Styled.TickerLabel size={labelSize}>
+            <Styled.TickerLabel size={labelSizeValue}>
               {asset.ticker}
             </Styled.TickerLabel>
             <Styled.TypeLabel>{asset.type}</Styled.TypeLabel>
@@ -57,14 +61,14 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
       )}
       {!!amount && (
         <Col>
-          <Styled.AmountLabel size={labelSize}>
+          <Styled.AmountLabel size={labelSizeValue}>
             {amount.toFixed(decimal)}
           </Styled.AmountLabel>
         </Col>
       )}
       {!!price && (
         <Col>
-          <Styled.PriceLabel size={labelSize}>
+          <Styled.PriceLabel size={labelSizeValue}>
             {price.toFixed(2)}
           </Styled.PriceLabel>
         </Col>

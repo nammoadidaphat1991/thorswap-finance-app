@@ -27,14 +27,17 @@ export const ActionHeader = styled.div`
   }
 `
 
+export const HeaderAction = styled.div`
+  display: flex;
+  align-items: center;
+`
+
 export const Refresh = styled(CoreButton)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
   cursor: pointer;
-
-  width: 100px;
 
   svg {
     font-size: 18px;

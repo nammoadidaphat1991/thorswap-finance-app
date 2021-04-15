@@ -61,12 +61,15 @@ export class Liquidity implements ILiquidity {
    * @returns percent object for estimated pool share
    */
   getPoolShareEst(runeAddAmount: Amount, assetAddAmount: Amount): Percent {
-    // get units after add
+    // get LP units after add
     const estimatedLiquidityUnits = this.liquidityUnits.add(
       this.getLiquidityUnits(runeAddAmount, assetAddAmount),
     )
 
-    return new Percent(estimatedLiquidityUnits.div(this.poolUnits).assetAmount)
+    // get pool units after add
+    const newPoolUnits = this.poolUnits.add(estimatedLiquidityUnits)
+
+    return new Percent(estimatedLiquidityUnits.div(newPoolUnits).assetAmount)
   }
 
   /**

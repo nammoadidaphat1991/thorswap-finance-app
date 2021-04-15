@@ -19,6 +19,7 @@ export const AssetIcon = styled(UIAssetIcon)``
 export const TickerRow = styled.div`
   display: flex;
   flex-direction: column;
+  min-width: 55px;
 `
 
 export const TickerLabel = styled(Label).attrs({

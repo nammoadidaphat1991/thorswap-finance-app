@@ -9,7 +9,7 @@ import copy from 'copy-to-clipboard'
 import { multichain } from 'services/multichain'
 
 import { QRCodeModal } from '../Modals'
-import { CoreButton, Tooltip } from '../UIElements'
+import { CoreButton, Tooltip, Notification } from '../UIElements'
 import * as Styled from './ChainHeader.style'
 
 export type ChainHeaderProps = {
@@ -42,6 +42,13 @@ export const ChainHeader = (props: ChainHeaderProps) => {
 
   const handleCopyAddress = useCallback(() => {
     copy(address)
+
+    Notification({
+      type: 'info',
+      message: 'Address Copied',
+      duration: 3,
+      placement: 'bottomRight',
+    })
   }, [address])
 
   const handleViewQRCode = useCallback(
@@ -71,7 +78,7 @@ export const ChainHeader = (props: ChainHeaderProps) => {
           Total: ${totalPrice} USD
         </Styled.InfoLabel> */}
       </Styled.ChainInfo>
-      <Styled.Address onClick={handleCopyAddress}>
+      <Styled.Address>
         <Tooltip placement="top" tooltip="Copy">
           <CoreButton onClick={handleCopyAddress}>
             <Styled.AddressLabel weight="bold">
