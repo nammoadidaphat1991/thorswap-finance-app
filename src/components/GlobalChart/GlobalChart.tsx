@@ -41,7 +41,7 @@ export const GlobalChart = () => {
   const liquidityChartIndexes = useMemo(
     () =>
       isDesktopView
-        ? ['Liquidity', 'IL Paid', 'Bonding Earnings', '$RUNE']
+        ? ['Liquidity', 'LP Earnings', 'Bonding Earnings', '$RUNE']
         : ['Liquidity'],
     [isDesktopView],
   )
@@ -50,6 +50,7 @@ export const GlobalChart = () => {
   const chartValueUnit = useMemo(() => {
     const baseCurrencyAsset = Asset.fromAssetString(baseCurrency)
     if (!baseCurrencyAsset) return 'ᚱ'
+
     if (baseCurrencyAsset?.isRUNE()) return 'ᚱ'
     if (baseCurrencyAsset?.ticker === 'USD') return '$'
 
@@ -155,7 +156,7 @@ export const GlobalChart = () => {
     const runePrice: ChartDetail[] = []
     const liquidityEarning: ChartDetail[] = []
     const liquidity: ChartDetail[] = []
-    const ILPaid: ChartDetail[] = []
+    // const ILPaid: ChartDetail[] = []
     const bondingEarnings: ChartDetail[] = []
 
     earningsData.forEach((data, index) => {
@@ -171,12 +172,12 @@ export const GlobalChart = () => {
         ).toFixedRaw(0),
       })
 
-      ILPaid.push({
-        time,
-        value: runeToCurrency(
-          Amount.fromMidgard(liquidityValue?.impermanentLossProtectionPaid),
-        ).toFixedRaw(0),
-      })
+      // ILPaid.push({
+      //   time,
+      //   value: runeToCurrency(
+      //     Amount.fromMidgard(liquidityValue?.impermanentLossProtectionPaid),
+      //   ).toFixedRaw(0),
+      // })
 
       bondingEarnings.push({
         time,
@@ -202,10 +203,14 @@ export const GlobalChart = () => {
         values: liquidity,
         unit: chartValueUnit,
       },
-      'IL Paid': {
+      'LP Earnings': {
         values: liquidityEarning,
         unit: chartValueUnit,
       },
+      // 'IL Paid': {
+      //   values: ILPaid,
+      //   unit: chartValueUnit,
+      // },
       'Bonding Earnings': {
         values: bondingEarnings,
         unit: chartValueUnit,

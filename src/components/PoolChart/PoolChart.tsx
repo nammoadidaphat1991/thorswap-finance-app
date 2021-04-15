@@ -3,8 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { Grid } from 'antd'
-import { Pool, Amount } from 'multichain-sdk'
+import { Pool, Amount, Asset } from 'multichain-sdk'
 
+import { useApp } from 'redux/app/hooks'
+import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
 import { Chart } from '../Chart'
@@ -17,6 +19,9 @@ export type PoolChartProps = {
 export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
   const dispatch = useDispatch()
   const isDesktopView = Grid.useBreakpoint()?.md ?? true
+
+  const { baseCurrency } = useApp()
+  const { runeToCurrency } = useGlobalState()
 
   const {
     getPoolHistory,
@@ -37,14 +42,24 @@ export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
     getPoolHistory(pool.asset.toString())
   }, [dispatch, getPoolHistory, pool])
 
-  const [chartIndex, setChartIndex] = useState('Volume')
+  const [chartIndex, setChartIndex] = useState('Liquidity')
   const chartIndexes = useMemo(
     () =>
-      isDesktopView ? ['Volume', 'Liquidity', 'Price'] : ['Volume', 'Price'],
+      isDesktopView
+        ? ['Liquidity', 'Volume', 'Price']
+        : ['Liquidity', 'Volume'],
     [isDesktopView],
   )
 
-  const chartValueUnit = 'ᚱ'
+  const chartValueUnit = useMemo(() => {
+    const baseCurrencyAsset = Asset.fromAssetString(baseCurrency)
+    if (!baseCurrencyAsset) return 'ᚱ'
+
+    if (baseCurrencyAsset?.isRUNE()) return 'ᚱ'
+    if (baseCurrencyAsset?.ticker === 'USD') return '$'
+
+    return baseCurrencyAsset.ticker
+  }, [baseCurrency])
 
   const initialChartData = useMemo(() => {
     const initialData: ChartData = {}
@@ -69,9 +84,9 @@ export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
     const liquidityData = liquidityHistory.intervals || []
     const swapData = swapHistory.intervals || []
 
+    const priceChart: ChartDetail[] = []
     const volumeChart: ChartDetail[] = []
     const liquidityChart: ChartDetail[] = []
-    const priceChart: ChartDetail[] = []
 
     depthData.forEach((data, index) => {
       const liquidityValue = liquidityData[index]
@@ -86,17 +101,17 @@ export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
       const liquidity = Amount.fromMidgard(data?.runeDepth).mul(2)
       const usdPrice = Amount.fromNormalAmount(data?.assetPriceUSD)
 
-      volumeChart.push({
-        time,
-        value: total.assetAmount.toString(),
-      })
-      liquidityChart.push({
-        time,
-        value: liquidity.assetAmount.toString(),
-      })
       priceChart.push({
         time,
         value: usdPrice.assetAmount.toString(),
+      })
+      volumeChart.push({
+        time,
+        value: runeToCurrency(total).toFixedRaw(0),
+      })
+      liquidityChart.push({
+        time,
+        value: runeToCurrency(liquidity).toFixedRaw(0),
       })
     })
 
@@ -104,6 +119,7 @@ export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
       Volume: {
         values: volumeChart,
         unit: chartValueUnit,
+        type: 'bar',
       },
       Liquidity: {
         values: liquidityChart,
@@ -114,7 +130,15 @@ export const PoolChart = ({ pool, ...otherProps }: PoolChartProps) => {
         unit: '$',
       },
     }
-  }, [depthHistory, liquidityHistory, swapHistory, isLoading, initialChartData])
+  }, [
+    depthHistory,
+    liquidityHistory,
+    swapHistory,
+    isLoading,
+    initialChartData,
+    runeToCurrency,
+    chartValueUnit,
+  ])
 
   return (
     <Chart
