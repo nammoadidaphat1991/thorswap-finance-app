@@ -124,6 +124,10 @@ export const getSwapInTxUrl = (txTracker: TxTracker): string => {
     const asset = Asset.fromAssetString(inAssets[0].asset)
 
     if (asset) {
+      // add 0x for eth tx
+      if (asset.chain === 'ETH') {
+        return multichain.getExplorerTxUrl(asset.chain, `0x${txID}`)
+      }
       return multichain.getExplorerTxUrl(asset.chain, txID)
     }
   }
@@ -139,6 +143,10 @@ export const getSwapOutTxUrl = (txTracker: TxTracker): string => {
     const asset = Asset.fromAssetString(outTx?.coins?.[0]?.asset)
 
     if (asset) {
+      // add 0x for eth tx
+      if (asset.chain === 'ETH') {
+        return multichain.getExplorerTxUrl(asset.chain, `0x${outTx?.txID}`)
+      }
       return multichain.getExplorerTxUrl(asset.chain, outTx?.txID)
     }
   }
@@ -192,6 +200,11 @@ export const getAddTxUrl = ({
     )
 
     if (inTx) {
+      // add 0x for eth tx
+      if (asset.chain === 'ETH') {
+        return multichain.getExplorerTxUrl(asset.chain, `0x${inTx?.txID}`)
+      }
+
       return multichain.getExplorerTxUrl(asset.chain, inTx?.txID)
     }
   }
@@ -214,6 +227,10 @@ export const getWithdrawTxUrl = ({
     )
 
     if (outTx) {
+      // add 0x for eth tx
+      if (asset.chain === 'ETH') {
+        return multichain.getExplorerTxUrl(asset.chain, `0x${outTx?.txID}`)
+      }
       return multichain.getExplorerTxUrl(asset.chain, outTx?.txID)
     }
   }

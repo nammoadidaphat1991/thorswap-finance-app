@@ -348,7 +348,16 @@ export class MultiChain implements IMultiChain {
 
   getExplorerTxUrl = (chain: Chain, txHash: string): string => {
     const chainClient = this.getChainClient(chain)
+
     if (!chainClient) return '#'
+
+    // return viewblock for thorchain txns
+    if (chain === THORChain) {
+      if (this.network === 'mainnet') {
+        return `https://viewblock.io/thorchain/tx/${txHash}`
+      }
+      return `https://viewblock.io/thorchain/tx/${txHash}?network=testnet`
+    }
 
     return chainClient.getClient().getExplorerTxUrl(txHash)
   }
