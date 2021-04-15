@@ -1,4 +1,6 @@
+import { ETHAddress, getTokenAddress } from '@xchainjs/xchain-ethereum'
 import { Chain, THORChain, BNBChain, ETHChain } from '@xchainjs/xchain-util'
+import { ethers } from 'ethers'
 
 import { Amount, Asset, Pool, Price } from '../entities'
 
@@ -46,4 +48,16 @@ export const isOldRune = (asset: Asset): boolean => {
   }
 
   return false
+}
+
+export const getContractAddressFromAsset = (asset: Asset) => {
+  if (asset.isETH()) return ETHAddress
+
+  const assetAddress = getTokenAddress(asset.getAssetObj())
+
+  if (assetAddress) {
+    return ethers.utils.getAddress(assetAddress.toLowerCase())
+  }
+
+  return ''
 }

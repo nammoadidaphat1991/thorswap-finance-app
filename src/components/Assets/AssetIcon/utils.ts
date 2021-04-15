@@ -1,7 +1,8 @@
-import { Asset } from 'multichain-sdk'
+import { Asset, getContractAddressFromAsset } from 'multichain-sdk'
 
 import { bnbIcon, nativeRuneIcon } from 'components/Icons'
 
+import { IS_TESTNET } from 'settings/config'
 import { assetIconMap } from 'settings/logoData'
 
 export const getAssetIconUrl = (asset: Asset): string => {
@@ -12,49 +13,25 @@ export const getAssetIconUrl = (asset: Asset): string => {
     return nativeRuneIcon
   }
 
-  // ethereum logos
-  if (asset.ticker === 'WETH') {
-    return 'https://assets.coingecko.com/coins/images/2518/large/weth.png'
-  }
+  if (asset.chain === 'ETH' && asset.ticker !== 'ETH') {
+    if (!IS_TESTNET) {
+      const contract = getContractAddressFromAsset(asset)
+      console.log('contract', contract)
+      return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contract}/logo.png`
+    }
 
-  if (asset.ticker === 'DAI') {
-    return 'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg'
-  }
+    // ethereum logos
+    if (asset.ticker === 'WETH') {
+      return 'https://assets.coingecko.com/coins/images/2518/large/weth.png'
+    }
 
-  if (asset.ticker === 'SUSHI') {
-    return 'https://etherscan.io/token/images/sushitoken_32.png'
-  }
+    if (asset.ticker === 'DAI') {
+      return 'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg'
+    }
 
-  if (asset.ticker === 'AAVE') {
-    return 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png'
-  }
-
-  if (asset.ticker === 'YFI') {
-    return 'https://assets.coingecko.com/coins/images/11849/thumb/yfi-192x192.png'
-  }
-
-  if (asset.ticker === 'ALPHA') {
-    return 'https://etherscan.io/token/images/alpha_32.png'
-  }
-
-  if (asset.ticker === 'SNX') {
-    return 'https://etherscan.io/token/images/snx_32.png'
-  }
-
-  if (asset.ticker === 'PERP') {
-    return 'https://etherscan.io/token/images/perpetual_32.png'
-  }
-
-  if (asset.ticker === 'CREAM') {
-    return 'https://etherscan.io/token/images/CreamFinance_32.png'
-  }
-
-  if (asset.ticker === 'DNA') {
-    return 'https://etherscan.io/token/images/encrypgen2_28.png'
-  }
-
-  if (asset.ticker === 'TVK') {
-    return 'https://etherscan.io/token/images/terravirtua_32.png'
+    if (asset.ticker === 'SUSHI') {
+      return 'https://etherscan.io/token/images/sushitoken_32.png'
+    }
   }
 
   const logoSymbol = assetIconMap[asset.ticker]

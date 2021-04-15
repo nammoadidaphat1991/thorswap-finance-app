@@ -110,7 +110,7 @@ export class Asset implements IAsset {
     const { chain, symbol } = assetFromString(asset) || {}
 
     if (chain && symbol) {
-      return new Asset(chain, symbol.toUpperCase())
+      return new Asset(chain, symbol)
     }
 
     return null
