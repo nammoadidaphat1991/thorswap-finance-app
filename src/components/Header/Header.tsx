@@ -33,7 +33,7 @@ export const Header = () => {
   const { themeType, baseCurrencyAsset, setBaseCurrency } = useApp()
   const { wallet, walletLoading, setIsConnectModalOpen } = useWallet()
   const { refreshPage } = useGlobalState()
-  const { isValidFundCaps, globalRunePooledStatus, statusColor } = useNetwork()
+  const { isValidFundCaps, globalRunePooledStatus } = useNetwork()
 
   const [drawerVisible, setDrawerVisible] = useState(false)
 
@@ -77,7 +77,7 @@ export const Header = () => {
           </Link>
         </Styled.LogoWrapper>
         <Styled.HeaderAction>
-          <NetworkStatus status={statusColor} />
+          <NetworkStatus />
           <ThemeSwitch />
         </Styled.HeaderAction>
       </Styled.HeaderLogo>

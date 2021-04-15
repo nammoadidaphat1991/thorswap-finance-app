@@ -60,6 +60,7 @@ const useNetwork = () => {
     globalRunePooledStatus,
     isValidFundCaps: !isFundsCapReached,
     QueueLevel,
+    outboundQueue,
     outboundQueueLevel,
     isOutboundDelayed,
     isOutboundBusy,

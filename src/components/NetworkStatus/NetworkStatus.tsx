@@ -3,6 +3,8 @@ import React, { useMemo } from 'react'
 import { DownOutlined } from '@ant-design/icons'
 import { Dropdown, Row } from 'antd'
 
+import useNetwork from 'hooks/useNetwork'
+
 import { midgardApi } from 'services/midgard'
 
 import { getHostnameFromUrl } from 'helpers/api'
@@ -10,27 +12,31 @@ import { getHostnameFromUrl } from 'helpers/api'
 import { StatusBadge, Menu, Label, IconButton } from '../UIElements'
 import * as Styled from './NetworkStatus.style'
 
+type StatusColor = 'red' | 'yellow' | 'green'
+
 type MenuItem = {
   key: string
   label: string
   url?: string
-  status: 'red' | 'yellow' | 'green'
-}
-
-type Props = {
-  status: 'red' | 'yellow' | 'green'
+  status: StatusColor
 }
 
 // TODO: implement outbound queue level
 
-export const NetworkStatus: React.FC<Props> = ({
-  status: globalStatus,
-}: Props): JSX.Element => {
+export const NetworkStatus = (): JSX.Element => {
+  const { statusColor, outboundQueue, outboundQueueLevel } = useNetwork()
+
   // Midgard IP on devnet OR on test|chaos|mainnet
   const midgardUrl = getHostnameFromUrl(midgardApi.getBaseUrl()) || ''
 
   const menuItems: MenuItem[] = useMemo(
     () => [
+      {
+        key: 'outbound',
+        label: 'Outbound',
+        url: `Queue: ${outboundQueue} (${outboundQueueLevel})`,
+        status: statusColor,
+      },
       {
         key: 'midgard_api',
         label: 'Midgard',
@@ -40,11 +46,11 @@ export const NetworkStatus: React.FC<Props> = ({
       {
         key: 'thornode',
         label: 'THORNODE',
-        url: 'OK',
+        url: 'thornode.thorchain.info',
         status: 'green',
       },
     ],
-    [midgardUrl],
+    [midgardUrl, statusColor, outboundQueue, outboundQueueLevel],
   )
 
   const menu = useMemo(
@@ -74,15 +80,9 @@ export const NetworkStatus: React.FC<Props> = ({
                   <Label weight="bold">{label}</Label>
                 </Row>
                 <Row>
-                  <span
-                    style={{
-                      paddingLeft: '10px',
-                      color: '#808080',
-                      textTransform: 'lowercase',
-                    }}
-                  >
+                  <Label color="gray" size="small">
                     {url || 'unknown'}
-                  </span>
+                  </Label>
                 </Row>
               </Styled.StatusItem>
             </Menu.Item>
@@ -97,7 +97,7 @@ export const NetworkStatus: React.FC<Props> = ({
     <Dropdown overlay={menu} trigger={['click']}>
       <IconButton>
         <Styled.DropdownLink className="ant-dropdown-link" href="/">
-          <StatusBadge color={globalStatus} />
+          <StatusBadge color={statusColor} />
           <DownOutlined />
         </Styled.DropdownLink>
       </IconButton>

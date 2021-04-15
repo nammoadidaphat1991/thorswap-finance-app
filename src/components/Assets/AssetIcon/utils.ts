@@ -16,7 +16,7 @@ export const getAssetIconUrl = (asset: Asset): string => {
   if (asset.chain === 'ETH' && asset.ticker !== 'ETH') {
     if (!IS_TESTNET) {
       const contract = getContractAddressFromAsset(asset)
-      console.log('contract', contract)
+
       return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contract}/logo.png`
     }
 
