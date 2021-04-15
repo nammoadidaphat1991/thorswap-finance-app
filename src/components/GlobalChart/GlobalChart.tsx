@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { Grid, Row, Col } from 'antd'
-import { Amount } from 'multichain-sdk'
+import { Amount, Asset } from 'multichain-sdk'
 
 import { Label } from 'components/UIElements'
 
-// import { useApp } from 'redux/app/hooks'
-// import { useGlobalState } from 'redux/hooks'
+import { useApp } from 'redux/app/hooks'
+import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
 import { Chart } from '../Chart'
@@ -16,8 +16,8 @@ import { ChartDetail, ChartValues, ChartData } from '../Chart/types'
 export const GlobalChart = () => {
   const isDesktopView = Grid.useBreakpoint()?.md ?? true
 
-  // const { baseCurrency } = useApp()
-  // const { runeToCurrency } = useGlobalState()
+  const { baseCurrency } = useApp()
+  const { runeToCurrency } = useGlobalState()
 
   const {
     getGlobalHistory,
@@ -32,7 +32,7 @@ export const GlobalChart = () => {
   }, [getGlobalHistory])
 
   const [volumeChartIndex, setVolumeChartIndex] = useState('Total')
-  const [liquidityChartIndex, setLiquidityChartIndex] = useState('Rune Price')
+  const [liquidityChartIndex, setLiquidityChartIndex] = useState('Liquidity')
   const volumeChartIndexes = useMemo(
     () =>
       isDesktopView ? ['Total', 'Swap', 'Add', 'Withdraw'] : ['Total', 'Swap'],
@@ -41,20 +41,20 @@ export const GlobalChart = () => {
   const liquidityChartIndexes = useMemo(
     () =>
       isDesktopView
-        ? ['Rune Price', 'Liquidity Earning']
-        : ['Rune Price', 'Liquidity Earning'],
+        ? ['Liquidity', 'IL Paid', 'Bonding Earnings', '$RUNE']
+        : ['Liquidity'],
     [isDesktopView],
   )
 
-  const chartValueUnit = 'ᚱ'
-  // const chartValueUnit = useMemo(() => {
-  //   const baseCurrencyAsset = Asset.fromAssetString(baseCurrency)
-  //   if (!baseCurrencyAsset) return 'ᚱ'
-  //   if (baseCurrencyAsset?.isRUNE()) return 'ᚱ'
-  //   if (baseCurrencyAsset?.ticker === 'USD') return '$'
+  // const chartValueUnit = 'ᚱ'
+  const chartValueUnit = useMemo(() => {
+    const baseCurrencyAsset = Asset.fromAssetString(baseCurrency)
+    if (!baseCurrencyAsset) return 'ᚱ'
+    if (baseCurrencyAsset?.isRUNE()) return 'ᚱ'
+    if (baseCurrencyAsset?.ticker === 'USD') return '$'
 
-  //   return baseCurrencyAsset.ticker
-  // }, [baseCurrency])
+    return baseCurrencyAsset.ticker
+  }, [baseCurrency])
 
   const initialChartData = useMemo(() => {
     const initialData: ChartData = {}
@@ -95,21 +95,21 @@ export const GlobalChart = () => {
 
       const total = swapValue.add(addValue).add(withdrawValue)
 
+      totalVolume.push({
+        time,
+        value: runeToCurrency(total).toFixedRaw(0),
+      })
       swapVolume.push({
         time,
-        value: swapValue.assetAmount.toString(),
+        value: runeToCurrency(swapValue).toFixedRaw(0),
       })
       addVolume.push({
         time,
-        value: addValue.assetAmount.toString(),
+        value: runeToCurrency(addValue).toFixedRaw(0),
       })
       withdrawVolume.push({
         time,
-        value: withdrawValue.assetAmount.toString(),
-      })
-      totalVolume.push({
-        time,
-        value: total.assetAmount.toString(),
+        value: runeToCurrency(withdrawValue).toFixedRaw(0),
       })
     })
 
@@ -117,18 +117,22 @@ export const GlobalChart = () => {
       Total: {
         values: totalVolume,
         unit: chartValueUnit,
+        type: 'bar',
       },
       Swap: {
         values: swapVolume,
         unit: chartValueUnit,
+        type: 'bar',
       },
       Add: {
         values: addVolume,
         unit: chartValueUnit,
+        type: 'bar',
       },
       Withdraw: {
         values: withdrawVolume,
         unit: chartValueUnit,
+        type: 'bar',
       },
     }
   }, [
@@ -137,20 +141,49 @@ export const GlobalChart = () => {
     isGlobalHistoryLoading,
     initialChartData,
     chartValueUnit,
+    runeToCurrency,
   ])
 
   const liquidityChartData: ChartData = useMemo(() => {
-    if (isGlobalHistoryLoading || !earningsHistory) {
+    if (isGlobalHistoryLoading || !earningsHistory || !liquidityHistory) {
       return initialChartData
     }
 
     const earningsData = earningsHistory.intervals || []
+    const liquidityData = liquidityHistory.intervals || []
 
     const runePrice: ChartDetail[] = []
     const liquidityEarning: ChartDetail[] = []
+    const liquidity: ChartDetail[] = []
+    const ILPaid: ChartDetail[] = []
+    const bondingEarnings: ChartDetail[] = []
 
-    earningsData.forEach((data) => {
+    earningsData.forEach((data, index) => {
       const time = Number(data?.startTime ?? 0)
+      const liquidityValue = liquidityData[index]
+
+      liquidity.push({
+        time,
+        value: runeToCurrency(
+          Amount.fromMidgard(liquidityValue?.addLiquidityVolume).add(
+            Amount.fromMidgard(liquidityValue?.withdrawVolume),
+          ),
+        ).toFixedRaw(0),
+      })
+
+      ILPaid.push({
+        time,
+        value: runeToCurrency(
+          Amount.fromMidgard(liquidityValue?.impermanentLossProtectionPaid),
+        ).toFixedRaw(0),
+      })
+
+      bondingEarnings.push({
+        time,
+        value: runeToCurrency(
+          Amount.fromMidgard(data?.bondingEarnings),
+        ).toFixedRaw(0),
+      })
 
       runePrice.push({
         time,
@@ -158,25 +191,37 @@ export const GlobalChart = () => {
       })
       liquidityEarning.push({
         time,
-        value: Amount.fromMidgard(data?.liquidityEarnings).toFixed(2),
+        value: runeToCurrency(
+          Amount.fromMidgard(data?.liquidityEarnings),
+        ).toFixedRaw(0),
       })
     })
 
     return {
-      'Rune Price': {
-        values: runePrice,
-        unit: '$',
+      Liquidity: {
+        values: liquidity,
+        unit: chartValueUnit,
       },
-      'Liquidity Earning': {
+      'IL Paid': {
         values: liquidityEarning,
         unit: chartValueUnit,
       },
+      'Bonding Earnings': {
+        values: bondingEarnings,
+        unit: chartValueUnit,
+      },
+      $RUNE: {
+        values: runePrice,
+        unit: '$',
+      },
     }
   }, [
+    liquidityHistory,
     earningsHistory,
     isGlobalHistoryLoading,
     initialChartData,
     chartValueUnit,
+    runeToCurrency,
   ])
 
   return (

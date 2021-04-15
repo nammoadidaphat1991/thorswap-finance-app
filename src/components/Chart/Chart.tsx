@@ -139,9 +139,8 @@ export const Chart: React.FC<Props> = React.memo(
               if (yLabel > 100000000) {
                 return `${unit}${abbreviateNumber(yLabel, 0)}`
               }
-              const label = `${unit}${new Intl.NumberFormat().format(
-                Math.floor(yLabel),
-              )}`
+
+              const label = `${unit}${new Intl.NumberFormat().format(yLabel)}`
               return label
             },
           },

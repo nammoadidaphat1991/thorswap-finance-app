@@ -159,6 +159,7 @@ export class MultiChain implements IMultiChain {
 
   resetClients = () => {
     this.phrase = ''
+    this.wallet = null
 
     // reset all clients
     this.thor = new ThorChain({ network: this.network, phrase: '' })
@@ -292,25 +293,28 @@ export class MultiChain implements IMultiChain {
   }
 
   loadAllWallets = async (): Promise<Wallet | null> => {
-    try {
-      await Promise.all(
-        this.chains.map((chain: SupportedChain) => {
-          return new Promise((resolve) => {
-            this.getWalletByChain(chain)
-              .then((data) => resolve(data))
-              .catch((err) => {
-                console.log(err)
-                resolve([])
-              })
-          })
-        }),
-      )
+    if (this.phrase) {
+      try {
+        await Promise.all(
+          this.chains.map((chain: SupportedChain) => {
+            return new Promise((resolve) => {
+              this.getWalletByChain(chain)
+                .then((data) => resolve(data))
+                .catch((err) => {
+                  console.log(err)
+                  resolve([])
+                })
+            })
+          }),
+        )
 
-      console.log('wallet', this.wallet)
-      return this.wallet
-    } catch (error) {
-      return Promise.reject(error)
+        console.log('wallet', this.wallet)
+        return this.wallet
+      } catch (error) {
+        return Promise.reject(error)
+      }
     }
+    return Promise.reject(Error('No phrase found'))
   }
 
   getWalletAddressByChain = (chain: Chain): string | null => {

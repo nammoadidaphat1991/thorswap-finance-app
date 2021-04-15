@@ -31,9 +31,11 @@ export const PoolStats = ({ pool }: PoolStatsProps): JSX.Element => {
   const addLiquidityVolume = Amount.fromMidgard(poolStats?.addLiquidityVolume)
   const withdrawVolume = Amount.fromMidgard(poolStats?.withdrawVolume)
 
-  const swapCount = Amount.fromMidgard(poolStats?.swapCount)
-  const addLiquidityCount = Amount.fromMidgard(poolStats?.addLiquidityCount)
-  const withdrawCount = Amount.fromMidgard(poolStats?.withdrawCount)
+  const swapCount = Amount.fromNormalAmount(poolStats?.swapCount)
+  const addLiquidityCount = Amount.fromNormalAmount(
+    poolStats?.addLiquidityCount,
+  )
+  const withdrawCount = Amount.fromNormalAmount(poolStats?.withdrawCount)
 
   const totalVolume = swapVolume.add(addLiquidityVolume).add(withdrawVolume)
   const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
