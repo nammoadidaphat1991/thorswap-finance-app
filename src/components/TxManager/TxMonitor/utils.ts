@@ -23,7 +23,7 @@ export const getTxTitle = (txTracker: TxTracker): string => {
   }
 
   if (type === ActionTypeEnum.AddLiquidity) {
-    const { inAssets } = submitTx
+    const { inAssets, poolAsset = '' } = submitTx
 
     // sym add liquidity
     if (inAssets.length === 2) {
@@ -32,7 +32,9 @@ export const getTxTitle = (txTracker: TxTracker): string => {
 
       const info = `Add ${sendAmount1} ${
         Asset.fromAssetString(sendAsset1)?.ticker
-      }, ${sendAmount2} ${Asset.fromAssetString(sendAsset2)?.ticker}`
+      }, ${sendAmount2} ${
+        Asset.fromAssetString(sendAsset2)?.ticker
+      } to ${poolAsset} Pool`
 
       return info
     }
@@ -43,7 +45,7 @@ export const getTxTitle = (txTracker: TxTracker): string => {
 
       const info = `Add ${sendAmount1} ${
         Asset.fromAssetString(sendAsset1)?.ticker
-      }`
+      } to ${poolAsset} Pool`
 
       return info
     }

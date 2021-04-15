@@ -28,6 +28,7 @@ export interface SubmitTx {
   txID?: string
   submitDate?: Date
   recipient?: string
+  poolAsset?: string
 }
 
 export interface TxTracker {

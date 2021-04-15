@@ -16,7 +16,7 @@ import {
 } from 'components'
 import { ActionTypeEnum, MemberPool } from 'midgard-sdk'
 import {
-  getInputAssets,
+  getInputAssetsForAdd,
   Amount,
   Asset,
   getAssetBalance,
@@ -100,7 +100,7 @@ const AddLiquidityPanel = ({
 
   const { isFundsCapReached } = useMimir()
 
-  const inputAssets = useMemo(() => getInputAssets({ wallet, pools }), [
+  const inputAssets = useMemo(() => getInputAssetsForAdd({ wallet, pools }), [
     wallet,
     pools,
   ])
@@ -317,6 +317,7 @@ const AddLiquidityPanel = ({
         submitTx: {
           inAssets,
           outAssets: [],
+          poolAsset: poolAsset.ticker,
         },
       })
 
@@ -339,6 +340,7 @@ const AddLiquidityPanel = ({
             inAssets,
             outAssets: [],
             txID: runeTxHash || assetTxHash,
+            poolAsset: poolAsset.ticker,
           },
         })
       }
