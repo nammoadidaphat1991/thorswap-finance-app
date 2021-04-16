@@ -318,9 +318,18 @@ export class MultiChain implements IMultiChain {
     return Promise.reject(Error('No phrase found'))
   }
 
+  removeAddressPrefix = (address: string): string => {
+    const prefixIndex = address.indexOf(':') + 1
+    return address.substr(prefixIndex > 0 ? prefixIndex : 0)
+  }
+
   getWalletAddressByChain = (chain: Chain): string | null => {
     if (this.wallet && chain in this.wallet) {
-      return this.wallet?.[chain as SupportedChain]?.address ?? null
+      const addr = this.wallet?.[chain as SupportedChain]?.address ?? null
+
+      if (addr) {
+        return this.removeAddressPrefix(addr)
+      }
     }
 
     return null
