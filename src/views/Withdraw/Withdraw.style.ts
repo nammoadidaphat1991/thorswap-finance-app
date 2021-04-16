@@ -1,6 +1,29 @@
-import { FancyButton } from 'components'
+import { FancyButton, Label } from 'components'
 import styled from 'styled-components/macro'
 import { palette } from 'styled-theme'
+
+export const WithdrawHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+export const WithdrawHeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+export const HeaderLabel = styled(Label).attrs({
+  color: 'primary',
+  weight: 'bold',
+})`
+  width: 80px;
+  margin-bottom: 8px;
+`
+
+export const LPTypes = styled.div`
+  display: flex;
+  align-items: center;
+`
 
 export const ToolContainer = styled.div`
   display: flex;

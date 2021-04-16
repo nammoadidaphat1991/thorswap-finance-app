@@ -91,6 +91,7 @@ export interface IMultiChain {
   isAssetApproved(asset: Asset): Promise<boolean>
   approveAsset(asset: Asset): Promise<TxHash | null>
 
+  send(tx: TxParams): Promise<TxHash>
   transfer(tx: TxParams, native?: boolean): Promise<TxHash>
   swap(swap: Swap, recipient?: string): Promise<TxHash>
   addLiquidity(params: AddLiquidityParams): Promise<AddLiquidityTxns>
@@ -482,6 +483,25 @@ export class MultiChain implements IMultiChain {
   }
 
   /**
+   * transfer on binance chain
+   * @param {TxParams} tx transfer parameter
+   */
+  send = async (tx: TxParams): Promise<TxHash> => {
+    const { chain } = tx.assetAmount.asset
+
+    const chainClient = this.getChainClient(chain)
+    if (chainClient) {
+      try {
+        return await chainClient.transfer(tx)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    } else {
+      throw new Error('Chain does not exist')
+    }
+  }
+
+  /**
    * swap assets
    * @param {Swap} swap Swap Object
    */
@@ -629,8 +649,9 @@ export class MultiChain implements IMultiChain {
      * 3. transfer withdraw tx
      */
 
-    try {
-      const { pool, percent } = params
+    const { pool, percent, from, to } = params
+
+    if ((from === 'sym' && to === 'sym') || from === 'rune') {
       const memo = Memo.withdrawMemo(pool.asset, percent)
 
       // get thorchain pool address
@@ -645,9 +666,60 @@ export class MultiChain implements IMultiChain {
       })
 
       return txHash
-    } catch (error) {
-      return Promise.reject(error)
     }
+    if (from === 'asset') {
+      const memo = Memo.withdrawMemo(pool.asset, percent)
+
+      // get inbound address for asset chain
+      const {
+        address: poolAddress,
+        router,
+      } = await this.getPoolAddressDataByChain(pool.asset.chain)
+
+      const txHash = await this.transfer({
+        assetAmount: AssetAmount.getMinAmountByChain(pool.asset.chain),
+        recipient: poolAddress,
+        memo,
+        router,
+      })
+
+      return txHash
+    }
+
+    // from = sym, to = rune or asset
+
+    if (to === 'rune') {
+      const memo = Memo.withdrawMemo(pool.asset, percent, Asset.RUNE())
+
+      // get thorchain pool address
+      const { address: poolAddress } = await this.getPoolAddressDataByChain(
+        THORChain,
+      )
+
+      const txHash = await this.transfer({
+        assetAmount: AssetAmount.getMinAmountByChain(THORChain),
+        recipient: poolAddress,
+        memo,
+      })
+
+      return txHash
+    }
+
+    // from = sym, to = asset
+    const memo = Memo.withdrawMemo(pool.asset, percent, pool.asset)
+
+    // get thorchain pool address
+    const { address: poolAddress } = await this.getPoolAddressDataByChain(
+      THORChain,
+    )
+
+    const txHash = await this.transfer({
+      assetAmount: AssetAmount.getMinAmountByChain(THORChain),
+      recipient: poolAddress,
+      memo,
+    })
+
+    return txHash
   }
 
   /**

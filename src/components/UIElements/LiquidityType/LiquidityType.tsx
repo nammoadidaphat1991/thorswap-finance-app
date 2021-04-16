@@ -19,6 +19,7 @@ export type LiquidityTypeProps = {
   selected: LiquidityTypeOption
   onSelect: (value: LiquidityTypeOption) => void
   tooltip?: string
+  disable?: LiquidityTypeOption[]
 }
 
 export const LiquidityType = ({
@@ -27,6 +28,7 @@ export const LiquidityType = ({
   selected,
   onSelect,
   tooltip,
+  disable = [],
 }: LiquidityTypeProps) => {
   return (
     <Styled.Container>
@@ -37,24 +39,30 @@ export const LiquidityType = ({
           </Label>
         )}
         <Styled.Options>
-          <CoreButton
-            onClick={() => onSelect(LiquidityTypeOption.ASSET)}
-            focused={selected === LiquidityTypeOption.ASSET}
-          >
-            <Label>{poolAsset.ticker}</Label>
-          </CoreButton>
-          <CoreButton
-            onClick={() => onSelect(LiquidityTypeOption.SYMMETRICAL)}
-            focused={selected === LiquidityTypeOption.SYMMETRICAL}
-          >
-            <Label>{poolAsset.ticker} + RUNE</Label>
-          </CoreButton>
-          <CoreButton
-            onClick={() => onSelect(LiquidityTypeOption.RUNE)}
-            focused={selected === LiquidityTypeOption.RUNE}
-          >
-            <Label>RUNE</Label>
-          </CoreButton>
+          {!disable.includes(LiquidityTypeOption.ASSET) && (
+            <CoreButton
+              onClick={() => onSelect(LiquidityTypeOption.ASSET)}
+              focused={selected === LiquidityTypeOption.ASSET}
+            >
+              <Label>{poolAsset.ticker}</Label>
+            </CoreButton>
+          )}
+          {!disable.includes(LiquidityTypeOption.SYMMETRICAL) && (
+            <CoreButton
+              onClick={() => onSelect(LiquidityTypeOption.SYMMETRICAL)}
+              focused={selected === LiquidityTypeOption.SYMMETRICAL}
+            >
+              <Label>{poolAsset.ticker} + RUNE</Label>
+            </CoreButton>
+          )}
+          {!disable.includes(LiquidityTypeOption.RUNE) && (
+            <CoreButton
+              onClick={() => onSelect(LiquidityTypeOption.RUNE)}
+              focused={selected === LiquidityTypeOption.RUNE}
+            >
+              <Label>RUNE</Label>
+            </CoreButton>
+          )}
         </Styled.Options>
       </Styled.Content>
       {tooltip && <Question placement="top" tooltip={tooltip} />}

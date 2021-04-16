@@ -37,9 +37,13 @@ export type AddLiquidityTxns = {
   assetTx?: TxHash
 }
 
+export type LPType = 'sym' | 'rune' | 'asset'
+
 export type WithdrawParams = {
   pool: Pool
   percent: Percent
+  from: LPType
+  to: LPType
 }
 
 // note only supported chains

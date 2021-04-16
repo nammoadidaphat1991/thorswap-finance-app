@@ -58,67 +58,55 @@ export const MemberPoolCard = ({ pool, data }: MemberPoolCardProps) => {
       const assetName = pool.asset.ticker
 
       return (
-        <Styled.ShareBody key={shareType}>
-          <Styled.ShareContent>
-            <Styled.ShareTitle>
-              {shareType === 'sym' && `RUNE + ${assetName} LP`}
-              {shareType === 'runeAsym' && 'RUNE LP'}
-              {shareType === 'assetAsym' && `${assetName} LP`}
-            </Styled.ShareTitle>
-            <Information
-              title="Pool Share"
-              description={liquidityObj.poolShare.toFixed(4)}
-            />
-            <Information
-              title="LP Units"
-              description={Amount.fromMidgard(liquidityUnits).toFixed(2)}
-            />
-            {shareType === 'sym' && (
-              <>
-                <Information
-                  title="Rune Share"
-                  description={`${liquidityObj.runeShare.toFixed(4)} RUNE`}
-                />
-                <Information
-                  title={`${assetName} Share`}
-                  description={`${liquidityObj.assetShare.toFixed(
-                    4,
-                  )} ${assetName}`}
-                />
-              </>
-            )}
-            {shareType === 'runeAsym' && (
+        <Styled.ShareContent key={shareType}>
+          <Styled.ShareTitle>
+            {shareType === 'sym' && `RUNE + ${assetName} LP`}
+            {shareType === 'runeAsym' && 'RUNE LP'}
+            {shareType === 'assetAsym' && `${assetName} LP`}
+          </Styled.ShareTitle>
+          <Information
+            title="Pool Share"
+            description={liquidityObj.poolShare.toFixed(4)}
+          />
+          {shareType === 'sym' && (
+            <>
               <Information
                 title="Rune Share"
-                description={`${liquidityObj
-                  .getAsymRuneShare()
-                  .toFixed(4)} RUNE`}
+                description={`${liquidityObj.runeShare.toFixed(4)} RUNE`}
               />
-            )}
-            {shareType === 'assetAsym' && (
               <Information
                 title={`${assetName} Share`}
-                description={`${liquidityObj
-                  .getAsymAssetShare()
-                  .toFixed(4)} ${assetName}`}
+                description={`${liquidityObj.assetShare.toFixed(
+                  4,
+                )} ${assetName}`}
               />
-            )}
+            </>
+          )}
+          {shareType === 'runeAsym' && (
             <Information
-              title="Last Added"
-              description={moment
-                .unix(Number(dateLastAdded))
-                .format('YYYY-MM-DD')}
+              title="Rune Share"
+              description={`${liquidityObj.getAsymRuneShare().toFixed(4)} RUNE`}
             />
-          </Styled.ShareContent>
-          <Styled.Footer>
-            <Link to={getAddLiquidityRoute(pool.asset)}>
-              <FancyButton size="small">Add</FancyButton>
-            </Link>
-            <Link to={getWithdrawRoute(pool.asset)}>
-              <FancyButton size="small">Withdraw</FancyButton>
-            </Link>
-          </Styled.Footer>
-        </Styled.ShareBody>
+          )}
+          {shareType === 'assetAsym' && (
+            <Information
+              title={`${assetName} Share`}
+              description={`${liquidityObj
+                .getAsymAssetShare()
+                .toFixed(4)} ${assetName}`}
+            />
+          )}
+          <Information
+            title="LP Units"
+            description={Amount.fromMidgard(liquidityUnits).toFixed(2)}
+          />
+          <Information
+            title="Last Added"
+            description={moment
+              .unix(Number(dateLastAdded))
+              .format('YYYY-MM-DD')}
+          />
+        </Styled.ShareContent>
       )
     })
   }, [data, pool])
@@ -139,6 +127,15 @@ export const MemberPoolCard = ({ pool, data }: MemberPoolCardProps) => {
         </Styled.HeaderRight>
       </Styled.Header>
       {!collapsed && <Styled.CardBody>{renderShare}</Styled.CardBody>}
+
+      <Styled.Footer>
+        <Link to={getAddLiquidityRoute(pool.asset)}>
+          <FancyButton size="small">Add</FancyButton>
+        </Link>
+        <Link to={getWithdrawRoute(pool.asset)}>
+          <FancyButton size="small">Withdraw</FancyButton>
+        </Link>
+      </Styled.Footer>
     </Styled.Container>
   )
 }

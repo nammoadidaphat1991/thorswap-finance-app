@@ -2,9 +2,11 @@ import React from 'react'
 
 import { MemberPool } from 'midgard-sdk'
 import moment from 'moment'
-import { Amount, Asset, Percent } from 'multichain-sdk'
+import { Amount, Pool, Liquidity } from 'multichain-sdk'
 
 import { ExternalLink } from 'components/Link'
+
+import { PoolShareType } from 'redux/midgard/types'
 
 import { getPoolDetailRouteFromAsset } from 'settings/constants'
 
@@ -13,38 +15,59 @@ import { Information, Label } from '../UIElements'
 import * as Styled from './MemberPoolData.style'
 
 export type MemberPoolDataProps = {
+  pool: Pool
   data: MemberPool
-  share: Percent
+  shareType: PoolShareType
 }
 
-export const MemberPoolData = ({ data, share }: MemberPoolDataProps) => {
-  const { pool, liquidityUnits, runeAdded, assetAdded, dateLastAdded } = data
+export const MemberPoolData = ({
+  data,
+  shareType,
+  pool,
+}: MemberPoolDataProps) => {
+  const { liquidityUnits, dateLastAdded } = data
 
-  const poolAsset = Asset.fromAssetString(pool)
+  const liquidityObj = new Liquidity(pool, Amount.fromMidgard(liquidityUnits))
 
-  if (!poolAsset) return null
+  const assetName = pool.asset.ticker
 
   return (
     <Styled.Container>
       <Styled.Header>
-        <ExternalLink link={getPoolDetailRouteFromAsset(poolAsset)}>
-          <AssetData asset={poolAsset} size="normal" />
+        <ExternalLink link={getPoolDetailRouteFromAsset(pool.asset)}>
+          <AssetData asset={pool.asset} size="normal" />
         </ExternalLink>
         <Styled.HeaderRight>
-          <Label>Pool Share: {share.toFixed(4)}</Label>
+          <Label>Pool Share: {liquidityObj.poolShare.toFixed(4)}</Label>
         </Styled.HeaderRight>
       </Styled.Header>
       <Styled.Content>
-        <Information
-          title="Pooled Rune"
-          description={`${Amount.fromMidgard(runeAdded).toFixed(2)} RUNE`}
-        />
-        <Information
-          title="Pooled Asset"
-          description={`${Amount.fromMidgard(assetAdded).toFixed(2)} ${
-            poolAsset.ticker
-          }`}
-        />
+        {shareType === PoolShareType.SYM && (
+          <>
+            <Information
+              title="Rune Share"
+              description={`${liquidityObj.runeShare.toFixed(4)} RUNE`}
+            />
+            <Information
+              title={`${assetName} Share`}
+              description={`${liquidityObj.assetShare.toFixed(4)} ${assetName}`}
+            />
+          </>
+        )}
+        {shareType === PoolShareType.RUNE_ASYM && (
+          <Information
+            title="Rune Share"
+            description={`${liquidityObj.getAsymRuneShare().toFixed(4)} RUNE`}
+          />
+        )}
+        {shareType === PoolShareType.ASSET_ASYM && (
+          <Information
+            title={`${assetName} Share`}
+            description={`${liquidityObj
+              .getAsymAssetShare()
+              .toFixed(4)} ${assetName}`}
+          />
+        )}
         <Information
           title="LP Units"
           description={Amount.fromMidgard(liquidityUnits).toFixed(2)}

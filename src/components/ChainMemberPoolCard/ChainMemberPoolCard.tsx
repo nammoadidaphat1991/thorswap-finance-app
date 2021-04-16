@@ -24,8 +24,8 @@ export const ChainMemberPoolCard = ({
   data,
   loading,
 }: ChainMemberPoolCardProps) => {
-  const { pools } = useMidgard()
-  const [collapsed, setCollapsed] = React.useState(true)
+  const { pools, loadMemberDetailsByChain } = useMidgard()
+  const [collapsed, setCollapsed] = React.useState(false)
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed)
@@ -36,7 +36,7 @@ export const ChainMemberPoolCard = ({
       <Styled.Header>
         <Styled.ChainLabel>{chainToString(chain)}</Styled.ChainLabel>
         <Styled.HeaderRight>
-          <CoreButton>
+          <CoreButton onClick={() => loadMemberDetailsByChain(chain)}>
             <Styled.ToolWrapper>
               <SyncOutlined spin={loading} />
             </Styled.ToolWrapper>

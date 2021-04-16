@@ -215,7 +215,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     if (sendAsset) {
       const assetAmount = new AssetAmount(sendAsset, sendAmount)
 
-      const txHash = await multichain.transfer({
+      const txHash = await multichain.send({
         assetAmount,
         recipient,
         memo,
@@ -265,7 +265,13 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
           title="Send"
           description={sendAsset.ticker.toUpperCase()}
         />
-        <Information title="Recipient" description={recipientAddress} />
+        <Information
+          title="Recipient"
+          description={`${recipientAddress.substr(
+            0,
+            3,
+          )}...${recipientAddress.substr(-3)}`}
+        />
         <Information
           title="Network Fee"
           description={networkFee}
