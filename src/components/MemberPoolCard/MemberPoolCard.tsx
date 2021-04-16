@@ -3,13 +3,10 @@ import React, { useMemo } from 'react'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Link } from 'react-router-dom'
 
-import { MemberPool } from 'midgard-sdk'
 import moment from 'moment'
-import { Amount, Asset, Liquidity, Percent, Pool } from 'multichain-sdk'
+import { Amount, Liquidity, Pool } from 'multichain-sdk'
 
-import { ExternalLink } from 'components/Link'
-
-import { useMidgard } from 'redux/midgard/hooks'
+import { PoolMemberData, ShareType } from 'redux/midgard/types'
 
 import {
   getAddLiquidityRoute,
@@ -18,89 +15,130 @@ import {
 } from 'settings/constants'
 
 import { AssetData } from '../Assets'
+import { ExternalLink } from '../Link'
 import { CoreButton, FancyButton, Information } from '../UIElements'
 import * as Styled from './MemberPoolCard.style'
 
 export type MemberPoolCardProps = {
-  data: MemberPool
+  pool: Pool
+  data: PoolMemberData
 }
 
-export const MemberPoolCard = ({ data }: MemberPoolCardProps) => {
-  const { pools } = useMidgard()
-  const {
-    pool: poolName,
-    liquidityUnits,
-    runeAdded,
-    assetAdded,
-    dateLastAdded,
-  } = data
+export const MemberPoolCard = ({ pool, data }: MemberPoolCardProps) => {
   const [collapsed, setCollapsed] = React.useState(true)
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed)
   }, [collapsed])
 
-  const poolAsset = Asset.fromAssetString(poolName)
+  const totalLiquidityObj = useMemo(() => {
+    let totalUnits = 0
 
-  const poolShare: Percent = useMemo(() => {
-    if (!poolAsset) return new Percent(0)
+    Object.keys(data).map((shareType) => {
+      const memPoolData = data?.[shareType as ShareType]
+      totalUnits += Number(memPoolData?.liquidityUnits ?? 0)
+    })
 
-    const pool = Pool.byAsset(poolAsset, pools)
+    return new Liquidity(pool, Amount.fromMidgard(totalUnits))
+  }, [pool, data])
 
-    if (!pool) return new Percent(0)
+  const renderShare = useMemo(() => {
+    return Object.keys(data).map((shareType) => {
+      const memPoolData = data?.[shareType as ShareType]
 
-    return new Liquidity(pool, Amount.fromMidgard(liquidityUnits)).poolShare
-  }, [liquidityUnits, poolAsset, pools])
+      if (!memPoolData) return null
 
-  if (!poolAsset) return null
+      const { liquidityUnits, dateLastAdded } = memPoolData
 
-  return (
-    <Styled.Container>
-      <Styled.Header>
-        <ExternalLink link={getPoolDetailRouteFromAsset(poolAsset)}>
-          <AssetData asset={poolAsset} size="normal" />
-        </ExternalLink>
-        <Styled.HeaderRight>
-          <Styled.PoolShareLabel>{poolShare.toFixed(4)}</Styled.PoolShareLabel>
-          <CoreButton onClick={toggle}>
-            {!collapsed ? <ChevronUp /> : <ChevronDown />}
-          </CoreButton>
-        </Styled.HeaderRight>
-      </Styled.Header>
-      {!collapsed && (
-        <>
-          <Styled.Content>
+      const liquidityObj = new Liquidity(
+        pool,
+        Amount.fromMidgard(liquidityUnits),
+      )
+
+      const assetName = pool.asset.ticker
+
+      return (
+        <Styled.ShareBody key={shareType}>
+          <Styled.ShareContent>
+            <Styled.ShareTitle>
+              {shareType === 'sym' && `RUNE + ${assetName} LP`}
+              {shareType === 'runeAsym' && 'RUNE LP'}
+              {shareType === 'assetAsym' && `${assetName} LP`}
+            </Styled.ShareTitle>
             <Information
-              title="Pooled Rune"
-              description={`${Amount.fromMidgard(runeAdded).toFixed(4)} RUNE`}
-            />
-            <Information
-              title="Pooled Asset"
-              description={`${Amount.fromMidgard(assetAdded).toFixed(4)} ${
-                poolAsset.ticker
-              }`}
+              title="Pool Share"
+              description={liquidityObj.poolShare.toFixed(4)}
             />
             <Information
               title="LP Units"
               description={Amount.fromMidgard(liquidityUnits).toFixed(2)}
             />
+            {shareType === 'sym' && (
+              <>
+                <Information
+                  title="Rune Share"
+                  description={`${liquidityObj.runeShare.toFixed(4)} RUNE`}
+                />
+                <Information
+                  title={`${assetName} Share`}
+                  description={`${liquidityObj.assetShare.toFixed(
+                    4,
+                  )} ${assetName}`}
+                />
+              </>
+            )}
+            {shareType === 'runeAsym' && (
+              <Information
+                title="Rune Share"
+                description={`${liquidityObj
+                  .getAsymRuneShare()
+                  .toFixed(4)} RUNE`}
+              />
+            )}
+            {shareType === 'assetAsym' && (
+              <Information
+                title={`${assetName} Share`}
+                description={`${liquidityObj
+                  .getAsymAssetShare()
+                  .toFixed(4)} ${assetName}`}
+              />
+            )}
             <Information
               title="Last Added"
               description={moment
                 .unix(Number(dateLastAdded))
                 .format('YYYY-MM-DD')}
             />
-          </Styled.Content>
+          </Styled.ShareContent>
           <Styled.Footer>
-            <Link to={getAddLiquidityRoute(poolAsset)}>
+            <Link to={getAddLiquidityRoute(pool.asset)}>
               <FancyButton size="small">Add</FancyButton>
             </Link>
-            <Link to={getWithdrawRoute(poolAsset)}>
+            <Link to={getWithdrawRoute(pool.asset)}>
               <FancyButton size="small">Withdraw</FancyButton>
             </Link>
           </Styled.Footer>
-        </>
-      )}
+        </Styled.ShareBody>
+      )
+    })
+  }, [data, pool])
+
+  return (
+    <Styled.Container>
+      <Styled.Header>
+        <ExternalLink link={getPoolDetailRouteFromAsset(pool.asset)}>
+          <AssetData asset={pool.asset} size="normal" />
+        </ExternalLink>
+        <Styled.HeaderRight>
+          <Styled.PoolShareLabel>
+            Pool Share: {totalLiquidityObj.poolShare.toFixed(4)}
+          </Styled.PoolShareLabel>
+          <CoreButton onClick={toggle}>
+            {!collapsed ? <ChevronUp /> : <ChevronDown />}
+          </CoreButton>
+        </Styled.HeaderRight>
+      </Styled.Header>
+      {!collapsed && <Styled.CardBody>{renderShare}</Styled.CardBody>}
     </Styled.Container>
   )
 }

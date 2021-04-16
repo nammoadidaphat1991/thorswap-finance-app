@@ -20,7 +20,12 @@ export interface ILiquidity {
 
   getLiquidityUnits(runeAddAmount: Amount, assetAddAmount: Amount): Amount
   getLiquiditySlip(runeAddAmount: Amount, assetAddAmount: Amount): Percent
-  getWithdrawAmount(percent: Percent): WithdrawAmount
+  getSymWithdrawAmount(percent: Percent): WithdrawAmount
+
+  getAsymRuneShare(): Amount
+  getAsymAssetShare(): Amount
+  getAsymRuneWithdrawAmount(percent: Percent): Amount
+  getAsymAssetWithdrawAmount(percent: Percent): Amount
 }
 
 export class Liquidity implements ILiquidity {
@@ -108,7 +113,7 @@ export class Liquidity implements ILiquidity {
     return new Percent(numerator.div(denominator).assetAmount.absoluteValue())
   }
 
-  getWithdrawAmount(percent: Percent): WithdrawAmount {
+  getSymWithdrawAmount(percent: Percent): WithdrawAmount {
     const runeAmount = this.runeShare.mul(percent)
     const assetAmount = this.assetShare.mul(percent)
 
@@ -116,5 +121,58 @@ export class Liquidity implements ILiquidity {
       runeAmount,
       assetAmount,
     }
+  }
+
+  /**
+   *  Ref: https://gitlab.com/thorchain/thornode/-/issues/657
+   *  share = (s * A * (2 * T^2 - 2 * T * s + s^2))/T^3
+   *  s = stakeUnits for member (after factoring in withdrawBasisPoints)
+   *  T = totalPoolUnits for pool
+   *  A = assetDepth to be withdrawn
+   *
+   *  Formula:
+   *  share = (s * A * (2 * T^2 - 2 * T * s + s^2))/T^3
+   *  (part1 * (part2 - part3 + part4)) / part5
+   */
+  getAsymRuneShare(): Amount {
+    const s = this.liquidityUnits
+    const T = this.poolUnits
+    const A = this.pool.runeDepth
+
+    const part1 = s.mul(A)
+    const part2 = T.mul(T).mul(2)
+    const part3 = T.mul(s).mul(2)
+    const part4 = s.mul(s)
+    const numerator = part1.mul(part2.sub(part3).add(part4))
+    const part5 = T.mul(T).mul(T)
+
+    const amount = numerator.div(part5)
+
+    return amount
+  }
+
+  getAsymAssetShare(): Amount {
+    const s = this.liquidityUnits
+    const T = this.poolUnits
+    const A = this.pool.assetDepth
+
+    const part1 = s.mul(A)
+    const part2 = T.mul(T).mul(2)
+    const part3 = T.mul(s).mul(2)
+    const part4 = s.mul(s)
+    const numerator = part1.mul(part2.sub(part3).add(part4))
+    const part5 = T.mul(T).mul(T)
+
+    const amount = numerator.div(part5)
+
+    return amount
+  }
+
+  getAsymRuneWithdrawAmount(percent: Percent): Amount {
+    return this.getAsymRuneShare().mul(percent)
+  }
+
+  getAsymAssetWithdrawAmount(percent: Percent): Amount {
+    return this.getAsymAssetShare().mul(percent)
   }
 }

@@ -95,7 +95,7 @@ const AddLiquidityPanel = ({
 }) => {
   const history = useHistory()
   const { wallet } = useWallet()
-  const { getMemberDetails, memberDetails } = useMidgard()
+  const { getAllMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction } = useTxTracker()
 
   const { isFundsCapReached } = useMimir()
@@ -128,8 +128,8 @@ const AddLiquidityPanel = ({
   const networkFee = useNetworkFee(poolAsset)
 
   useEffect(() => {
-    getMemberDetails()
-  }, [getMemberDetails])
+    getAllMemberDetails()
+  }, [getAllMemberDetails])
 
   const poolMemberDetail: MemberPool | undefined = useMemo(() => {
     return getMemberDetailByPool({ memberDetails, pool })

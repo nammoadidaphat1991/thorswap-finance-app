@@ -4,6 +4,7 @@ import { ActionTypeEnum } from 'midgard-sdk'
 import { midgardApi } from 'services/midgard'
 import { getThorchainMimir } from 'services/thornode'
 
+import { SupportedChain } from '../../multichain-sdk/clients/types'
 import { TxTracker } from './types'
 
 export const getPools = createAsyncThunk(
@@ -69,6 +70,37 @@ export const getDepthHistory = createAsyncThunk(
 export const getMemberDetail = createAsyncThunk(
   'midgard/getMemberDetail',
   midgardApi.getMemberDetail,
+)
+
+// NOTE: pass chain and address to param
+export const getPoolMemberDetailByChain = createAsyncThunk(
+  'midgard/getPoolMemberDetailByChain',
+  async ({ address }: { chain: SupportedChain; address: string }) => {
+    const response = await midgardApi.getMemberDetail(address)
+
+    return response
+  },
+)
+
+// NOTE: pass chain, thorchain address, chain wallet address for wallet
+export const reloadPoolMemberDetailByChain = createAsyncThunk(
+  'midgard/reloadPoolMemberDetailByChain',
+  async ({
+    thorchainAddress,
+    assetChainAddress,
+  }: {
+    chain: SupportedChain
+    thorchainAddress: string
+    assetChainAddress: string
+  }) => {
+    const runeMemberData = await midgardApi.getMemberDetail(thorchainAddress)
+    const assetMemberData = await midgardApi.getMemberDetail(assetChainAddress)
+
+    return {
+      runeMemberData,
+      assetMemberData,
+    }
+  },
 )
 
 export const pollUpgradeTx = createAsyncThunk(

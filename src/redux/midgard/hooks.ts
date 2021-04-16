@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { THORChain } from '@xchainjs/xchain-util'
 import { ActionListParams, HistoryInterval } from 'midgard-sdk'
 import moment from 'moment'
+import { SupportedChain } from 'multichain-sdk'
 
 import * as actions from 'redux/midgard/actions'
 import { actions as sliceActions } from 'redux/midgard/slice'
@@ -96,15 +97,57 @@ export const useMidgard = () => {
     [dispatch],
   )
 
-  const getMemberDetails = useCallback(() => {
+  /**
+   * reload pool member details for a specific chain
+   * 1. fetch pool member data for chain wallet addr (asset asymm share, symm share)
+   * 2. fetch pool member data for thorchain wallet addr (rune asymm share)
+   */
+  const loadMemberDetailsByChain = useCallback(
+    (chain: SupportedChain) => {
+      if (!wallet) return
+
+      const assetChainAddress = wallet?.[chain]?.address
+      const thorchainAddress = wallet?.[THORChain]?.address
+      if (assetChainAddress && thorchainAddress) {
+        dispatch(
+          actions.reloadPoolMemberDetailByChain({
+            chain,
+            thorchainAddress,
+            assetChainAddress,
+          }),
+        )
+      }
+    },
+    [dispatch, wallet],
+  )
+
+  // get pool member details for a specific chain
+  const getMemberDetailsByChain = useCallback(
+    (chain: SupportedChain) => {
+      if (!wallet) return
+
+      const chainWalletAddr = wallet?.[chain]?.address
+
+      if (chainWalletAddr) {
+        dispatch(
+          actions.getPoolMemberDetailByChain({
+            chain,
+            address: chainWalletAddr,
+          }),
+        )
+      }
+    },
+    [dispatch, wallet],
+  )
+
+  // get pool member details for all chains
+  const getAllMemberDetails = useCallback(() => {
     if (!wallet) return
 
-    const thorAddress = wallet?.[THORChain]?.address
-
-    if (thorAddress) {
-      dispatch(actions.getMemberDetail(thorAddress))
-    }
-  }, [dispatch, wallet])
+    Object.keys(wallet).forEach((chain) => {
+      getMemberDetailsByChain(chain as SupportedChain)
+    })
+  }, [getMemberDetailsByChain, wallet])
 
   const addNewTxTracker = useCallback(
     (txTracker: TxTracker) => {
@@ -152,7 +195,9 @@ export const useMidgard = () => {
     getPoolHistory,
     getGlobalHistory,
     getTxData,
-    getMemberDetails,
+    getAllMemberDetails,
+    getMemberDetailsByChain,
+    loadMemberDetailsByChain,
     addNewTxTracker,
     updateTxTracker,
     clearTxTrackers,

@@ -1,11 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { THORChain } from '@xchainjs/xchain-util'
 import { ActionStatusEnum, ActionTypeEnum } from 'midgard-sdk'
 import moment from 'moment'
 import { Pool } from 'multichain-sdk'
 
 import * as midgardActions from './actions'
 import { State, TxTracker, TxTrackerStatus } from './types'
+import { getChainMemberDetails } from './utils'
 
 const initialState: State = {
   pools: [],
@@ -14,6 +16,8 @@ const initialState: State = {
     pools: [],
   },
   memberDetailsLoading: false,
+  chainMemberDetails: {},
+  chainMemberDetailsLoading: {},
   stats: null,
   networkData: null,
   constants: null,
@@ -99,6 +103,127 @@ const slice = createSlice({
       .addCase(midgardActions.getMemberDetail.rejected, (state) => {
         state.memberDetailsLoading = false
       })
+      // used for getting all pool share data
+      .addCase(
+        midgardActions.getPoolMemberDetailByChain.pending,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: true,
+          }
+        },
+      )
+      /**
+       * NOTE: need to fetch pool member data for both chain address and thorchain address
+       * get sym, assetAsym share from the MemberPool Data with non-thorchain address
+       * get runeAsym share from the MemberPool Data with thorchain address
+       */
+      .addCase(
+        midgardActions.getPoolMemberDetailByChain.fulfilled,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          const { pools: memPools } = action.payload
+
+          const fetchedChainMemberDetails = getChainMemberDetails({
+            chain,
+            memPools,
+            chainMemberDetails: state.chainMemberDetails,
+          })
+
+          state.chainMemberDetails = fetchedChainMemberDetails
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: false,
+          }
+        },
+      )
+      .addCase(
+        midgardActions.getPoolMemberDetailByChain.rejected,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: false,
+          }
+        },
+      )
+      // used for getting pool share for a specific chain
+      .addCase(
+        midgardActions.reloadPoolMemberDetailByChain.pending,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: true,
+          }
+        },
+      )
+      /**
+       * NOTE: need to fetch pool member data for both chain address and thorchain address
+       * get sym, assetAsym share from the MemberPool Data with non-thorchain address
+       * get runeAsym share from the MemberPool Data with thorchain address
+       */
+      .addCase(
+        midgardActions.reloadPoolMemberDetailByChain.fulfilled,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          const { runeMemberData, assetMemberData } = action.payload
+
+          const { pools: runeMemberDetails } = runeMemberData
+          const { pools: assetMemberDetails } = assetMemberData
+
+          // add rune asymm
+          const fetchedChainMemberDetails1 = getChainMemberDetails({
+            chain: THORChain,
+            memPools: runeMemberDetails,
+            chainMemberDetails: state.chainMemberDetails,
+          })
+
+          // add sym, asset asymm
+          const fetchedChainMemberDetails2 = getChainMemberDetails({
+            chain,
+            memPools: assetMemberDetails,
+            chainMemberDetails: fetchedChainMemberDetails1,
+          })
+
+          state.chainMemberDetails = fetchedChainMemberDetails2
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: false,
+          }
+        },
+      )
+      .addCase(
+        midgardActions.reloadPoolMemberDetailByChain.rejected,
+        (state, action) => {
+          const {
+            arg: { chain },
+          } = action.meta
+
+          state.chainMemberDetailsLoading = {
+            ...state.chainMemberDetailsLoading,
+            [chain]: false,
+          }
+        },
+      )
       .addCase(midgardActions.getStats.fulfilled, (state, action) => {
         state.stats = action.payload
       })

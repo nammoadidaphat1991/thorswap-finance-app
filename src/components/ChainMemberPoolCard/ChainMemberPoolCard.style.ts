@@ -10,7 +10,6 @@ export const Container = styled.div`
   width: 100%;
   margin: 8px 0;
 
-  border: 1px solid ${palette('gray', 0)};
   border-bottom: none;
 `
 
@@ -22,9 +21,9 @@ export const Header = styled.div`
 
   width: 100%;
 
-  padding: 8px;
+  padding: 8px 8px 4px 8px;
 
-  border-bottom: 1px solid ${palette('gray', 0)};
+  border-bottom: 1px solid ${palette('primary', 0)};
 `
 
 export const HeaderRight = styled.div`
@@ -32,17 +31,7 @@ export const HeaderRight = styled.div`
   align-items: center;
 `
 
-export const CardBody = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-export const ShareBody = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-export const ShareContent = styled.div`
+export const Content = styled.div`
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -65,10 +54,27 @@ export const Footer = styled.div`
   }
 `
 
+export const ChainLabel = styled(Label).attrs({
+  color: 'primary',
+  size: 'big',
+  weight: 'bold',
+})``
+
 export const PoolShareLabel = styled(Label).attrs({
   color: 'gray',
 })``
 
-export const ShareTitle = styled(Label).attrs({
-  color: 'primary',
-})``
+export const ToolWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 4px;
+
+  cursor: ponter;
+
+  svg {
+    color: ${palette('text', 0)};
+
+    width: 14px;
+    height: 14px;
+  }
+`

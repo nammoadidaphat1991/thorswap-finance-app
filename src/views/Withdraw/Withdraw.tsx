@@ -80,7 +80,7 @@ const WithdrawView = () => {
 
 const WithdrawPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   const { wallet } = useWallet()
-  const { getMemberDetails, memberDetails } = useMidgard()
+  const { getAllMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction } = useTxTracker()
 
   const poolAsset = useMemo(() => pool.asset, [pool])
@@ -97,8 +97,8 @@ const WithdrawPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
 
   useEffect(() => {
-    getMemberDetails()
-  }, [getMemberDetails])
+    getAllMemberDetails()
+  }, [getAllMemberDetails])
 
   const poolMemberDetail: MemberPool | undefined = useMemo(() => {
     return getMemberDetailByPool({ memberDetails, pool })
@@ -114,7 +114,7 @@ const WithdrawPanel = ({ pool, pools }: { pool: Pool; pools: Pool[] }) => {
   }, [pool, liquidityUnits])
 
   const { runeAmount, assetAmount } = useMemo(() => {
-    return liquidityEntity.getWithdrawAmount(
+    return liquidityEntity.getSymWithdrawAmount(
       new Percent(percent, AmountType.BASE_AMOUNT),
     )
   }, [percent, liquidityEntity])

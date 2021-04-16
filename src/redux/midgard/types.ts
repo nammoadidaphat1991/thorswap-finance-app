@@ -13,6 +13,7 @@ import {
   Action,
   ActionTypeEnum,
   Coin,
+  MemberPool,
 } from 'midgard-sdk'
 import { Pool } from 'multichain-sdk'
 
@@ -50,11 +51,37 @@ export type MimirData = {
   'mimir//MAXLIQUIDITYRUNE'?: number
 }
 
+export type ShareType = 'sym' | 'runeAsym' | 'assetAsym'
+
+export enum PoolShareType {
+  'sym' = 'sym',
+  'rune_asym' = 'rune_asym',
+  'asset_asym' = 'asset_asym',
+}
+
+// Pool Member Data for sym, runeAsym, assetAsym
+export type PoolMemberData = {
+  sym?: MemberPool
+  runeAsym?: MemberPool
+  assetAsym?: MemberPool
+}
+
+// Record<poolString, PoolMemberData>
+export type ChainMemberData = Record<string, PoolMemberData>
+
+// Record<chainString, ChainMemberData>
+export type ChainMemberDetails = Record<string, ChainMemberData>
+
+// Record<chainString, boolean>
+export type ChainMemberDetailsLoading = Record<string, boolean>
+
 export interface State {
   pools: Pool[]
   poolLoading: boolean
   memberDetails: MemberDetails
   memberDetailsLoading: boolean
+  chainMemberDetails: ChainMemberDetails
+  chainMemberDetailsLoading: ChainMemberDetailsLoading
   poolStats: PoolStatsDetail | null
   poolStatsLoading: boolean
   depthHistory: DepthHistory | null
