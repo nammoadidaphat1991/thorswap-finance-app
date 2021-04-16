@@ -102,12 +102,21 @@ export const getNonPoolAssets = ({
   return assets
 }
 
+export const removeAddressPrefix = (address: string): string => {
+  const prefixIndex = address.indexOf(':') + 1
+  return address.substr(prefixIndex > 0 ? prefixIndex : 0)
+}
+
 export const getWalletAddressByChain = (
   wallet: Wallet,
   chain: Chain,
 ): string | null => {
   if (chain in wallet) {
-    return wallet?.[chain as SupportedChain]?.address ?? null
+    const addr = wallet?.[chain as SupportedChain]?.address ?? null
+
+    if (addr) {
+      return removeAddressPrefix(addr)
+    }
   }
 
   return null
