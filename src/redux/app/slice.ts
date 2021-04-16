@@ -22,7 +22,7 @@ const initialState: State = {
   baseCurrency: getBaseCurrency(),
   isSettingOpen: false,
   slippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
-  feeOptionType: 'fastest',
+  feeOptionType: 'fast',
 }
 
 const slice = createSlice({

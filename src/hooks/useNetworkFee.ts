@@ -35,7 +35,7 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
                 recipient: ethPoolAddress,
               })
               feeStr = Amount.fromBaseAmount(
-                feeValue.fastest.amount(),
+                feeValue.fast.amount(),
                 asset.decimal,
               ).toFixed(8)
             } else {
@@ -45,7 +45,7 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
         } else {
           const feeValue = await multichain.getFees(asset.chain)
           feeStr = Amount.fromBaseAmount(
-            feeValue.fastest.amount(),
+            feeValue.fast.amount(),
             asset.decimal,
           ).toFixed(8)
         }

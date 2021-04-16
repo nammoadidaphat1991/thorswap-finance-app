@@ -139,7 +139,7 @@ export class EthChain implements IEthChain {
   transfer = async (tx: TxParams): Promise<TxHash> => {
     // use xchainjs-client standard internally
     try {
-      const { assetAmount, recipient, memo, feeOptionKey = 'fastest' } = tx
+      const { assetAmount, recipient, memo, feeOptionKey = 'fast' } = tx
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
 
@@ -162,7 +162,7 @@ export class EthChain implements IEthChain {
       assetAmount,
       recipient,
       memo,
-      feeOptionKey = 'fastest',
+      feeOptionKey = 'fast',
       router,
     } = params
 
