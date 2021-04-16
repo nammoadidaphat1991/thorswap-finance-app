@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { MemberPool } from 'midgard-sdk'
 import moment from 'moment'
-import { Amount, Asset } from 'multichain-sdk'
+import { Amount, Asset, Liquidity, Percent, Pool } from 'multichain-sdk'
 
 import { ExternalLink } from 'components/Link'
+
+import { useMidgard } from 'redux/midgard/hooks'
 
 import {
   getAddLiquidityRoute,
@@ -24,14 +26,31 @@ export type MemberPoolCardProps = {
 }
 
 export const MemberPoolCard = ({ data }: MemberPoolCardProps) => {
-  const { pool, liquidityUnits, runeAdded, assetAdded, dateLastAdded } = data
+  const { pools } = useMidgard()
+  const {
+    pool: poolName,
+    liquidityUnits,
+    runeAdded,
+    assetAdded,
+    dateLastAdded,
+  } = data
   const [collapsed, setCollapsed] = React.useState(true)
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed)
   }, [collapsed])
 
-  const poolAsset = Asset.fromAssetString(pool)
+  const poolAsset = Asset.fromAssetString(poolName)
+
+  const poolShare: Percent = useMemo(() => {
+    if (!poolAsset) return new Percent(0)
+
+    const pool = Pool.byAsset(poolAsset, pools)
+
+    if (!pool) return new Percent(0)
+
+    return new Liquidity(pool, Amount.fromMidgard(liquidityUnits)).poolShare
+  }, [liquidityUnits, poolAsset, pools])
 
   if (!poolAsset) return null
 
@@ -42,6 +61,7 @@ export const MemberPoolCard = ({ data }: MemberPoolCardProps) => {
           <AssetData asset={poolAsset} size="normal" />
         </ExternalLink>
         <Styled.HeaderRight>
+          <Styled.PoolShareLabel>{poolShare.toFixed(4)}</Styled.PoolShareLabel>
           <CoreButton onClick={toggle}>
             {!collapsed ? <ChevronUp /> : <ChevronDown />}
           </CoreButton>
@@ -61,7 +81,7 @@ export const MemberPoolCard = ({ data }: MemberPoolCardProps) => {
               }`}
             />
             <Information
-              title="Pool Units"
+              title="LP Units"
               description={Amount.fromMidgard(liquidityUnits).toFixed(2)}
             />
             <Information

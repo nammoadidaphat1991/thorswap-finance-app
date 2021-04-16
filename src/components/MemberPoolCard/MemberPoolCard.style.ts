@@ -1,6 +1,8 @@
 import styled from 'styled-components/macro'
 import { palette } from 'styled-theme'
 
+import { Label } from '../UIElements'
+
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -52,3 +54,7 @@ export const Footer = styled.div`
     }
   }
 `
+
+export const PoolShareLabel = styled(Label).attrs({
+  color: 'gray',
+})``

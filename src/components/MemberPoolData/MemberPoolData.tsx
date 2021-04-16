@@ -31,7 +31,7 @@ export const MemberPoolData = ({ data, share }: MemberPoolDataProps) => {
           <AssetData asset={poolAsset} size="normal" />
         </ExternalLink>
         <Styled.HeaderRight>
-          <Label>Your Share: {share.toFixed(2)}</Label>
+          <Label>Pool Share: {share.toFixed(4)}</Label>
         </Styled.HeaderRight>
       </Styled.Header>
       <Styled.Content>
@@ -46,7 +46,7 @@ export const MemberPoolData = ({ data, share }: MemberPoolDataProps) => {
           }`}
         />
         <Information
-          title="Pool Units"
+          title="LP Units"
           description={Amount.fromMidgard(liquidityUnits).toFixed(2)}
         />
         <Information
