@@ -47,8 +47,8 @@ const Home = () => {
   const [keyword, setKeyword] = useState('')
 
   const handleLoadPoolData = useCallback(() => {
-    dispatch(actions.getPools(selectedPoolStatus))
-  }, [dispatch, actions, selectedPoolStatus])
+    dispatch(actions.getPools())
+  }, [dispatch, actions])
 
   const handleSelectPoolStatus = useCallback((status: PoolStatus) => {
     setSelectedPoolStatus(status)
