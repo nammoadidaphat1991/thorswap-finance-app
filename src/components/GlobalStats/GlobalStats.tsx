@@ -31,10 +31,6 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const statsData = React.useMemo(() => {
     return [
       {
-        title: 'Rune Price',
-        value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`,
-      },
-      {
         title: 'Total Volume',
         value: runeToCurrency(totalVolume).toCurrencyFormat(0),
       },
@@ -55,6 +51,10 @@ export const GlobalStats: React.FC = (): JSX.Element => {
       {
         title: 'Liquidity APY',
         value: liquidityAPYLabel,
+      },
+      {
+        title: 'Active Users',
+        value: Amount.fromNormalAmount(stats?.monthlyActiveUsers).toFixed(0),
       },
     ]
   }, [

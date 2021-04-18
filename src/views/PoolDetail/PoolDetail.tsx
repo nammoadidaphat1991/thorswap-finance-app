@@ -5,7 +5,14 @@ import { Link } from 'react-router-dom'
 
 import { SwapOutlined } from '@ant-design/icons'
 import { Row, Col } from 'antd'
-import { TxTable, Helmet, Button, AssetData, PoolStats } from 'components'
+import {
+  TxTable,
+  Helmet,
+  Button,
+  AssetData,
+  PoolStats,
+  Label,
+} from 'components'
 import { Asset, Pool } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -41,6 +48,7 @@ const PoolDetailView = ({ pool }: { pool: Pool }) => {
       <Styled.Header>
         <Styled.PoolInfo>
           <AssetData asset={pool.asset} />
+          <Label size="big">${pool.assetUSDPrice.toSignificant(6)}</Label>
         </Styled.PoolInfo>
         <Styled.PoolAction>
           {pool.detail.status === 'available' && (
