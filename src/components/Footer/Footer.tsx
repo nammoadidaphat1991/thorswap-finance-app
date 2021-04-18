@@ -27,9 +27,10 @@ export const Footer: React.FC = (): JSX.Element => {
         </FooterItem>
         <FooterItem>
           <div className="footer-links-bar">
+            <ButtonLink to="/tx">TX</ButtonLink>
             <ButtonLink to="/tools">TOOLS</ButtonLink>
             <ButtonLink to="/explorer">EXPLORERS</ButtonLink>
-            <ButtonLink to="/education">EDUCATION</ButtonLink>
+            <ButtonLink to="/education">Docs</ButtonLink>
             <ButtonLink to="/stats">STATS</ButtonLink>
             <ButtonLink to="/faqs">FAQS</ButtonLink>
           </div>

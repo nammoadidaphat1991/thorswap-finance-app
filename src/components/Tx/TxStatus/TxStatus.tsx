@@ -37,7 +37,7 @@ export const TxStatus: React.FC<Props> = (props: Props): JSX.Element => {
         const { asset: assetName, amount } = coinAsset
         const assetObj = Asset.fromAssetString(assetName)
         const assetValue = assetObj?.ticker ?? 'N/A'
-        const amountValue = Amount.fromMidgard(amount).toFixed(3)
+        const amountValue = Amount.fromMidgard(amount).toSignificant(6)
 
         const txUrl = assetObj
           ? multichain.getExplorerTxUrl(assetObj.chain, txHash)

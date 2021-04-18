@@ -36,6 +36,7 @@ export const TableWrapper = styled(Table)<Props>`
     border-radius: none;
     border-color: ${palette('gray', 0)};
     font-size: ${key('sizes.font.normal', '12px')};
+    font-weight: bold;
     color: ${palette('text', 2)};
     background: ${(props) =>
       transparentize(0.1, props.theme.palette.background[1])};

@@ -7,6 +7,8 @@ import {
   ImportOutlined,
   CaretDownOutlined,
   FilterOutlined,
+  RetweetOutlined,
+  RedoOutlined,
 } from '@ant-design/icons'
 import { Dropdown } from 'antd'
 import { ActionTypeEnum } from 'midgard-sdk'
@@ -17,6 +19,8 @@ export type FilterValue =
   | ActionTypeEnum.Swap
   | ActionTypeEnum.AddLiquidity
   | ActionTypeEnum.Withdraw
+  | ActionTypeEnum.Switch
+  | ActionTypeEnum.Refund
   | 'all'
 
 type Props = {
@@ -55,6 +59,16 @@ export const TxFilter: React.FC<Props> = (props: Props): JSX.Element => {
       icon: <ImportOutlined />,
       title: 'WITHDRAW',
       key: ActionTypeEnum.Withdraw,
+    },
+    {
+      icon: <RetweetOutlined />,
+      title: 'Upgrade',
+      key: ActionTypeEnum.Switch,
+    },
+    {
+      icon: <RedoOutlined />,
+      title: 'Refund',
+      key: ActionTypeEnum.Refund,
     },
   ]
 

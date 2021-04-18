@@ -4,6 +4,8 @@ import {
   SwapOutlined,
   DoubleRightOutlined,
   ImportOutlined,
+  RetweetOutlined,
+  RedoOutlined,
 } from '@ant-design/icons'
 import { ActionTypeEnum } from 'midgard-sdk'
 
@@ -21,16 +23,18 @@ export const TxLabel: React.FC<Props> = (props: Props): JSX.Element => {
   if (type === ActionTypeEnum.Swap) {
     label = 'swap'
     TxIcon = <SwapOutlined />
-  }
-
-  if (type === ActionTypeEnum.Withdraw) {
+  } else if (type === ActionTypeEnum.Withdraw) {
     label = 'withdraw'
     TxIcon = <ImportOutlined />
-  }
-
-  if (type === ActionTypeEnum.AddLiquidity) {
+  } else if (type === ActionTypeEnum.AddLiquidity) {
     label = 'add'
     TxIcon = <DoubleRightOutlined />
+  } else if (type === ActionTypeEnum.Switch) {
+    label = 'upgrade'
+    TxIcon = <RetweetOutlined />
+  } else if (type === ActionTypeEnum.Refund) {
+    label = 'refund'
+    TxIcon = <RedoOutlined />
   }
 
   return (
