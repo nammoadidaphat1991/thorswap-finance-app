@@ -2,12 +2,11 @@ import React from 'react'
 
 import Icon, {
   TwitterOutlined,
-  RedditOutlined,
   MediumOutlined,
   GithubOutlined,
 } from '@ant-design/icons'
 
-import { TelegramIcon } from '../Icons'
+import { DiscordIcon, TelegramIcon } from '../Icons'
 import { ExternalButtonLink, ButtonLink } from '../Link'
 import { Logo } from '../Logo'
 import { StyledFooter, FooterContainer, FooterItem } from './Footer.style'
@@ -30,7 +29,7 @@ export const Footer: React.FC = (): JSX.Element => {
             <ButtonLink to="/tx">TX</ButtonLink>
             <ButtonLink to="/tools">TOOLS</ButtonLink>
             <ButtonLink to="/explorer">EXPLORERS</ButtonLink>
-            <ButtonLink to="/education">Docs</ButtonLink>
+            <ButtonLink to="/education">DOCS</ButtonLink>
             <ButtonLink to="/stats">STATS</ButtonLink>
             <ButtonLink to="/faqs">FAQS</ButtonLink>
           </div>
@@ -40,8 +39,8 @@ export const Footer: React.FC = (): JSX.Element => {
             <ExternalButtonLink link="https://twitter.com/thorswap">
               <TwitterOutlined />
             </ExternalButtonLink>
-            <ExternalButtonLink link="https://reddit.com/r/thorchain">
-              <RedditOutlined />
+            <ExternalButtonLink link="https://discord.gg/PX4MNV5F">
+              <Icon component={DiscordIcon} />
             </ExternalButtonLink>
             <ExternalButtonLink link="https://medium.com/thorchain">
               <MediumOutlined />

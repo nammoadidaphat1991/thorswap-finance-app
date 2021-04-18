@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 import { palette } from 'styled-theme'
 
-import { media } from 'helpers/style'
-
 export const IconButton = styled.button`
+  display: flex;
+  align-items: center;
   position: relative;
   border: none;
   background-color: transparent;
@@ -14,10 +14,6 @@ export const IconButton = styled.button`
   border-radius: 0.5rem;
 
   margin-left: 0;
-  ${media.sm`
-    margin-left: 8px;
-  `}
-
   outline: none;
 
   :hover {

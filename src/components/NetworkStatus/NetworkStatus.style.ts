@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { palette } from 'styled-theme'
 
 import { media } from 'helpers/style'
 
@@ -10,6 +11,7 @@ export const DropdownLink = styled.a`
   align-items: center;
 
   svg {
+    color: ${palette('primary', 0)};
     margin-left: 8px;
   }
 

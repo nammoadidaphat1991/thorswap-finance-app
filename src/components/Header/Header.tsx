@@ -1,39 +1,37 @@
 import React, { useCallback, useState, useEffect } from 'react'
 
-import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
 import { Grid } from 'antd'
-import { Asset } from 'multichain-sdk'
+import { Asset, Amount } from 'multichain-sdk'
 
 import { CurrencySelector } from 'components/CurrencySelector'
 
 import { useApp } from 'redux/app/hooks'
 import { useGlobalState } from 'redux/hooks'
+import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
 import useNetwork from 'hooks/useNetwork'
 
-import { HOME_ROUTE, TX_ROUTE } from 'settings/constants'
+import { HOME_ROUTE } from 'settings/constants'
 import { currencyIndexAssets } from 'settings/constants/currency'
 
-import { TimerFullIcon } from '../Icons'
 import { Logo } from '../Logo'
 import { NetworkStatus } from '../NetworkStatus'
 import { Refresh } from '../Refresh'
 import { ThemeSwitch } from '../ThemeSwitch'
 import { TxManager } from '../TxManager'
-import { Tooltip, IconButton, Label } from '../UIElements'
+import { Label } from '../UIElements'
 import { WalletDrawer } from '../WalletDrawer'
 import * as Styled from './Header.style'
 
 export const Header = () => {
-  const history = useHistory()
-
   const { themeType, baseCurrencyAsset, setBaseCurrency } = useApp()
   const { wallet, walletLoading, setIsConnectModalOpen } = useWallet()
   const { refreshPage } = useGlobalState()
   const { isValidFundCaps, globalRunePooledStatus } = useNetwork()
+  const { stats } = useMidgard()
 
   const [drawerVisible, setDrawerVisible] = useState(false)
 
@@ -57,16 +55,14 @@ export const Header = () => {
     setDrawerVisible(false)
   }, [])
 
-  const handleClickTx = useCallback(() => {
-    history.push(TX_ROUTE)
-  }, [history])
-
   const handleSelectCurrency = useCallback(
     (baseAsset: Asset) => {
       setBaseCurrency(baseAsset)
     },
     [setBaseCurrency],
   )
+
+  const runeLabel = isDesktopView ? 'RUNE' : '1ᚱ'
 
   return (
     <Styled.HeaderContainer>
@@ -78,7 +74,12 @@ export const Header = () => {
         </Styled.LogoWrapper>
         <Styled.HeaderAction>
           <NetworkStatus />
-          <ThemeSwitch />
+          <Styled.RunePrice>
+            <Label weight="bold">
+              {runeLabel} ={' '}
+              {`$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`}
+            </Label>
+          </Styled.RunePrice>
         </Styled.HeaderAction>
       </Styled.HeaderLogo>
 
@@ -96,13 +97,7 @@ export const Header = () => {
             onSelect={handleSelectCurrency}
           />
         </Styled.ToolWrapper>
-        <Tooltip tooltip="View Transaction">
-          <IconButton onClick={handleClickTx}>
-            <Styled.TxIcon>
-              <TimerFullIcon />
-            </Styled.TxIcon>
-          </IconButton>
-        </Tooltip>
+        <ThemeSwitch />
         <Styled.WalletBtn
           onClick={handleClickWalletBtn}
           connected={isConnected}

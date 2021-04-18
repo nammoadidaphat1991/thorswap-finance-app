@@ -8,6 +8,10 @@ export const FooterItem = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+
+  button {
+    margin-left: 8px;
+  }
 `
 
 export const FooterContainer = styled.div`
@@ -58,6 +62,7 @@ export const StyledFooter = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-weight: bold;
 
     a {
       font-size: ${key('sizes.font.normal', '12px')};
@@ -82,7 +87,7 @@ export const StyledFooter = styled.div`
     width: 200px;
 
     a {
-      font-size: 18px;
+      font-size: 20px;
       color: ${palette('text', 1)};
       cursor: pointer;
     }

@@ -64,23 +64,24 @@ export const HeaderCenterWrapper = styled.div`
   `}
 `
 
+export const RunePrice = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+
+  border: 1px solid ${palette('primary', 0)};
+  border-radius: 16px;
+
+  margin-left: 8px;
+  display: flex;
+`
+
 export const WalletBtn = styled(WalletButton)`
   margin-left: 10px;
 `
 
-export const TxIcon = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`
-
 export const ToolWrapper = styled.div`
-  margin-right: 8px;
+  margin-right: 2px;
 
   display: none;
   ${media.sm`
