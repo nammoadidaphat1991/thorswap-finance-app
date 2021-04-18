@@ -256,7 +256,7 @@ const Home = () => {
         <Input
           prefix={<SearchOutlined />}
           sizevalue="big"
-          placeholder="Search a Pool by Name, Network or Type..."
+          placeholder="Search pool by name, network or type..."
           value={keyword}
           onChange={handleChangeKeyword}
         />
