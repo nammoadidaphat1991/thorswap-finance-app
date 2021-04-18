@@ -1,9 +1,11 @@
+import React from 'react'
+
 const content =
   'You Swap by sending assets into a pool.\n The pool calculates the correct swap amount and sends it back to you.'
 
 export type Item = {
   title: string
-  content: string
+  content: React.ReactNode
 }
 
 export const faqs: Item[] = [

@@ -3,6 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { IconButton } from '../UIElements'
+import { A } from './Link.style'
 
 export const ExternalLink = ({
   link,
@@ -11,9 +12,9 @@ export const ExternalLink = ({
   link: string
   children: React.ReactChild
 }) => (
-  <a href={link} target="_blank" rel="noopener noreferrer">
+  <A href={link} target="_blank" rel="noopener noreferrer">
     {children}
-  </a>
+  </A>
 )
 
 export const ExternalButtonLink = ({
@@ -24,9 +25,9 @@ export const ExternalButtonLink = ({
   link: string
   children: React.ReactChild
 }) => (
-  <a href={link} target="_blank" rel="noopener noreferrer" {...others}>
+  <A href={link} target="_blank" rel="noopener noreferrer" {...others}>
     <IconButton>{children}</IconButton>
-  </a>
+  </A>
 )
 
 export const ButtonLink = ({

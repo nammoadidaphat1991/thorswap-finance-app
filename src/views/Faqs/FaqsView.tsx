@@ -8,7 +8,7 @@ const FaqsView: React.FC = (): JSX.Element => {
   return (
     <>
       <Helmet title="FAQs" content="FAQs" />
-      <Collapse data={faqs} />
+      <Collapse data={faqs} type="element" />
     </>
   )
 }

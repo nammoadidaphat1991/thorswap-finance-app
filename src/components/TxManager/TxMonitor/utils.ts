@@ -171,11 +171,11 @@ export const getSwapOutTxData = async (
       const amount = Amount.fromMidgard(outTx?.coins?.[0]?.amount)
 
       if (action.type === ActionTypeEnum.Swap) {
-        return `Received ${amount.toFixed(3)} ${asset.ticker}`
+        return `Received ${amount.toSignificant(6)} ${asset.ticker}`
       }
 
       if (action.type === ActionTypeEnum.Refund) {
-        return `Refunded ${amount.toFixed(3)} ${asset.ticker}`
+        return `Refunded ${amount.toSignificant(6)} ${asset.ticker}`
       }
     }
   }

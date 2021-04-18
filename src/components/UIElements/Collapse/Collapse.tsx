@@ -9,12 +9,13 @@ import { Item } from './data'
 export type ComponentProps = {
   data: Item[]
   className?: string
+  type?: 'text' | 'element'
 }
 
 export type Props = ComponentProps & CollapseProps
 
 export const Collapse: React.FC<Props> = (props: Props): JSX.Element => {
-  const { data, className = '', ...otherProps } = props
+  const { data, type = 'text', className = '', ...otherProps } = props
 
   return (
     <CollapseWrapper
@@ -27,9 +28,12 @@ export const Collapse: React.FC<Props> = (props: Props): JSX.Element => {
 
         return (
           <Panel header={title} className="collapse-panel-wrapper" key={index}>
-            <Label size="big" color="normal">
-              {content}
-            </Label>
+            {type === 'text' && (
+              <Label size="big" color="normal">
+                {content}
+              </Label>
+            )}
+            {type === 'element' && content}
           </Panel>
         )
       })}
