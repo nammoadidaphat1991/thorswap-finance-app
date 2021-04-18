@@ -241,7 +241,10 @@ const Home = () => {
 
   return (
     <Styled.HomeContainer>
-      <Helmet title="THORSwap" content="THORSwap" />
+      <Helmet
+        title="THORSwap"
+        content="THORSwap is world's first multi-chain dex powered by THORChain"
+      />
       <Styled.Section>
         <GlobalStats />
       </Styled.Section>

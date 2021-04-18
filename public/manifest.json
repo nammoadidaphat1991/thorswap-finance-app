@@ -1,7 +1,7 @@
 {
   "short_name": "THORSwap",
   "name": "THORSwap Finance",
-  "description": "THORSwap is world's first decentralized multichain exchange built on THORChain",
+  "description": "THORSwap is world's first multi-chain dex powered by THORChain",
   "icons": [
     {
       "src": "favicon.ico",
