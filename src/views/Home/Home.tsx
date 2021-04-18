@@ -207,9 +207,18 @@ const Home = () => {
       (pool) => pool.detail.status === selectedPoolStatus,
     )
     if (keyword) {
-      return poolsByStatus.filter((pool) =>
-        pool.asset.toString().toLowerCase().includes(keyword),
-      )
+      return poolsByStatus.filter((pool) => {
+        const poolStr = pool.asset.toString().toLowerCase()
+        const chainStr = chainToString(pool.asset.chain).toLowerCase()
+        const assetType = pool.asset.type.toLowerCase()
+        const keywordStr = keyword.toLowerCase()
+
+        return (
+          poolStr.includes(keywordStr) ||
+          chainStr.includes(keywordStr) ||
+          assetType.includes(keywordStr)
+        )
+      })
     }
 
     return poolsByStatus
