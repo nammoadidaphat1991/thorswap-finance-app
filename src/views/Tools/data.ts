@@ -1,9 +1,9 @@
 export const toolsData = [
   {
-    title: 'RUNEStake.info',
+    title: 'RUNEYield.info',
     description: 'Track your liquidity and earnings in THORChain pools.',
-    info: 'runestake.info',
-    link: 'https://intro.runestake.info/',
+    info: 'runeyield.info',
+    link: 'https://www.runeyield.info',
   },
   {
     title: 'RUNEData.info',

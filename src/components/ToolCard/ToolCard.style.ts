@@ -22,7 +22,7 @@ export const Card = styled.div`
   ${transition()};
 
   &:hover {
-    ${boxShadow('0px 1px 4px 0px #00c0ff')}
+    ${boxShadow('0px 1px 4px 0px #23DCC8')}
   }
 
   &:before {
