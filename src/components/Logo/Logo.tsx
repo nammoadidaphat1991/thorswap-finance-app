@@ -2,13 +2,12 @@ import React from 'react'
 
 import { ThemeType } from '@thorchain/asgardex-theme'
 
-import {
-  ThorswapBlackIcon,
-  ThorswapWhiteIcon,
-  ThorChainIcon,
-  ThorswapMiniIcon,
-} from '../Icons'
-import { LogoWrapper } from './Logo.style'
+import thorswapLogoBlack from 'assets/logo/black.png'
+import thorswapLogoMini from 'assets/logo/mini.png'
+import thorswapLogoWhite from 'assets/logo/white.png'
+
+import { ThorChainIcon } from '../Icons'
+import { LogoWrapper, Img, MiniImg } from './Logo.style'
 
 export type Props = {
   type: 'thorchain' | 'thorswap'
@@ -21,14 +20,14 @@ export const Logo = (props: Props) => {
 
   return (
     <LogoWrapper>
-      {mini && <ThorswapMiniIcon />}
+      {mini && <MiniImg src={thorswapLogoMini} />}
       {!mini && type === 'thorchain' && <ThorChainIcon />}
       {!mini &&
         type === 'thorswap' &&
         (color === ThemeType.LIGHT ? (
-          <ThorswapBlackIcon />
+          <Img src={thorswapLogoBlack} />
         ) : (
-          <ThorswapWhiteIcon />
+          <Img src={thorswapLogoWhite} />
         ))}
     </LogoWrapper>
   )

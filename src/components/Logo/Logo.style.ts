@@ -17,3 +17,11 @@ export const LogoWrapper = styled.div`
     height: 50px;
   }
 `
+
+export const Img = styled.img`
+  width: 200px;
+`
+
+export const MiniImg = styled.img`
+  width: 50px;
+`

@@ -89,6 +89,4 @@ export const ToolWrapper = styled.div`
   `}
 `
 
-export const LogoWrapper = styled.div`
-  margin-top: 8px;
-`
+export const LogoWrapper = styled.div``
