@@ -1,4 +1,4 @@
-import { ContentView, PoolChart } from 'components'
+import { ContentView, PoolChart, Label } from 'components'
 import styled from 'styled-components'
 import { palette } from 'styled-theme'
 
@@ -16,6 +16,10 @@ export const Header = styled.div`
 export const PoolInfo = styled.div`
   display: flex;
   align-items: center;
+`
+
+export const AssetLabel = styled(Label)`
+  margin-right: 4px;
 `
 
 export const Section = styled.div`

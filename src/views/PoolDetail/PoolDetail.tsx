@@ -4,7 +4,7 @@ import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
 
 import { SwapOutlined } from '@ant-design/icons'
-import { Row, Col } from 'antd'
+import { Grid, Row, Col } from 'antd'
 import {
   TxTable,
   Helmet,
@@ -41,15 +41,32 @@ const PoolDetail = () => {
 const PoolDetailView = ({ pool }: { pool: Pool }) => {
   const swapRouter = getSwapRoute(Asset.RUNE(), pool.asset)
   const liquidityRouter = getAddLiquidityRoute(pool.asset)
+  const isDesktopView = Grid.useBreakpoint()?.sm ?? false
 
   return (
     <Styled.Container>
       <Helmet title="" content="Multichain Asgardex web app" />
       <Styled.Header>
-        <Styled.PoolInfo>
-          <AssetData asset={pool.asset} />
-          <Label size="big">${pool.assetUSDPrice.toSignificant(6)}</Label>
-        </Styled.PoolInfo>
+        {isDesktopView && (
+          <Styled.PoolInfo>
+            <AssetData size="big" asset={pool.asset} showLabel={false} />
+            <Styled.AssetLabel size="large" weight="bold">
+              {pool.asset.ticker}
+            </Styled.AssetLabel>
+            <Styled.AssetLabel size="big" weight="bold">
+              ({pool.asset.type})
+            </Styled.AssetLabel>
+            <Styled.AssetLabel size="large">
+              ${pool.assetUSDPrice.toSignificant(6)}
+            </Styled.AssetLabel>
+          </Styled.PoolInfo>
+        )}
+        {!isDesktopView && (
+          <Styled.PoolInfo>
+            <AssetData asset={pool.asset} />
+            <Label size="normal">${pool.assetUSDPrice.toSignificant(6)}</Label>
+          </Styled.PoolInfo>
+        )}
         <Styled.PoolAction>
           {pool.detail.status === 'available' && (
             <Link to={swapRouter}>

@@ -9,7 +9,7 @@ import { midgardApi } from 'services/midgard'
 
 import { getHostnameFromUrl } from 'helpers/api'
 
-import { StatusBadge, Menu, Label, IconButton } from '../UIElements'
+import { StatusBadge, Menu, Label } from '../UIElements'
 import * as Styled from './NetworkStatus.style'
 
 type StatusColor = 'red' | 'yellow' | 'green'
@@ -95,12 +95,12 @@ export const NetworkStatus = (): JSX.Element => {
 
   return (
     <Dropdown overlay={menu} trigger={['click']}>
-      <IconButton>
+      <Styled.Button>
         <Styled.DropdownLink className="ant-dropdown-link" href="/">
           <StatusBadge color={statusColor} />
           <DownOutlined />
         </Styled.DropdownLink>
-      </IconButton>
+      </Styled.Button>
     </Dropdown>
   )
 }

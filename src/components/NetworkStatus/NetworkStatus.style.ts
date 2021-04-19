@@ -3,6 +3,8 @@ import { palette } from 'styled-theme'
 
 import { media } from 'helpers/style'
 
+import { IconButton } from '../UIElements'
+
 export const StatusItem = styled.div`
   padding-left: 10px;
 `
@@ -12,11 +14,22 @@ export const DropdownLink = styled.a`
 
   svg {
     color: ${palette('primary', 0)};
-    margin-left: 8px;
+    margin-left: 0px;
   }
 
   display: none;
   ${media.sm`
     display: flex;
+
+    svg {
+      margin-left: 8px;
+    }
+  `}
+`
+
+export const Button = styled(IconButton)`
+  margin-left: 0px;
+  ${media.sm`
+    margin-left: 8px;
   `}
 `

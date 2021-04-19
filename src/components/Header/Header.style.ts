@@ -72,8 +72,12 @@ export const RunePrice = styled.div`
   border: 1px solid ${palette('primary', 0)};
   border-radius: 16px;
 
-  margin-left: 8px;
   display: flex;
+
+  margin-left: 0px;
+  ${media.sm`
+    margin-left: 8px;
+  `}
 `
 
 export const WalletBtn = styled(WalletButton)`
