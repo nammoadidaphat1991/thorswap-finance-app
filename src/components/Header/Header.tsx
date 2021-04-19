@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect, useMemo } from 'react'
 
 import { Link } from 'react-router-dom'
 
@@ -62,7 +62,15 @@ export const Header = () => {
     [setBaseCurrency],
   )
 
-  const runeLabel = isDesktopView ? 'RUNE' : '1ᚱ'
+  const priceLabel = useMemo(() => {
+    if (isDesktopView) {
+      return `RUNE = $${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(
+        2,
+      )}`
+    }
+
+    return `1R=$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`
+  }, [isDesktopView, stats])
 
   return (
     <Styled.HeaderContainer>
@@ -75,10 +83,7 @@ export const Header = () => {
         <Styled.HeaderAction>
           <NetworkStatus />
           <Styled.RunePrice>
-            <Label weight="bold">
-              {runeLabel} ={' '}
-              {`$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`}
-            </Label>
+            <Label weight="bold">{priceLabel}</Label>
           </Styled.RunePrice>
         </Styled.HeaderAction>
       </Styled.HeaderLogo>

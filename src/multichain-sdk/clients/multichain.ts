@@ -80,6 +80,14 @@ export interface IMultiChain {
   loadAllWallets(): Promise<Wallet | null>
   getWalletAddressByChain(chain: Chain): string | null
 
+  validateAddress({
+    address,
+    chain,
+  }: {
+    address: string
+    chain: Chain
+  }): boolean
+
   getExplorerUrl(chain: Chain): string
   getExplorerAddressUrl(chain: Chain, address: string): string
   getExplorerTxUrl(chain: Chain, txHash: string): string
@@ -329,6 +337,19 @@ export class MultiChain implements IMultiChain {
     }
 
     return null
+  }
+
+  validateAddress = ({
+    address,
+    chain,
+  }: {
+    address: string
+    chain: Chain
+  }): boolean => {
+    const chainClient = this.getChainClient(chain)
+    if (!chainClient) return false
+
+    return chainClient.getClient().validateAddress(address)
   }
 
   getExplorerUrl = (chain: Chain): string => {

@@ -244,8 +244,22 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
   }, [])
 
   const handleSend = useCallback(() => {
-    setVisibleConfirmModal(true)
-  }, [])
+    if (
+      !isExpertMode &&
+      !multichain.validateAddress({
+        chain: sendAsset.chain,
+        address: recipient,
+      })
+    ) {
+      Notification({
+        type: 'warning',
+        message: `Recipient Address is not valid ${sendAsset.chain} Address, please check your address again.`,
+        duration: 20,
+      })
+    } else {
+      setVisibleConfirmModal(true)
+    }
+  }, [isExpertMode, sendAsset, recipient])
 
   const handleSelectDepositMemo = useCallback(() => {
     setMemo(Memo.depositMemo(sendAsset))
@@ -263,7 +277,9 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
       <Styled.ConfirmModalContent>
         <Information
           title="Send"
-          description={sendAsset.ticker.toUpperCase()}
+          description={`${sendAmount.toSignificant(
+            6,
+          )} ${sendAsset.ticker.toUpperCase()}`}
         />
         <Information
           title="Recipient"
@@ -279,7 +295,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         />
       </Styled.ConfirmModalContent>
     )
-  }, [networkFee, sendAsset, recipientAddress])
+  }, [sendAmount, networkFee, sendAsset, recipientAddress])
 
   const title = useMemo(() => `${sendAsset.chain} ${sendAsset.ticker}`, [
     sendAsset,
