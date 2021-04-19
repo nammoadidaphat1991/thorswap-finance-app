@@ -1,3 +1,4 @@
+import { Chain } from '@xchainjs/xchain-util'
 import {
   StatsData,
   Network,
@@ -30,6 +31,11 @@ export interface SubmitTx {
   submitDate?: Date
   recipient?: string
   poolAsset?: string
+  addTx?: {
+    runeTxID?: string
+    assetTxID?: string
+  }
+  withdrawChain?: Chain // chain for asset used for withdraw tx
 }
 
 export interface TxTracker {

@@ -340,6 +340,10 @@ const AddLiquidityPanel = ({
             inAssets,
             outAssets: [],
             txID: runeTxHash || assetTxHash,
+            addTx: {
+              runeTxID: runeTxHash,
+              assetTxID: assetTxHash,
+            },
             poolAsset: poolAsset.ticker,
           },
         })

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react'
 
 import { useParams } from 'react-router'
 
+import { THORChain } from '@xchainjs/xchain-thorchain'
 import {
   PanelView,
   Slider,
@@ -258,8 +259,9 @@ const WithdrawPanel = ({
             submitTx: {
               inAssets: [],
               outAssets,
-              txID,
               poolAsset: poolAssetString,
+              txID,
+              withdrawChain: THORChain,
             },
           })
         } else if (liquidityType === LiquidityTypeOption.RUNE) {
@@ -295,6 +297,7 @@ const WithdrawPanel = ({
               outAssets,
               txID,
               poolAsset: poolAssetString,
+              withdrawChain: THORChain,
             },
           })
         } else if (liquidityType === LiquidityTypeOption.ASSET) {
@@ -330,6 +333,7 @@ const WithdrawPanel = ({
               outAssets,
               txID,
               poolAsset: poolAssetString,
+              withdrawChain: THORChain,
             },
           })
         }
@@ -366,6 +370,7 @@ const WithdrawPanel = ({
             outAssets,
             txID,
             poolAsset: poolAssetString,
+            withdrawChain: pool.asset.chain,
           },
         })
       } else if (lpType === PoolShareType.RUNE_ASYM) {
@@ -401,6 +406,7 @@ const WithdrawPanel = ({
             outAssets,
             txID,
             poolAsset: poolAssetString,
+            withdrawChain: THORChain,
           },
         })
       }

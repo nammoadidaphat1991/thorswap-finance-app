@@ -190,7 +190,7 @@ export const getAddTxUrl = ({
   asset: Asset
   txTracker: TxTracker
 }): string => {
-  const { action } = txTracker
+  const { action, submitTx } = txTracker
 
   if (action?.in) {
     const inTx = action.in.find(
@@ -205,6 +205,28 @@ export const getAddTxUrl = ({
 
       return multichain.getExplorerTxUrl(asset.chain, inTx?.txID)
     }
+  } else if (submitTx.addTx) {
+    const { addTx } = submitTx
+
+    if (asset.isRUNE() && addTx.runeTxID) {
+      return multichain.getExplorerTxUrl(asset.chain, addTx.runeTxID)
+    }
+
+    if (addTx.assetTxID) {
+      return multichain.getExplorerTxUrl(asset.chain, addTx.assetTxID)
+    }
+  }
+
+  return '#'
+}
+
+export const getWithdrawSubmitTxUrl = (txTracker: TxTracker): string => {
+  const { submitTx } = txTracker
+
+  if (submitTx?.txID && submitTx?.withdrawChain) {
+    const { withdrawChain, txID } = submitTx
+
+    return multichain.getExplorerTxUrl(withdrawChain, txID)
   }
 
   return '#'
