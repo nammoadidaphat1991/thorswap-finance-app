@@ -22,6 +22,7 @@ export enum TxTrackerStatus {
   Submitting = 'Submitting',
   Pending = 'Pending',
   Success = 'Success',
+  Failed = 'Failed',
 }
 
 export interface SubmitTx {

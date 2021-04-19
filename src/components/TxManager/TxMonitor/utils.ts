@@ -95,6 +95,8 @@ export const getTxTitle = (txTracker: TxTracker): string => {
 export const getTotalProgressStatus = (
   txTracker: TxTracker,
 ): ProgressStatus => {
+  if (txTracker.status === TxTrackerStatus.Failed) return 'failed'
+
   if (txTracker.status === TxTrackerStatus.Success) {
     if (txTracker.refunded) {
       return 'refunded'
@@ -107,6 +109,8 @@ export const getTotalProgressStatus = (
 }
 
 export const getTxColor = (txTracker: TxTracker) => {
+  if (txTracker.status === TxTrackerStatus.Failed) return 'error'
+
   if (txTracker.status === TxTrackerStatus.Success) {
     if (txTracker.refunded) {
       return 'warning'

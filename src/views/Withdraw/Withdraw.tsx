@@ -129,7 +129,7 @@ const WithdrawPanel = ({
   const [lpType, setLPType] = useState(shareTypes[0])
 
   const { wallet } = useWallet()
-  const { submitTransaction, pollTransaction } = useTxTracker()
+  const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const poolAsset = useMemo(() => pool.asset, [pool])
 
@@ -223,13 +223,124 @@ const WithdrawPanel = ({
     setVisibleConfirmModal(false)
     if (wallet) {
       const poolAssetString = pool.asset.toString()
-      if (lpType === PoolShareType.SYM) {
-        if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
+      let trackId = ''
+      try {
+        if (lpType === PoolShareType.SYM) {
+          if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
+            const outAssets = [
+              {
+                asset: Asset.RUNE().toString(),
+                amount: runeAmount.toSignificant(6),
+              },
+              {
+                asset: pool.asset.toString(),
+                amount: assetAmount.toSignificant(6),
+              },
+            ]
+
+            // register to tx tracker
+            trackId = submitTransaction({
+              type: ActionTypeEnum.Withdraw,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                poolAsset: poolAssetString,
+              },
+            })
+
+            const txID = await multichain.withdraw({
+              pool,
+              percent: new Percent(percent),
+              from: 'sym',
+              to: 'sym',
+            })
+
+            // start polling
+            pollTransaction({
+              uuid: trackId,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                poolAsset: poolAssetString,
+                txID,
+                withdrawChain: THORChain,
+              },
+            })
+          } else if (liquidityType === LiquidityTypeOption.RUNE) {
+            const outAssets = [
+              {
+                asset: Asset.RUNE().toString(),
+                amount: runeAmount.toSignificant(6),
+              },
+            ]
+
+            // register to tx tracker
+            trackId = submitTransaction({
+              type: ActionTypeEnum.Withdraw,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                poolAsset: poolAssetString,
+              },
+            })
+
+            const txID = await multichain.withdraw({
+              pool,
+              percent: new Percent(percent),
+              from: 'sym',
+              to: 'rune',
+            })
+
+            // start polling
+            pollTransaction({
+              uuid: trackId,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                txID,
+                poolAsset: poolAssetString,
+                withdrawChain: THORChain,
+              },
+            })
+          } else if (liquidityType === LiquidityTypeOption.ASSET) {
+            const outAssets = [
+              {
+                asset: pool.asset.toString(),
+                amount: assetAmount.toSignificant(6),
+              },
+            ]
+
+            // register to tx tracker
+            trackId = submitTransaction({
+              type: ActionTypeEnum.Withdraw,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                poolAsset: poolAssetString,
+              },
+            })
+
+            const txID = await multichain.withdraw({
+              pool,
+              percent: new Percent(percent),
+              from: 'sym',
+              to: 'asset',
+            })
+
+            // start polling
+            pollTransaction({
+              uuid: trackId,
+              submitTx: {
+                inAssets: [],
+                outAssets,
+                txID,
+                poolAsset: poolAssetString,
+                withdrawChain: THORChain,
+              },
+            })
+          }
+        } else if (lpType === PoolShareType.ASSET_ASYM) {
           const outAssets = [
-            {
-              asset: Asset.RUNE().toString(),
-              amount: runeAmount.toSignificant(6),
-            },
             {
               asset: pool.asset.toString(),
               amount: assetAmount.toSignificant(6),
@@ -237,7 +348,7 @@ const WithdrawPanel = ({
           ]
 
           // register to tx tracker
-          const trackId = submitTransaction({
+          trackId = submitTransaction({
             type: ActionTypeEnum.Withdraw,
             submitTx: {
               inAssets: [],
@@ -249,8 +360,8 @@ const WithdrawPanel = ({
           const txID = await multichain.withdraw({
             pool,
             percent: new Percent(percent),
-            from: 'sym',
-            to: 'sym',
+            from: 'asset',
+            to: 'asset',
           })
 
           // start polling
@@ -259,12 +370,12 @@ const WithdrawPanel = ({
             submitTx: {
               inAssets: [],
               outAssets,
-              poolAsset: poolAssetString,
               txID,
-              withdrawChain: THORChain,
+              poolAsset: poolAssetString,
+              withdrawChain: pool.asset.chain,
             },
           })
-        } else if (liquidityType === LiquidityTypeOption.RUNE) {
+        } else if (lpType === PoolShareType.RUNE_ASYM) {
           const outAssets = [
             {
               asset: Asset.RUNE().toString(),
@@ -273,7 +384,7 @@ const WithdrawPanel = ({
           ]
 
           // register to tx tracker
-          const trackId = submitTransaction({
+          trackId = submitTransaction({
             type: ActionTypeEnum.Withdraw,
             submitTx: {
               inAssets: [],
@@ -285,7 +396,7 @@ const WithdrawPanel = ({
           const txID = await multichain.withdraw({
             pool,
             percent: new Percent(percent),
-            from: 'sym',
+            from: 'rune',
             to: 'rune',
           })
 
@@ -300,114 +411,15 @@ const WithdrawPanel = ({
               withdrawChain: THORChain,
             },
           })
-        } else if (liquidityType === LiquidityTypeOption.ASSET) {
-          const outAssets = [
-            {
-              asset: pool.asset.toString(),
-              amount: assetAmount.toSignificant(6),
-            },
-          ]
-
-          // register to tx tracker
-          const trackId = submitTransaction({
-            type: ActionTypeEnum.Withdraw,
-            submitTx: {
-              inAssets: [],
-              outAssets,
-              poolAsset: poolAssetString,
-            },
-          })
-
-          const txID = await multichain.withdraw({
-            pool,
-            percent: new Percent(percent),
-            from: 'sym',
-            to: 'asset',
-          })
-
-          // start polling
-          pollTransaction({
-            uuid: trackId,
-            submitTx: {
-              inAssets: [],
-              outAssets,
-              txID,
-              poolAsset: poolAssetString,
-              withdrawChain: THORChain,
-            },
-          })
         }
-      } else if (lpType === PoolShareType.ASSET_ASYM) {
-        const outAssets = [
-          {
-            asset: pool.asset.toString(),
-            amount: assetAmount.toSignificant(6),
-          },
-        ]
+      } catch (error) {
+        console.log(error)
+        setTxFailed(trackId)
 
-        // register to tx tracker
-        const trackId = submitTransaction({
-          type: ActionTypeEnum.Withdraw,
-          submitTx: {
-            inAssets: [],
-            outAssets,
-            poolAsset: poolAssetString,
-          },
-        })
-
-        const txID = await multichain.withdraw({
-          pool,
-          percent: new Percent(percent),
-          from: 'asset',
-          to: 'asset',
-        })
-
-        // start polling
-        pollTransaction({
-          uuid: trackId,
-          submitTx: {
-            inAssets: [],
-            outAssets,
-            txID,
-            poolAsset: poolAssetString,
-            withdrawChain: pool.asset.chain,
-          },
-        })
-      } else if (lpType === PoolShareType.RUNE_ASYM) {
-        const outAssets = [
-          {
-            asset: Asset.RUNE().toString(),
-            amount: runeAmount.toSignificant(6),
-          },
-        ]
-
-        // register to tx tracker
-        const trackId = submitTransaction({
-          type: ActionTypeEnum.Withdraw,
-          submitTx: {
-            inAssets: [],
-            outAssets,
-            poolAsset: poolAssetString,
-          },
-        })
-
-        const txID = await multichain.withdraw({
-          pool,
-          percent: new Percent(percent),
-          from: 'rune',
-          to: 'rune',
-        })
-
-        // start polling
-        pollTransaction({
-          uuid: trackId,
-          submitTx: {
-            inAssets: [],
-            outAssets,
-            txID,
-            poolAsset: poolAssetString,
-            withdrawChain: THORChain,
-          },
+        Notification({
+          type: 'open',
+          message: 'Submit Transaction Failed.',
+          duration: 20,
         })
       }
     }
@@ -421,6 +433,7 @@ const WithdrawPanel = ({
     assetAmount,
     submitTransaction,
     pollTransaction,
+    setTxFailed,
   ])
 
   const handleCancel = useCallback(() => {

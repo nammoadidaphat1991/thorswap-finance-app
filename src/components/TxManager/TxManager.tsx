@@ -28,8 +28,11 @@ export const TxManager = () => {
 
   const hasPendingTx = useMemo(
     () =>
-      txTrackers.filter((tracker) => tracker.status !== TxTrackerStatus.Success)
-        .length > 0,
+      txTrackers.filter(
+        (tracker) =>
+          tracker.status !== TxTrackerStatus.Success &&
+          tracker.status !== TxTrackerStatus.Failed,
+      ).length > 0,
     [txTrackers],
   )
   const hasTxHistory = useMemo(() => txTrackers.length > 0, [txTrackers])

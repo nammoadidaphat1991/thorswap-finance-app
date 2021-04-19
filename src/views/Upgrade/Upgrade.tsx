@@ -9,6 +9,7 @@ import {
   ConfirmModal,
   Information,
   Label,
+  Notification,
 } from 'components'
 import { ActionTypeEnum } from 'midgard-sdk'
 import {
@@ -60,7 +61,7 @@ const UpgradePanel = ({
   runeToUpgrade: Asset[]
   wallet: Wallet
 }) => {
-  const { submitTransaction, pollTransaction } = useTxTracker()
+  const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const [selectedAsset, setSelectedAsset] = useState<Asset>(runeToUpgrade[0])
 
@@ -146,31 +147,48 @@ const UpgradePanel = ({
         },
       })
 
-      const txHash = await multichain.upgrade({ runeAmount })
+      try {
+        const txHash = await multichain.upgrade({ runeAmount })
 
-      // start polling
-      pollTransaction({
-        uuid: trackId,
-        submitTx: {
-          inAssets: [
-            {
-              asset: selectedAsset.toString(),
-              amount: upgradeAmount.toSignificant(6),
-            },
-          ],
-          outAssets: [
-            {
-              asset: Asset.RUNE().toString(),
-              amount: upgradeAmount.toSignificant(6),
-            },
-          ],
-          txID: txHash,
-          submitDate: new Date(),
-          recipient,
-        },
-      })
+        // start polling
+        pollTransaction({
+          uuid: trackId,
+          submitTx: {
+            inAssets: [
+              {
+                asset: selectedAsset.toString(),
+                amount: upgradeAmount.toSignificant(6),
+              },
+            ],
+            outAssets: [
+              {
+                asset: Asset.RUNE().toString(),
+                amount: upgradeAmount.toSignificant(6),
+              },
+            ],
+            txID: txHash,
+            submitDate: new Date(),
+            recipient,
+          },
+        })
+      } catch (error) {
+        setTxFailed(trackId)
+
+        Notification({
+          type: 'open',
+          message: 'Submit Transaction Failed.',
+          duration: 20,
+        })
+        console.log(error)
+      }
     }
-  }, [selectedAsset, upgradeAmount, submitTransaction, pollTransaction])
+  }, [
+    selectedAsset,
+    upgradeAmount,
+    submitTransaction,
+    pollTransaction,
+    setTxFailed,
+  ])
 
   const handleCancelUpgrade = useCallback(() => {
     setVisibleConfirmModal(false)

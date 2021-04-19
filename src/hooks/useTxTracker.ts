@@ -56,9 +56,23 @@ export const useTxTracker = () => {
     [updateTxTracker],
   )
 
+  // start polling a transaction
+  const setTxFailed = useCallback(
+    (uuid: string) => {
+      updateTxTracker({
+        uuid,
+        txTracker: {
+          status: TxTrackerStatus.Failed,
+        },
+      })
+    },
+    [updateTxTracker],
+  )
+
   return {
     submitTransaction,
     pollTransaction,
     clearTxTrackers,
+    setTxFailed,
   }
 }

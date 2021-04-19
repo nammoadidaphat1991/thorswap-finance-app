@@ -72,7 +72,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { wallet } = useWallet()
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
-  const { submitTransaction, pollTransaction } = useTxTracker()
+  const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -272,26 +272,26 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     setVisibleConfirmModal(false)
 
     if (wallet && swap) {
-      try {
-        // register to tx tracker
-        const trackId = submitTransaction({
-          type: ActionTypeEnum.Swap,
-          submitTx: {
-            inAssets: [
-              {
-                asset: swap.inputAsset.toString(),
-                amount: swap.inputAmount.toSignificant(6),
-              },
-            ],
-            outAssets: [
-              {
-                asset: swap.outputAsset.toString(),
-                amount: swap.outputAmount.toSignificant(6),
-              },
-            ],
-          },
-        })
+      // register to tx tracker
+      const trackId = submitTransaction({
+        type: ActionTypeEnum.Swap,
+        submitTx: {
+          inAssets: [
+            {
+              asset: swap.inputAsset.toString(),
+              amount: swap.inputAmount.toSignificant(6),
+            },
+          ],
+          outAssets: [
+            {
+              asset: swap.outputAsset.toString(),
+              amount: swap.outputAmount.toSignificant(6),
+            },
+          ],
+        },
+      })
 
+      try {
         const txHash = await multichain.swap(swap, recipient)
 
         // start polling
@@ -314,6 +314,8 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           },
         })
       } catch (error) {
+        setTxFailed(trackId)
+
         Notification({
           type: 'open',
           message: 'Swap Failed.',
@@ -322,7 +324,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         console.log(error)
       }
     }
-  }, [wallet, swap, recipient, submitTransaction, pollTransaction])
+  }, [wallet, swap, recipient, submitTransaction, pollTransaction, setTxFailed])
 
   const handleCancel = useCallback(() => {
     setVisibleConfirmModal(false)

@@ -96,7 +96,7 @@ const AddLiquidityPanel = ({
   const history = useHistory()
   const { wallet } = useWallet()
   const { getAllMemberDetails, memberDetails } = useMidgard()
-  const { submitTransaction, pollTransaction } = useTxTracker()
+  const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const { isFundsCapReached } = useMimir()
 
@@ -323,32 +323,43 @@ const AddLiquidityPanel = ({
         },
       })
 
-      const txRes = await multichain.addLiquidity({
-        pool,
-        runeAmount: runeAssetAmount,
-        assetAmount: poolAssetAmount,
-      })
-
-      console.log('tx res', txRes)
-
-      const runeTxHash = txRes?.runeTx
-      const assetTxHash = txRes?.assetTx
-
-      if (runeTxHash || assetTxHash) {
-        // start polling
-        pollTransaction({
-          uuid: trackId,
-          submitTx: {
-            inAssets,
-            outAssets: [],
-            txID: runeTxHash || assetTxHash,
-            addTx: {
-              runeTxID: runeTxHash,
-              assetTxID: assetTxHash,
-            },
-            poolAsset: poolAsset.ticker,
-          },
+      try {
+        const txRes = await multichain.addLiquidity({
+          pool,
+          runeAmount: runeAssetAmount,
+          assetAmount: poolAssetAmount,
         })
+
+        console.log('tx res', txRes)
+
+        const runeTxHash = txRes?.runeTx
+        const assetTxHash = txRes?.assetTx
+
+        if (runeTxHash || assetTxHash) {
+          // start polling
+          pollTransaction({
+            uuid: trackId,
+            submitTx: {
+              inAssets,
+              outAssets: [],
+              txID: runeTxHash || assetTxHash,
+              addTx: {
+                runeTxID: runeTxHash,
+                assetTxID: assetTxHash,
+              },
+              poolAsset: poolAsset.ticker,
+            },
+          })
+        }
+      } catch (error) {
+        setTxFailed(trackId)
+
+        Notification({
+          type: 'open',
+          message: 'Submit Transaction Failed.',
+          duration: 20,
+        })
+        console.log(error)
       }
     }
   }, [
@@ -360,6 +371,7 @@ const AddLiquidityPanel = ({
     liquidityType,
     submitTransaction,
     pollTransaction,
+    setTxFailed,
   ])
 
   const handleCancel = useCallback(() => {

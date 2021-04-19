@@ -100,6 +100,18 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
       const { asset: sendAsset, amount: sendAmount } = inAssets[0]
       const { asset: receiveAsset, amount: receiveAmount } = outAssets[0]
 
+      if (status === TxTrackerStatus.Failed) {
+        return (
+          <Styled.TxInformation>
+            <ProgressIcon status="failed" />
+            <Label color="error">
+              Send {sendAmount} {Asset.fromAssetString(sendAsset)?.ticker}{' '}
+              Failed
+            </Label>
+          </Styled.TxInformation>
+        )
+      }
+
       return (
         <>
           <Styled.TxInformation>
