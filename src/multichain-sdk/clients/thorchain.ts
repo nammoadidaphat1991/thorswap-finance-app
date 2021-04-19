@@ -115,12 +115,14 @@ export class ThorChain implements IThorChain {
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
 
-      return await this.client.transfer({
+      const res = await this.client.transfer({
         asset: asset.getAssetObj(),
         amount,
         recipient,
         memo,
       })
+
+      return res
     } catch (error) {
       return Promise.reject(error)
     }
@@ -133,11 +135,13 @@ export class ThorChain implements IThorChain {
       const amount = baseAmount(assetAmount.amount.baseAmount)
 
       if (memo) {
-        return await this.client.deposit({
+        const res = await this.client.deposit({
           asset: asset.getAssetObj(),
           amount,
           memo,
         })
+
+        return res
       }
       throw new Error('Invalid Memo')
     } catch (error) {

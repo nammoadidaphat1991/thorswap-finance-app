@@ -194,6 +194,10 @@ export class Asset implements IAsset {
     return this.eq(Asset.RUNE())
   }
 
+  isBTC(): boolean {
+    return this.eq(Asset.BTC())
+  }
+
   isBNB(): boolean {
     return this.eq(Asset.BNB())
   }

@@ -100,6 +100,19 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
   const [isApproved, setApproved] = useState<boolean | null>(null)
 
+  // NOTE: temporary disable BTC->ERC20 swap for memo issue
+  const isSwapSupported = useMemo(() => {
+    if (
+      inputAsset.isBTC() &&
+      outputAsset.chain === 'ETH' &&
+      !outputAsset.isETH()
+    ) {
+      return false
+    }
+
+    return true
+  }, [inputAsset, outputAsset])
+
   useEffect(() => {
     const checkApproved = async () => {
       const approved = await multichain.isAssetApproved(inputAsset)
@@ -333,6 +346,14 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
   const handleSwap = useCallback(() => {
     if (wallet && swap) {
+      if (!isSwapSupported) {
+        Notification({
+          type: 'info',
+          message: 'Bitcoin -> ERC20 Swap is suspended for temporary.',
+        })
+        return
+      }
+
       if (swap.hasInSufficientFee) {
         Notification({
           type: 'info',
@@ -350,7 +371,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [wallet, swap, isSwapSupported])
 
   const handleApprove = useCallback(() => {
     if (wallet && swap) {
