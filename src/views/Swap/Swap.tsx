@@ -317,8 +317,8 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         setTxFailed(trackId)
 
         Notification({
-          type: 'open',
-          message: 'Swap Failed.',
+          type: 'error',
+          message: 'Submit Transaction Failed.',
           duration: 20,
         })
         console.log(error)

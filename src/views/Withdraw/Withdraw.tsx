@@ -417,7 +417,7 @@ const WithdrawPanel = ({
         setTxFailed(trackId)
 
         Notification({
-          type: 'open',
+          type: 'error',
           message: 'Submit Transaction Failed.',
           duration: 20,
         })
