@@ -152,7 +152,9 @@ const AddLiquidityPanel = ({
   }, [liquidityEntity, assetAmount, runeAmount])
 
   const poolShareEst = useMemo(() => {
-    return liquidityEntity.getPoolShareEst(runeAmount, assetAmount).toFixed(2)
+    return liquidityEntity
+      .getPoolShareEst(runeAmount, assetAmount)
+      .toSignificant(6)
   }, [liquidityEntity, assetAmount, runeAmount])
 
   useEffect(() => {
@@ -300,14 +302,14 @@ const AddLiquidityPanel = ({
       if (liquidityType !== LiquidityTypeOption.ASSET) {
         inAssets.push({
           asset: Asset.RUNE().toString(),
-          amount: runeAmount.toFixed(2),
+          amount: runeAmount.toSignificant(6),
         })
       }
 
       if (liquidityType !== LiquidityTypeOption.RUNE) {
         inAssets.push({
           asset: poolAsset.toString(),
-          amount: assetAmount.toFixed(3),
+          amount: assetAmount.toSignificant(6),
         })
       }
 
@@ -429,7 +431,11 @@ const AddLiquidityPanel = ({
       <Styled.ConfirmModalContent>
         <Information
           title="Add"
-          description={`${assetAmount.toFixed()} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toFixed()} RUNE`}
+          description={`${assetAmount.toSignificant(
+            6,
+          )} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toSignificant(
+            6,
+          )} RUNE`}
         />
         <Information
           title="Slip"

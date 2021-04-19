@@ -228,11 +228,11 @@ const WithdrawPanel = ({
           const outAssets = [
             {
               asset: Asset.RUNE().toString(),
-              amount: runeAmount.toFixed(4),
+              amount: runeAmount.toSignificant(6),
             },
             {
               asset: pool.asset.toString(),
-              amount: assetAmount.toFixed(4),
+              amount: assetAmount.toSignificant(6),
             },
           ]
 
@@ -268,7 +268,7 @@ const WithdrawPanel = ({
           const outAssets = [
             {
               asset: Asset.RUNE().toString(),
-              amount: runeAmount.toFixed(4),
+              amount: runeAmount.toSignificant(6),
             },
           ]
 
@@ -304,7 +304,7 @@ const WithdrawPanel = ({
           const outAssets = [
             {
               asset: pool.asset.toString(),
-              amount: assetAmount.toFixed(4),
+              amount: assetAmount.toSignificant(6),
             },
           ]
 
@@ -341,7 +341,7 @@ const WithdrawPanel = ({
         const outAssets = [
           {
             asset: pool.asset.toString(),
-            amount: assetAmount.toFixed(4),
+            amount: assetAmount.toSignificant(6),
           },
         ]
 
@@ -377,7 +377,7 @@ const WithdrawPanel = ({
         const outAssets = [
           {
             asset: Asset.RUNE().toString(),
-            amount: runeAmount.toFixed(4),
+            amount: runeAmount.toSignificant(6),
           },
         ]
 
@@ -445,19 +445,25 @@ const WithdrawPanel = ({
         {lpType === PoolShareType.SYM && (
           <Information
             title="Withdraw"
-            description={`${assetAmount.toFixed()} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toFixed()} RUNE`}
+            description={`${assetAmount.toSignificant(
+              6,
+            )} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toSignificant(
+              6,
+            )} RUNE`}
           />
         )}
         {lpType === PoolShareType.ASSET_ASYM && (
           <Information
             title="Withdraw"
-            description={`${assetAmount.toFixed()} ${poolAsset.ticker.toUpperCase()}`}
+            description={`${assetAmount.toSignificant(
+              6,
+            )} ${poolAsset.ticker.toUpperCase()}`}
           />
         )}
         {lpType === PoolShareType.RUNE_ASYM && (
           <Information
             title="Withdraw"
-            description={`${runeAmount.toFixed()} RUNE`}
+            description={`${runeAmount.toSignificant(6)} RUNE`}
           />
         )}
         <Information
@@ -530,18 +536,18 @@ const WithdrawPanel = ({
         {liquidityType !== LiquidityTypeOption.ASSET && (
           <Information
             title="RUNE"
-            description={`${runeAmount.toFixed(
-              4,
-            )} RUNE ($${runePriceInUSD.toFixed(3)})`}
+            description={`${runeAmount.toSignificant(
+              6,
+            )} RUNE ($${runePriceInUSD.toSignificant(6)})`}
             tooltip="You are withdrawing RUNE from the liquidity"
           />
         )}
         {liquidityType !== LiquidityTypeOption.RUNE && (
           <Information
             title={poolAsset.ticker}
-            description={`${assetAmount.toFixed(4)} ${
+            description={`${assetAmount.toSignificant(6)} ${
               poolAsset.ticker
-            } ($${assetPriceInUSD.toFixed(3)})`}
+            } ($${assetPriceInUSD.toSignificant(6)})`}
             tooltip="You are withdrawing ASSET from the liquidity"
           />
         )}

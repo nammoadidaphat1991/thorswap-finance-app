@@ -134,13 +134,13 @@ const UpgradePanel = ({
           inAssets: [
             {
               asset: selectedAsset.toString(),
-              amount: upgradeAmount.toFixed(3),
+              amount: upgradeAmount.toSignificant(6),
             },
           ],
           outAssets: [
             {
               asset: Asset.RUNE().toString(),
-              amount: upgradeAmount.toFixed(3),
+              amount: upgradeAmount.toSignificant(6),
             },
           ],
         },
@@ -155,13 +155,13 @@ const UpgradePanel = ({
           inAssets: [
             {
               asset: selectedAsset.toString(),
-              amount: upgradeAmount.toFixed(3),
+              amount: upgradeAmount.toSignificant(6),
             },
           ],
           outAssets: [
             {
               asset: Asset.RUNE().toString(),
-              amount: upgradeAmount.toFixed(3),
+              amount: upgradeAmount.toSignificant(6),
             },
           ],
           txID: txHash,

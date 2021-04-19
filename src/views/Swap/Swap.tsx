@@ -272,46 +272,55 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     setVisibleConfirmModal(false)
 
     if (wallet && swap) {
-      // register to tx tracker
-      const trackId = submitTransaction({
-        type: ActionTypeEnum.Swap,
-        submitTx: {
-          inAssets: [
-            {
-              asset: swap.inputAsset.toString(),
-              amount: swap.inputAmount.toFixed(3),
-            },
-          ],
-          outAssets: [
-            {
-              asset: swap.outputAsset.toString(),
-              amount: swap.outputAmount.toFixed(3),
-            },
-          ],
-        },
-      })
+      try {
+        // register to tx tracker
+        const trackId = submitTransaction({
+          type: ActionTypeEnum.Swap,
+          submitTx: {
+            inAssets: [
+              {
+                asset: swap.inputAsset.toString(),
+                amount: swap.inputAmount.toSignificant(6),
+              },
+            ],
+            outAssets: [
+              {
+                asset: swap.outputAsset.toString(),
+                amount: swap.outputAmount.toSignificant(6),
+              },
+            ],
+          },
+        })
 
-      const txHash = await multichain.swap(swap, recipient)
+        const txHash = await multichain.swap(swap, recipient)
 
-      // start polling
-      pollTransaction({
-        uuid: trackId,
-        submitTx: {
-          inAssets: [
-            {
-              asset: swap.inputAsset.toString(),
-              amount: swap.inputAmount.toFixed(3),
-            },
-          ],
-          outAssets: [
-            {
-              asset: swap.outputAsset.toString(),
-              amount: swap.outputAmount.toFixed(3),
-            },
-          ],
-          txID: txHash,
-        },
-      })
+        // start polling
+        pollTransaction({
+          uuid: trackId,
+          submitTx: {
+            inAssets: [
+              {
+                asset: swap.inputAsset.toString(),
+                amount: swap.inputAmount.toSignificant(6),
+              },
+            ],
+            outAssets: [
+              {
+                asset: swap.outputAsset.toString(),
+                amount: swap.outputAmount.toSignificant(6),
+              },
+            ],
+            txID: txHash,
+          },
+        })
+      } catch (error) {
+        Notification({
+          type: 'open',
+          message: 'Swap Failed.',
+          duration: 20,
+        })
+        console.log(error)
+      }
     }
   }, [wallet, swap, recipient, submitTransaction, pollTransaction])
 
@@ -323,23 +332,32 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     setVisibleApproveModal(false)
 
     if (wallet) {
-      const txHash = await multichain.approveAsset(inputAsset)
+      try {
+        const txHash = await multichain.approveAsset(inputAsset)
 
-      if (txHash) {
-        console.log('approve txhash', txHash)
-        const txURL = multichain.getExplorerTxUrl(inputAsset.chain, txHash)
+        if (txHash) {
+          console.log('approve txhash', txHash)
+          const txURL = multichain.getExplorerTxUrl(inputAsset.chain, txHash)
 
+          Notification({
+            type: 'open',
+            message: 'View Approve Tx.',
+            description: 'Transaction submitted successfully!',
+            btn: (
+              <a href={txURL} target="_blank" rel="noopener noreferrer">
+                View Transaction
+              </a>
+            ),
+            duration: 20,
+          })
+        }
+      } catch (error) {
         Notification({
           type: 'open',
-          message: 'View Approve Tx.',
-          description: 'Transaction submitted successfully!',
-          btn: (
-            <a href={txURL} target="_blank" rel="noopener noreferrer">
-              View Transaction
-            </a>
-          ),
+          message: 'Approve Failed.',
           duration: 20,
         })
+        console.log(error)
       }
     }
   }, [inputAsset, wallet])
