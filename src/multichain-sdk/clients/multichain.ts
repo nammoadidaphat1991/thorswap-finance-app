@@ -378,6 +378,13 @@ export class MultiChain implements IMultiChain {
 
     if (!chainClient) return '#'
 
+    // add 0x suffix for eth chain
+    if (chain === ETHChain) {
+      if (txHash.substr(0, 2).toLowerCase() !== '0x') {
+        return chainClient.getClient().getExplorerTxUrl(`0x${txHash}`)
+      }
+    }
+
     // return viewblock for thorchain txns
     if (chain === THORChain) {
       if (this.network === 'mainnet') {
