@@ -51,7 +51,7 @@ export const ChainMemberPoolCard = ({
               address: chainWalletAddress,
             })}
           >
-            <Tooltip tooltip="View on runeyield.info ↗" placement="top">
+            <Tooltip tooltip="View on RUNEYield.info ↗" placement="top">
               <Styled.YieldInfo>
                 <AreaChartOutlined />
               </Styled.YieldInfo>

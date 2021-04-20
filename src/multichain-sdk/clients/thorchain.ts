@@ -2,6 +2,11 @@ import { TxHash, Balance, Network } from '@xchainjs/xchain-client'
 import { Client as ThorClient } from '@xchainjs/xchain-thorchain'
 import { baseAmount, Chain, THORChain } from '@xchainjs/xchain-util'
 
+import {
+  INSUFFICIENT_RUNE_THRESHOLD_AMOUNT_ERROR,
+  INVALID_MEMO_ERROR,
+  RUNE_THRESHOLD_AMOUNT,
+} from '../constants'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
 import { TxParams } from './types'
@@ -79,6 +84,9 @@ export class ThorChain implements IThorChain {
         data.asset.eq(assetAmount.asset),
       )
 
+      console.log('assetbalance', assetBalance?.amount.toFixed())
+      console.log('assetbalance', assetAmount?.amount.toFixed())
+
       if (!assetBalance) return false
 
       return assetBalance.amount.gte(assetAmount.amount)
@@ -134,16 +142,27 @@ export class ThorChain implements IThorChain {
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
 
-      if (memo) {
-        const res = await this.client.deposit({
-          asset: asset.getAssetObj(),
-          amount,
-          memo,
-        })
+      if (!memo) throw new Error(INVALID_MEMO_ERROR)
 
-        return res
+      // Note: retain 2 RUNE threshold amount for gas purpose
+      const hasThresholdAmount = await this.hasAmountInBalance(
+        new AssetAmount(
+          Asset.RUNE(),
+          Amount.fromAssetAmount(RUNE_THRESHOLD_AMOUNT, Asset.RUNE().decimal),
+        ),
+      )
+
+      if (!hasThresholdAmount) {
+        throw new Error(INSUFFICIENT_RUNE_THRESHOLD_AMOUNT_ERROR)
       }
-      throw new Error('Invalid Memo')
+
+      const res = await this.client.deposit({
+        asset: asset.getAssetObj(),
+        amount,
+        memo,
+      })
+
+      return res
     } catch (error) {
       return Promise.reject(error)
     }
