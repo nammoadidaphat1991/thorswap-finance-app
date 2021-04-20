@@ -6,6 +6,6 @@ export const A = styled.a`
 
   &:hover {
     color: ${palette('primary', 1)};
-    text-decoration: underline;
+    font-weight: bold;
   }
 `

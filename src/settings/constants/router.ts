@@ -1,4 +1,13 @@
+import { Chain } from '@xchainjs/xchain-util'
 import { Pool, Asset } from 'multichain-sdk'
+
+export const getRuneYieldInfoRoute = ({
+  chain,
+  address,
+}: {
+  chain: Chain
+  address: string
+}) => `https://app.runeyield.info/dashboard?${chain.toLowerCase()}=${address}`
 
 export const HOME_ROUTE = '/'
 

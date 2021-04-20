@@ -78,3 +78,12 @@ export const ToolWrapper = styled.div`
     height: 14px;
   }
 `
+
+export const YieldInfo = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  color: ${palette('text', 0)};
+`

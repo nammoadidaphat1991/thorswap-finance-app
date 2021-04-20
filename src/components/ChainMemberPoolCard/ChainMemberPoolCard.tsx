@@ -1,16 +1,21 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { ChevronUp, ChevronDown } from 'react-feather'
 
-import { SyncOutlined } from '@ant-design/icons'
+import { SyncOutlined, AreaChartOutlined } from '@ant-design/icons'
 import { chainToString } from '@xchainjs/xchain-util'
 import { Asset, Pool, SupportedChain } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
 import { PoolMemberData, ChainMemberData } from 'redux/midgard/types'
 
+import { multichain } from 'services/multichain'
+
+import { getRuneYieldInfoRoute } from 'settings/constants'
+
+import { ExternalButtonLink } from '../Link'
 import { MemberPoolCard } from '../MemberPoolCard'
-import { CoreButton } from '../UIElements'
+import { CoreButton, Tooltip } from '../UIElements'
 import * as Styled from './ChainMemberPoolCard.style'
 
 export type ChainMemberPoolCardProps = {
@@ -31,11 +36,27 @@ export const ChainMemberPoolCard = ({
     setCollapsed(!collapsed)
   }, [collapsed])
 
+  const chainWalletAddress = useMemo(() => {
+    return multichain.getWalletAddressByChain(chain) || '#'
+  }, [chain])
+
   return (
     <Styled.Container>
       <Styled.Header>
         <Styled.ChainLabel>{chainToString(chain)}</Styled.ChainLabel>
         <Styled.HeaderRight>
+          <ExternalButtonLink
+            link={getRuneYieldInfoRoute({
+              chain,
+              address: chainWalletAddress,
+            })}
+          >
+            <Tooltip tooltip="View on runeyield.info ↗" placement="top">
+              <Styled.YieldInfo>
+                <AreaChartOutlined />
+              </Styled.YieldInfo>
+            </Tooltip>
+          </ExternalButtonLink>
           <CoreButton onClick={() => loadMemberDetailsByChain(chain)}>
             <Styled.ToolWrapper>
               <SyncOutlined spin={loading} />
