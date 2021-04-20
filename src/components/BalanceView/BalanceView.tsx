@@ -69,8 +69,8 @@ export const BalanceView = (props: BalanceViewProps) => {
               <Styled.BalanceAssetData
                 asset={data.asset}
                 amount={data.amount}
-                decimal={3}
                 size="small"
+                labelSize="normal"
               />
               <Styled.SendBtn
                 onClick={(e) => {
@@ -93,7 +93,6 @@ export const BalanceView = (props: BalanceViewProps) => {
             <Styled.BalanceAssetData
               asset={data.asset}
               amount={data.amount}
-              decimal={3}
               size="small"
               labelSize="normal"
             />

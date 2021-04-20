@@ -10,6 +10,7 @@ import {
 import BigNumber from 'bignumber.js'
 import invariant from 'tiny-invariant'
 
+import { RUNE_THRESHOLD_AMOUNT } from '../constants'
 import { AmountType, Rounding, Amount, IAmount } from './amount'
 import { Asset } from './asset'
 import { Pool } from './pool'
@@ -47,6 +48,11 @@ export class AssetAmount extends Amount implements IAssetAmount {
 
   public readonly amount: Amount
 
+  /**
+   * min amount allowed for transfer
+   * @param chain asset chain
+   * @returns min amount
+   */
   public static getMinAmountByChain(chain: Chain): AssetAmount {
     if (chain === BNBChain) {
       return new AssetAmount(
@@ -94,6 +100,75 @@ export class AssetAmount extends Amount implements IAssetAmount {
       Asset.RUNE(),
       Amount.fromBaseAmount(1, Asset.RUNE().decimal),
     )
+  }
+
+  /**
+   * min threshold amount for gas purpose
+   * @param chain name of asset chain
+   * @returns min threshold amount to retain in the balance for gas purpose
+   */
+  public static getThresholdAmountByChain(chain: Chain): AssetAmount {
+    // 0.01 BNB
+    if (chain === BNBChain) {
+      return new AssetAmount(
+        Asset.BNB(),
+        Amount.fromAssetAmount(0.01, Asset.BNB().decimal),
+      )
+    }
+
+    // 5000 satoshi
+    if (chain === BTCChain) {
+      return new AssetAmount(
+        Asset.BTC(),
+        Amount.fromBaseAmount(5000, Asset.BTC().decimal),
+      )
+    }
+    // 1 RUNE
+    if (chain === THORChain) {
+      return new AssetAmount(
+        Asset.RUNE(),
+        Amount.fromAssetAmount(RUNE_THRESHOLD_AMOUNT, Asset.RUNE().decimal),
+      )
+    }
+    // 0.01 ETH
+    if (chain === ETHChain) {
+      return new AssetAmount(
+        Asset.ETH(),
+        Amount.fromAssetAmount(0.01, Asset.ETH().decimal),
+      )
+    }
+    // 5000 satoshi
+    if (chain === LTCChain) {
+      return new AssetAmount(
+        Asset.LTC(),
+        Amount.fromBaseAmount(5000, Asset.LTC().decimal),
+      )
+    }
+    // 5000 satoshi
+    if (chain === BCHChain) {
+      return new AssetAmount(
+        Asset.BCH(),
+        Amount.fromBaseAmount(5000, Asset.BCH().decimal),
+      )
+    }
+
+    return new AssetAmount(
+      Asset.RUNE(),
+      Amount.fromAssetAmount(1, Asset.RUNE().decimal),
+    )
+  }
+
+  /**
+   * min threshold amount for gas purpose
+   * @param chain name of asset chain
+   * @returns min threshold amount to retain in the balance for gas purpose
+   */
+  public static getThresholdAmount = (asset: Asset) => {
+    if (asset.isGasAsset()) {
+      return AssetAmount.getThresholdAmountByChain(asset.chain)
+    }
+
+    return new AssetAmount(asset, Amount.fromAssetAmount(0, asset.decimal))
   }
 
   constructor(asset: Asset, amount: Amount) {

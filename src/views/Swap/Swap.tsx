@@ -20,18 +20,18 @@ import {
   Amount,
   Asset,
   AssetAmount,
-  getAssetBalance,
   getWalletAddressByChain,
   Swap,
   Percent,
   Memo,
   Price,
+  getAssetBalance,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
-import { useWallet } from 'redux/wallet/hooks'
 
+import { useBalance } from 'hooks/useBalance'
 import useNetworkFee from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
@@ -69,7 +69,7 @@ const SwapView = () => {
 
 const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const history = useHistory()
-  const { wallet } = useWallet()
+  const { wallet, getMaxBalance } = useBalance()
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
@@ -213,13 +213,17 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     }
   }, [wallet, outputAsset])
 
+  const maxInputBalance: Amount = useMemo(() => {
+    return getMaxBalance(inputAsset)
+  }, [inputAsset, getMaxBalance])
+
   const inputAssetBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(inputAsset, wallet).amount
+    if (!wallet) {
+      // allow max amount for emulation if wallet is not connected
+      return Amount.fromAssetAmount(10 ** 3, 8)
     }
 
-    // allow max amount if wallet is not connected
-    return Amount.fromAssetAmount(10 ** 3, 8)
+    return getAssetBalance(inputAsset, wallet)
   }, [inputAsset, wallet])
 
   const handleSelectInputAsset = useCallback(
@@ -242,26 +246,24 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
   const handleChangeInputAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(inputAssetBalance)) {
-        setInputAmount(inputAssetBalance)
+      if (amount.gt(maxInputBalance)) {
+        setInputAmount(maxInputBalance)
         setPercent(100)
       } else {
         setInputAmount(amount)
-        setPercent(
-          amount.div(inputAssetBalance).mul(100).assetAmount.toNumber(),
-        )
+        setPercent(amount.div(maxInputBalance).mul(100).assetAmount.toNumber())
       }
     },
-    [inputAssetBalance],
+    [maxInputBalance],
   )
 
   const handleChangePercent = useCallback(
     (p: number) => {
       setPercent(p)
-      const newAmount = inputAssetBalance.mul(p).div(100)
+      const newAmount = maxInputBalance.mul(p).div(100)
       setInputAmount(newAmount)
     },
-    [inputAssetBalance],
+    [maxInputBalance],
   )
 
   const handleSelectMax = useCallback(() => {
@@ -413,11 +415,15 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
       <Styled.ConfirmModalContent>
         <Information
           title="Send"
-          description={`${inputAmount.toFixed()} ${inputAsset.ticker.toUpperCase()}`}
+          description={`${inputAmount.toSignificant(
+            6,
+          )} ${inputAsset.ticker.toUpperCase()}`}
         />
         <Information
           title="Receive"
-          description={`${outputAmount.toFixed()} ${outputAsset.ticker.toUpperCase()}`}
+          description={`${outputAmount.toSignificant(
+            6,
+          )} ${outputAsset.ticker.toUpperCase()}`}
         />
         <Information
           title="Slip"
@@ -427,7 +433,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Minimum Received"
-          description={`${minReceive.toFixed(
+          description={`${minReceive.toSignificant(
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
           tooltip="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."

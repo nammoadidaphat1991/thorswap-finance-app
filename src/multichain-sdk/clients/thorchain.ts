@@ -144,7 +144,7 @@ export class ThorChain implements IThorChain {
 
       if (!memo) throw new Error(INVALID_MEMO_ERROR)
 
-      // Note: retain 2 RUNE threshold amount for gas purpose
+      // Note: retain RUNE threshold amount for gas purpose
       const hasThresholdAmount = await this.hasAmountInBalance(
         new AssetAmount(
           Asset.RUNE(),

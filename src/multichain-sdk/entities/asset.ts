@@ -190,6 +190,17 @@ export class Asset implements IAsset {
     )
   }
 
+  isGasAsset = (): boolean => {
+    return (
+      this.eq(Asset.RUNE()) ||
+      this.eq(Asset.ETH()) ||
+      this.eq(Asset.BTC()) ||
+      this.eq(Asset.BNB()) ||
+      this.eq(Asset.BCH()) ||
+      this.eq(Asset.LTC())
+    )
+  }
+
   isRUNE(): boolean {
     return this.eq(Asset.RUNE())
   }

@@ -15,6 +15,7 @@ import {
   MemberPoolData,
   Label,
   PoolShareTypeSelect,
+  Panel,
 } from 'components'
 import { ActionTypeEnum } from 'midgard-sdk'
 import {
@@ -112,7 +113,11 @@ const WithdrawView = () => {
     )
   }
 
-  return null
+  return (
+    <Panel>
+      <Label>You don't have LP to withdraw</Label>
+    </Panel>
+  )
 }
 
 const WithdrawPanel = ({

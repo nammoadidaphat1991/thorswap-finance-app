@@ -29,8 +29,8 @@ import {
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
-import { useWallet } from 'redux/wallet/hooks'
 
+import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
 import useNetworkFee from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
@@ -94,7 +94,7 @@ const AddLiquidityPanel = ({
   pools: Pool[]
 }) => {
   const history = useHistory()
-  const { wallet } = useWallet()
+  const { wallet, getMaxBalance } = useBalance()
   const { getAllMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
@@ -197,6 +197,11 @@ const AddLiquidityPanel = ({
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [poolAsset, wallet])
 
+  const maxPoolAssetBalance: Amount = useMemo(() => getMaxBalance(poolAsset), [
+    poolAsset,
+    getMaxBalance,
+  ])
+
   const runeBalance: Amount = useMemo(() => {
     if (wallet) {
       return getAssetBalance(Asset.RUNE(), wallet).amount
@@ -205,6 +210,10 @@ const AddLiquidityPanel = ({
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [wallet])
+
+  const maxRuneBalance: Amount = useMemo(() => getMaxBalance(Asset.RUNE()), [
+    getMaxBalance,
+  ])
 
   const handleSelectLiquidityType = useCallback((type: LiquidityTypeOption) => {
     if (type === LiquidityTypeOption.ASSET) {
@@ -226,23 +235,25 @@ const AddLiquidityPanel = ({
 
   const handleChangeAssetAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(poolAssetBalance)) {
-        setAssetAmount(poolAssetBalance)
+      if (amount.gt(maxPoolAssetBalance)) {
+        setAssetAmount(maxPoolAssetBalance)
         setPercent(100)
 
         if (isSymDeposit) {
-          setRuneAmount(poolAssetBalance.mul(pool.assetPriceInRune))
+          setRuneAmount(maxPoolAssetBalance.mul(pool.assetPriceInRune))
         }
       } else {
         setAssetAmount(amount)
-        setPercent(amount.div(poolAssetBalance).mul(100).assetAmount.toNumber())
+        setPercent(
+          amount.div(maxPoolAssetBalance).mul(100).assetAmount.toNumber(),
+        )
 
         if (isSymDeposit) {
           setRuneAmount(amount.mul(pool.assetPriceInRune))
         }
       }
     },
-    [poolAssetBalance, pool, isSymDeposit],
+    [maxPoolAssetBalance, pool, isSymDeposit],
   )
 
   const handleChangePercent = useCallback(
@@ -250,16 +261,16 @@ const AddLiquidityPanel = ({
       setPercent(p)
 
       if (liquidityType === LiquidityTypeOption.ASSET || isSymDeposit) {
-        setAssetAmount(poolAssetBalance.mul(p).div(100))
+        setAssetAmount(maxPoolAssetBalance.mul(p).div(100))
       }
 
       if (liquidityType === LiquidityTypeOption.RUNE || isSymDeposit) {
         setRuneAmount(
-          poolAssetBalance.mul(p).div(100).mul(pool.assetPriceInRune),
+          maxPoolAssetBalance.mul(p).div(100).mul(pool.assetPriceInRune),
         )
       }
     },
-    [poolAssetBalance, isSymDeposit, pool, liquidityType],
+    [maxPoolAssetBalance, isSymDeposit, pool, liquidityType],
   )
 
   const handleSelectAssetMax = useCallback(() => {
@@ -268,22 +279,22 @@ const AddLiquidityPanel = ({
 
   const handleChangeRuneAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(runeBalance)) {
-        setRuneAmount(runeBalance)
+      if (amount.gt(maxRuneBalance)) {
+        setRuneAmount(maxRuneBalance)
 
         if (isSymDeposit) {
-          setAssetAmount(runeBalance.mul(pool.runePriceInAsset))
+          setAssetAmount(maxRuneBalance.mul(pool.runePriceInAsset))
         }
       } else {
         setRuneAmount(amount)
-        setPercent(amount.div(runeBalance).mul(100).assetAmount.toNumber())
+        setPercent(amount.div(maxRuneBalance).mul(100).assetAmount.toNumber())
 
         if (isSymDeposit) {
           setAssetAmount(amount.mul(pool.runePriceInAsset))
         }
       }
     },
-    [runeBalance, pool, isSymDeposit],
+    [maxRuneBalance, pool, isSymDeposit],
   )
 
   const handleConfirmAdd = useCallback(async () => {

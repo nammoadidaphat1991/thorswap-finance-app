@@ -33,7 +33,7 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
     size = 'normal',
     labelSize = 'big',
     showLabel = true,
-    decimal = 2,
+    decimal = 6,
     ...others
   } = props
 
@@ -62,7 +62,7 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
       {!!amount && (
         <Col>
           <Styled.AmountLabel size={labelSizeValue}>
-            {amount.toFixed(decimal)}
+            {amount.toSignificant(decimal)}
           </Styled.AmountLabel>
         </Col>
       )}

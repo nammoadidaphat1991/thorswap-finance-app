@@ -37,7 +37,7 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
               feeStr = Amount.fromBaseAmount(
                 feeValue.fast.amount(),
                 asset.decimal,
-              ).toFixed(8)
+              ).toSignificant(6)
             } else {
               setNetworkFee(`${chain} Gas Fee`)
             }
@@ -47,7 +47,7 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
           feeStr = Amount.fromBaseAmount(
             feeValue.fast.amount(),
             asset.decimal,
-          ).toFixed(8)
+          ).toSignificant(6)
         }
       } catch (error) {
         console.log('quote fee error', error)
