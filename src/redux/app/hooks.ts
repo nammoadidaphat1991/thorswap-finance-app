@@ -51,6 +51,13 @@ export const useApp = () => {
     [dispatch],
   )
 
+  const setReadStatus = useCallback(
+    (readStatus: boolean) => {
+      dispatch(actions.setReadStatus(readStatus))
+    },
+    [dispatch],
+  )
+
   return {
     ...appState,
     FeeOptions,
@@ -60,5 +67,6 @@ export const useApp = () => {
     toggleSettings,
     setSlippage,
     setFeeOptionType,
+    setReadStatus,
   }
 }

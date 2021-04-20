@@ -2,9 +2,9 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useHistory } from 'react-router'
 
-import { Alert } from 'antd'
 import { getRuneToUpgrade } from 'multichain-sdk'
 
+import { useApp } from 'redux/app/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
 import {
@@ -17,6 +17,7 @@ import {
 
 import { Footer } from '../Footer'
 import { Header } from '../Header'
+import { Alert } from '../UIElements'
 import WalletModal from '../WalletModal'
 import * as Styled from './Layout.style'
 
@@ -30,6 +31,8 @@ export const Layout = (props: Props) => {
 
   const history = useHistory()
   const { wallet } = useWallet()
+  const { showAnnouncement, setReadStatus } = useApp()
+
   const oldRune: string | null = useMemo(() => {
     if (wallet) {
       const runesToUpgrade = getRuneToUpgrade(wallet)
@@ -61,12 +64,15 @@ export const Layout = (props: Props) => {
 
   return (
     <Styled.LayoutWrapper>
-      <Alert
-        message="MCCN is still in BETA, Take your own Risk! Back up your seed phrase, keystore, and password seriously. Please do not play with large funds."
-        type="warning"
-        showIcon
-        closable
-      />
+      {showAnnouncement && (
+        <Alert
+          message="Chaosnet is still in BETA, Take your own Risk. Back up your seed phrase, keystore, and password seriously and do not play with large funds."
+          type="warning"
+          showIcon
+          closable
+          onClose={() => setReadStatus(true)}
+        />
+      )}
       <Header />
       <Styled.ContentWrapper transparent={transparent}>
         {isTxPage && oldRune && (

@@ -9,6 +9,8 @@ import {
   saveTheme,
   saveBaseCurrency,
   getBaseCurrency,
+  getReadStatus,
+  setReadStatus,
 } from 'helpers/storage'
 
 import { DEFAULT_SLIPPAGE_TOLERANCE } from 'settings/constants/global'
@@ -19,6 +21,7 @@ const defaultTheme = getTheme()
 
 const initialState: State = {
   themeType: defaultTheme,
+  showAnnouncement: !getReadStatus(),
   baseCurrency: getBaseCurrency(),
   isSettingOpen: false,
   slippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
@@ -54,6 +57,10 @@ const slice = createSlice({
     },
     setFeeOptionType(state, action: PayloadAction<FeeOptionKey>) {
       state.feeOptionType = action.payload
+    },
+    setReadStatus(state, action: PayloadAction<boolean>) {
+      state.showAnnouncement = !action.payload
+      setReadStatus(action.payload)
     },
   },
 })

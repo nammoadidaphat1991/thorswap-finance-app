@@ -13,4 +13,5 @@ export interface State {
   isSettingOpen: boolean
   slippageTolerance: number
   feeOptionType: FeeOptionKey
+  showAnnouncement: boolean
 }

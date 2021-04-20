@@ -2,6 +2,8 @@ import { ThemeType } from '@thorchain/asgardex-theme'
 import { Keystore } from '@xchainjs/xchain-crypto'
 import { Asset } from 'multichain-sdk'
 
+const THORSWAP_ANNOUNCEMENT = 'THORSWAP_ANNOUNCEMENT'
+
 const THEME_TYPE = 'THEME_TYPE'
 const THORSWAP_MULTICHAIN_KEYSTORE = 'THORSWAP_MULTICHAIN_KEYSTORE'
 const THORSWAP_MULTICHAIN_ADDR = 'THORSWAP_MULTICHAIN_ADDR'
@@ -51,4 +53,13 @@ export const getAddress = (): string | null => {
     return item
   }
   return null
+}
+
+export const setReadStatus = (read: boolean) => {
+  sessionStorage.setItem(THORSWAP_ANNOUNCEMENT, read.toString())
+}
+
+export const getReadStatus = (): boolean => {
+  const read = sessionStorage.getItem(THORSWAP_ANNOUNCEMENT) === 'true'
+  return read
 }
