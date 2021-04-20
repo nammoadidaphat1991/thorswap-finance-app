@@ -60,35 +60,24 @@ export const BalanceView = (props: BalanceViewProps) => {
     [history],
   )
 
+  const handleSelectRow = useCallback(
+    (asset: Asset) => {
+      if (isOldRune(asset)) {
+        handleUpgradeRune()
+      } else {
+        handleGotoSwap(asset)
+      }
+    },
+    [handleGotoSwap, handleUpgradeRune],
+  )
+
   const renderBalance = useCallback(
     (balance: AssetAmount[]) => {
       return balance.map((data: AssetAmount, index) => {
-        if (isOldRune(data.asset)) {
-          return (
-            <Styled.BalanceRow key={index} onClick={handleUpgradeRune}>
-              <Styled.BalanceAssetData
-                asset={data.asset}
-                amount={data.amount}
-                size="small"
-                labelSize="normal"
-              />
-              <Styled.SendBtn
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleUpgradeRune()
-                }}
-                fixedWidth={false}
-              >
-                Upgrade
-              </Styled.SendBtn>
-            </Styled.BalanceRow>
-          )
-        }
-
         return (
           <Styled.BalanceRow
             key={index}
-            onClick={() => handleGotoSwap(data.asset)}
+            onClick={() => handleSelectRow(data.asset)}
           >
             <Styled.BalanceAssetData
               asset={data.asset}
@@ -96,20 +85,22 @@ export const BalanceView = (props: BalanceViewProps) => {
               size="small"
               labelSize="normal"
             />
-            <Styled.SendBtn
-              onClick={(e) => {
-                e.stopPropagation()
-                handleSendAsset(data.asset)
-              }}
-              fixedWidth={false}
-            >
-              Send
-            </Styled.SendBtn>
+            <Styled.BalanceAction>
+              <Styled.SendBtn
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleSendAsset(data.asset)
+                }}
+                fixedWidth={false}
+              >
+                Send
+              </Styled.SendBtn>
+            </Styled.BalanceAction>
           </Styled.BalanceRow>
         )
       })
     },
-    [handleSendAsset, handleUpgradeRune, handleGotoSwap],
+    [handleSendAsset, handleSelectRow],
   )
 
   const renderChainBalance = useCallback(

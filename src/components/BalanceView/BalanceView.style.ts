@@ -38,3 +38,9 @@ export const SendBtn = styled(Button).attrs({
 export const BalanceAssetData = styled(AssetData)`
   flex: 1;
 `
+
+export const BalanceAction = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`
