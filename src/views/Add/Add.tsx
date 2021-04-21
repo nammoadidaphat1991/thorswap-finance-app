@@ -41,6 +41,7 @@ import { multichain } from 'services/multichain'
 import { getAddLiquidityRoute } from 'settings/constants'
 
 import * as Styled from './Add.style'
+import { getMaxSymAmounts } from './utils'
 
 const AddLiquidityView = () => {
   const { asset } = useParams<{ asset: string }>()
@@ -214,6 +215,12 @@ const AddLiquidityPanel = ({
     getMaxBalance,
   ])
 
+  const { maxSymAssetAmount, maxSymRuneAmount } = getMaxSymAmounts({
+    runeAmount: maxRuneBalance,
+    assetAmount: maxPoolAssetBalance,
+    pool,
+  })
+
   const handleSelectLiquidityType = useCallback((type: LiquidityTypeOption) => {
     if (type === LiquidityTypeOption.ASSET) {
       setRuneAmount(Amount.fromAssetAmount(0, 8))
@@ -234,42 +241,48 @@ const AddLiquidityPanel = ({
 
   const handleChangeAssetAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(maxPoolAssetBalance)) {
-        setAssetAmount(maxPoolAssetBalance)
+      const maxAmount = isSymDeposit ? maxSymAssetAmount : maxPoolAssetBalance
+
+      if (amount.gt(maxAmount)) {
+        setAssetAmount(maxAmount)
         setPercent(100)
 
         if (isSymDeposit) {
-          setRuneAmount(maxPoolAssetBalance.mul(pool.assetPriceInRune))
+          setRuneAmount(maxAmount.mul(pool.assetPriceInRune))
         }
       } else {
         setAssetAmount(amount)
-        setPercent(
-          amount.div(maxPoolAssetBalance).mul(100).assetAmount.toNumber(),
-        )
+        setPercent(amount.div(maxAmount).mul(100).assetAmount.toNumber())
 
         if (isSymDeposit) {
           setRuneAmount(amount.mul(pool.assetPriceInRune))
         }
       }
     },
-    [maxPoolAssetBalance, pool, isSymDeposit],
+    [maxSymAssetAmount, maxPoolAssetBalance, pool, isSymDeposit],
   )
 
   const handleChangePercent = useCallback(
     (p: number) => {
       setPercent(p)
 
-      if (liquidityType === LiquidityTypeOption.ASSET || isSymDeposit) {
+      if (isSymDeposit) {
+        setAssetAmount(maxSymAssetAmount.mul(p).div(100))
+        setRuneAmount(maxSymRuneAmount.mul(p).div(100))
+      } else if (liquidityType === LiquidityTypeOption.ASSET) {
         setAssetAmount(maxPoolAssetBalance.mul(p).div(100))
-      }
-
-      if (liquidityType === LiquidityTypeOption.RUNE || isSymDeposit) {
-        setRuneAmount(
-          maxPoolAssetBalance.mul(p).div(100).mul(pool.assetPriceInRune),
-        )
+      } else if (liquidityType === LiquidityTypeOption.RUNE) {
+        setRuneAmount(maxRuneBalance.mul(p).div(100))
       }
     },
-    [maxPoolAssetBalance, isSymDeposit, pool, liquidityType],
+    [
+      maxRuneBalance,
+      maxSymAssetAmount,
+      maxSymRuneAmount,
+      maxPoolAssetBalance,
+      isSymDeposit,
+      liquidityType,
+    ],
   )
 
   const handleSelectAssetMax = useCallback(() => {
@@ -278,22 +291,23 @@ const AddLiquidityPanel = ({
 
   const handleChangeRuneAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(maxRuneBalance)) {
-        setRuneAmount(maxRuneBalance)
+      const maxAmount = isSymDeposit ? maxSymRuneAmount : maxRuneBalance
+      if (amount.gt(maxAmount)) {
+        setRuneAmount(maxAmount)
 
         if (isSymDeposit) {
-          setAssetAmount(maxRuneBalance.mul(pool.runePriceInAsset))
+          setAssetAmount(maxAmount.mul(pool.runePriceInAsset))
         }
       } else {
         setRuneAmount(amount)
-        setPercent(amount.div(maxRuneBalance).mul(100).assetAmount.toNumber())
+        setPercent(amount.div(maxAmount).mul(100).assetAmount.toNumber())
 
         if (isSymDeposit) {
           setAssetAmount(amount.mul(pool.runePriceInAsset))
         }
       }
     },
-    [maxRuneBalance, pool, isSymDeposit],
+    [maxSymRuneAmount, maxRuneBalance, pool, isSymDeposit],
   )
 
   const handleConfirmAdd = useCallback(async () => {

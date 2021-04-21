@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { THORChain } from '@xchainjs/xchain-util'
 import { ActionListParams, HistoryInterval } from 'midgard-sdk'
@@ -9,7 +9,7 @@ import { SupportedChain } from 'multichain-sdk'
 
 import * as actions from 'redux/midgard/actions'
 import { actions as sliceActions } from 'redux/midgard/slice'
-import { RootState } from 'redux/store'
+import { useDispatch, RootState } from 'redux/store'
 
 import { TX_PUBLIC_PAGE_LIMIT } from 'settings/constants/global'
 
