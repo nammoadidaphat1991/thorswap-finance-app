@@ -21,7 +21,8 @@ export const Information = ({
     <Styled.Container>
       <Styled.Content>
         <Label weight="bold" color={error ? 'error' : 'normal'}>
-          {title}:
+          {title}
+          {description ? ':' : ''}
         </Label>
         <Label color={error ? 'error' : 'normal'}>{description}</Label>
       </Styled.Content>

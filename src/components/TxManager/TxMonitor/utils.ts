@@ -10,6 +10,15 @@ import { ProgressStatus } from './types'
 export const getTxTitle = (txTracker: TxTracker): string => {
   const { type, submitTx } = txTracker
 
+  if (type === TxTrackerType.Approve) {
+    const { inAssets = [] } = submitTx
+    const { asset: approveAsset } = inAssets[0]
+
+    const info = `Approve ${Asset.fromAssetString(approveAsset)?.ticker}`
+
+    return info
+  }
+
   if (type === TxTrackerType.Swap) {
     const { inAssets = [], outAssets = [] } = submitTx
     const { asset: sendAsset, amount: sendAmount } = inAssets[0]
@@ -123,6 +132,21 @@ export const getTxColor = (txTracker: TxTracker) => {
 }
 
 export const getSwapInTxUrl = (txTracker: TxTracker): string => {
+  const { submitTx } = txTracker
+
+  if (submitTx?.txID) {
+    const { inAssets = [], txID } = submitTx
+    const asset = Asset.fromAssetString(inAssets[0].asset)
+
+    if (asset) {
+      return multichain.getExplorerTxUrl(asset.chain, txID)
+    }
+  }
+
+  return '#'
+}
+
+export const getApproveTxUrl = (txTracker: TxTracker): string => {
   const { submitTx } = txTracker
 
   if (submitTx?.txID) {

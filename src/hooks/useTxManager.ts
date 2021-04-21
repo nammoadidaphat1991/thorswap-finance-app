@@ -26,16 +26,9 @@ export const useTxManager = () => {
     clearTxTrackers,
   } = useMidgard()
 
-  /**
-   * Note: get pending txns for polling the midgard api
-   * exclude approve tx since it's just an internal action
-   */
   const pendingTransactions = useMemo(() => {
     return txTrackers.filter((tracker: TxTracker) => {
-      return (
-        tracker.status === TxTrackerStatus.Pending &&
-        tracker.type !== TxTrackerType.Approve
-      )
+      return tracker.status === TxTrackerStatus.Pending
     })
   }, [txTrackers])
 

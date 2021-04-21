@@ -29,7 +29,7 @@ import {
 
 import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
-import { TxTrackerType } from 'redux/midgard/types'
+import { TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import { useApprove } from 'hooks/useApprove'
 import { useBalance } from 'hooks/useBalance'
@@ -74,7 +74,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
-  const { isApproved } = useApprove(inputAsset)
+  const { isApproved, assetApproveStatus } = useApprove(inputAsset)
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -548,7 +548,14 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
             <Styled.ApproveBtn
               onClick={handleApprove}
               error={!isValidSwap}
-              loading
+              disabled={
+                assetApproveStatus === TxTrackerStatus.Pending ||
+                assetApproveStatus === TxTrackerStatus.Submitting
+              }
+              loading={
+                assetApproveStatus === TxTrackerStatus.Pending ||
+                assetApproveStatus === TxTrackerStatus.Submitting
+              }
             >
               Approve
             </Styled.ApproveBtn>

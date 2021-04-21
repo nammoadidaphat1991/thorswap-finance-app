@@ -16,6 +16,7 @@ import { Label } from '../../UIElements'
 import * as Styled from './TxMonitor.style'
 import { ProgressStatus } from './types'
 import {
+  getApproveTxUrl,
   getSwapInTxUrl,
   getSwapOutTxUrl,
   getSwapOutTxData,
@@ -294,7 +295,7 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
             <Styled.TxInformation border>
               <ProgressIcon
                 status={
-                  status === TxTrackerStatus.Success ? 'success' : 'pending'
+                  status !== TxTrackerStatus.Success ? 'pending' : 'success'
                 }
               />
               <Label color="primary">
@@ -313,6 +314,37 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
               )}
             </Styled.TxInformation>
           )}
+        </>
+      )
+    }
+
+    if (type === TxTrackerType.Approve) {
+      const { inAssets = [] } = submitTx
+      const { asset: approveAsset } = inAssets[0]
+
+      return (
+        <>
+          <Styled.TxInformation>
+            <ProgressIcon
+              status={
+                status === TxTrackerStatus.Submitting ? 'pending' : 'success'
+              }
+            />
+            <Label color="primary">
+              {status === TxTrackerStatus.Pending &&
+                `Approve ${Asset.fromAssetString(approveAsset)?.ticker}`}
+              {status === TxTrackerStatus.Success &&
+                `Approved ${Asset.fromAssetString(approveAsset)?.ticker}`}
+            </Label>
+            {status !== TxTrackerStatus.Submitting && (
+              <Styled.ExternalLinkWrapper
+                link={getApproveTxUrl(txTracker)}
+                color="primary"
+              >
+                <ExternalLink />
+              </Styled.ExternalLinkWrapper>
+            )}
+          </Styled.TxInformation>
         </>
       )
     }
