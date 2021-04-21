@@ -35,9 +35,6 @@ export const useBalance = () => {
       const thresholdAmount = AssetAmount.getThresholdAmount(asset).amount
       const balance = getAssetBalance(asset, wallet).amount
 
-      console.log('balance', balance.toFixed())
-      console.log('thresholdAmount', thresholdAmount.toFixed())
-
       if (balance.gt(thresholdAmount)) {
         return balance.sub(thresholdAmount)
       }

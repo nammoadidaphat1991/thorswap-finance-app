@@ -153,9 +153,7 @@ const AddLiquidityPanel = ({
   }, [liquidityEntity, assetAmount, runeAmount])
 
   const poolShareEst = useMemo(() => {
-    return liquidityEntity
-      .getPoolShareEst(runeAmount, assetAmount)
-      .toSignificant(6)
+    return liquidityEntity.getPoolShareEst(runeAmount, assetAmount).toFixed(3)
   }, [liquidityEntity, assetAmount, runeAmount])
 
   useEffect(() => {
