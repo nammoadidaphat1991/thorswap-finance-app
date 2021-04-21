@@ -18,30 +18,29 @@ export const InputAmount = (props: InputAmountProps) => {
   const {
     value = Amount.fromAssetAmount(0, 8),
     onChange = () => {},
-    decimal = 8,
     outlined = true,
     disabled = false,
     ...others
   } = props
 
-  const [rawValue, setRawValue] = useState(value.toFixed(decimal))
+  const [rawValue, setRawValue] = useState(value.toSignificant(6))
 
   useEffect(() => {
-    setRawValue(value.toFixed(decimal))
-  }, [value, decimal])
+    setRawValue(value.toSignificant(6))
+  }, [value])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = getAmountFromString(e.target.value, value.decimal)
 
       if (newValue) {
-        setRawValue(newValue.toFixed(decimal))
+        setRawValue(newValue.toSignificant(6))
         onChange(newValue)
       } else {
         setRawValue(e.target.value)
       }
     },
-    [value, onChange, decimal],
+    [value, onChange],
   )
 
   return (
