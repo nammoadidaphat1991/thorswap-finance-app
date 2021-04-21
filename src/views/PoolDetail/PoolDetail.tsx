@@ -3,7 +3,7 @@ import React from 'react'
 import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { SwapOutlined } from '@ant-design/icons'
+import { SwapOutlined, DatabaseOutlined } from '@ant-design/icons'
 import { Grid, Row, Col } from 'antd'
 import {
   TxTable,
@@ -70,14 +70,17 @@ const PoolDetailView = ({ pool }: { pool: Pool }) => {
         <Styled.PoolAction>
           {pool.detail.status === 'available' && (
             <Link to={swapRouter}>
-              <Button round style={{ marginRight: '8px' }}>
+              <Button round style={{ marginRight: '8px' }} fixedWidth={false}>
                 <SwapOutlined />
-                SWAP
+                {isDesktopView && 'SWAP'}
               </Button>
             </Link>
           )}
           <Link to={liquidityRouter}>
-            <Button round>Liquidity</Button>
+            <Button round fixedWidth={false}>
+              <DatabaseOutlined />
+              {isDesktopView && 'Liquidity'}
+            </Button>
           </Link>
         </Styled.PoolAction>
       </Styled.Header>
