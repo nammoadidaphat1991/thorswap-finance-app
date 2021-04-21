@@ -2,6 +2,8 @@ import { ContentView, PoolChart, Label } from 'components'
 import styled from 'styled-components'
 import { palette } from 'styled-theme'
 
+import { media } from 'helpers/style'
+
 export const Container = styled(ContentView)`
   background: ${palette('background', 3)};
 `
@@ -19,7 +21,13 @@ export const PoolInfo = styled.div`
 `
 
 export const AssetLabel = styled(Label)`
-  margin-right: 4px;
+  margin-left: 4px;
+  margin-right: 8px;
+
+  font-size: 14px;
+  ${media.sm`
+    font-size: 28px;
+  `}
 `
 
 export const Section = styled.div`

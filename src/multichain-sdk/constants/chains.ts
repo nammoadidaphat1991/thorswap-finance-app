@@ -30,3 +30,15 @@ export const getChainName = (chain: Chain, ticker: string): string => {
 
   return chain
 }
+
+export const getAssetName = (chain: Chain, ticker: string): string => {
+  if (chain === BTCChain) return 'Bitcoin'
+  if (chain === LTCChain) return 'Litecoin'
+  if (chain === BCHChain) return 'Bitcoin Cash'
+
+  if (chain === ETHChain && ticker === 'ETH') {
+    return 'Ethereum'
+  }
+
+  return ticker
+}

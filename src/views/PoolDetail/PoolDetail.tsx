@@ -50,13 +50,13 @@ const PoolDetailView = ({ pool }: { pool: Pool }) => {
         {isDesktopView && (
           <Styled.PoolInfo>
             <AssetData size="big" asset={pool.asset} showLabel={false} />
-            <Styled.AssetLabel size="large" weight="bold">
-              {pool.asset.ticker}
+            <Styled.AssetLabel weight="bold">
+              {pool.asset.name} ({pool.asset.ticker})
             </Styled.AssetLabel>
-            <Styled.AssetLabel size="big" weight="bold">
-              ({pool.asset.type})
+            <Styled.AssetLabel color="gray">
+              {pool.asset.type}
             </Styled.AssetLabel>
-            <Styled.AssetLabel size="large">
+            <Styled.AssetLabel>
               ${pool.assetUSDPrice.toSignificant(6)}
             </Styled.AssetLabel>
           </Styled.PoolInfo>
