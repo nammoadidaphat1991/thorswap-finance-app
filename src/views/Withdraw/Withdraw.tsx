@@ -141,13 +141,15 @@ const WithdrawPanel = ({
 
   const poolAsset = useMemo(() => pool.asset, [pool])
 
-  const defaultLiquidityType =
-    lpType === PoolShareType.SYM
-      ? LiquidityTypeOption.SYMMETRICAL
-      : PoolShareType.RUNE_ASYM
-      ? LiquidityTypeOption.RUNE
-      : LiquidityTypeOption.ASSET
-
+  const defaultLiquidityType = useMemo(() => {
+    if (lpType === PoolShareType.RUNE_ASYM) {
+      return LiquidityTypeOption.RUNE
+    }
+    if (lpType === PoolShareType.ASSET_ASYM) {
+      return LiquidityTypeOption.ASSET
+    }
+    return LiquidityTypeOption.SYMMETRICAL
+  }, [lpType])
   const [liquidityType, setLiquidityType] = useState(defaultLiquidityType)
 
   const [percent, setPercent] = useState(0)
@@ -222,6 +224,17 @@ const WithdrawPanel = ({
       }),
     [pool, assetAmount, pools],
   )
+
+  const handleSetLPType = useCallback((type: PoolShareType) => {
+    setLPType(type)
+    if (type === PoolShareType.RUNE_ASYM) {
+      setLiquidityType(LiquidityTypeOption.RUNE)
+    } else if (type === PoolShareType.ASSET_ASYM) {
+      setLiquidityType(LiquidityTypeOption.ASSET)
+    } else {
+      setLiquidityType(LiquidityTypeOption.SYMMETRICAL)
+    }
+  }, [])
 
   const handleChangePercent = useCallback((p: number) => {
     setPercent(p)
@@ -541,7 +554,7 @@ const WithdrawPanel = ({
           <PoolShareTypeSelect
             poolAsset={poolAsset}
             selected={lpType}
-            onSelect={setLPType}
+            onSelect={handleSetLPType}
             shareTypes={shareTypes}
           />
         </Styled.WithdrawHeaderRow>
