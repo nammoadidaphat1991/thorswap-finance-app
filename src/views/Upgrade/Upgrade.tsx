@@ -11,7 +11,6 @@ import {
   Label,
   Notification,
 } from 'components'
-import { ActionTypeEnum } from 'midgard-sdk'
 import {
   Amount,
   Asset,
@@ -21,6 +20,7 @@ import {
   getRuneToUpgrade,
 } from 'multichain-sdk'
 
+import { TxTrackerType } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
 import useNetworkFee from 'hooks/useNetworkFee'
@@ -130,7 +130,7 @@ const UpgradePanel = ({
 
       // register to tx tracker
       const trackId = submitTransaction({
-        type: ActionTypeEnum.Switch,
+        type: TxTrackerType.Switch,
         submitTx: {
           inAssets: [
             {

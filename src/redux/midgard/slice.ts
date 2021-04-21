@@ -38,6 +38,7 @@ const initialState: State = {
   txCollapsed: true,
   mimirLoading: false,
   mimir: {},
+  approveStatus: {},
 }
 
 const slice = createSlice({
@@ -383,6 +384,34 @@ const slice = createSlice({
               return tracker
             })
           }
+        }
+      })
+      // poll Approve Tx
+      .addCase(midgardActions.pollApprove.fulfilled, (state, action) => {
+        const { asset, approved } = action.payload
+        const { arg: txTracker } = action.meta
+
+        if (asset) {
+          state.txTrackers = state.txTrackers.map((tracker: TxTracker) => {
+            if (tracker.uuid === txTracker.uuid) {
+              const status = approved
+                ? TxTrackerStatus.Success
+                : TxTrackerStatus.Pending
+
+              // save approve status to state
+              state.approveStatus = {
+                ...state.approveStatus,
+                [asset.toString()]: status,
+              }
+
+              return {
+                ...tracker,
+                status,
+              }
+            }
+
+            return tracker
+          })
         }
       })
   },

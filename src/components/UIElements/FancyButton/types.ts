@@ -5,5 +5,6 @@ export interface FancyButtonProps {
   error?: boolean
   disabled?: boolean
   onClick?: () => void
-  children: React.ReactChild
+  loading?: boolean
+  children: React.ReactNode
 }

@@ -1,7 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { ActionTypeEnum } from 'midgard-sdk'
+import { Asset } from 'multichain-sdk'
 
 import { midgardApi } from 'services/midgard'
+import { multichain } from 'services/multichain'
 import { getThorchainMimir } from 'services/thornode'
 
 import { SupportedChain } from '../../multichain-sdk/clients/types'
@@ -139,6 +141,26 @@ export const pollTx = createAsyncThunk(
       txId,
     })
     return response
+  },
+)
+
+export const pollApprove = createAsyncThunk(
+  'midgard/pollApprove',
+  async (txTracker: TxTracker) => {
+    const assetString = txTracker.submitTx?.inAssets?.[0]?.asset
+
+    if (!assetString) throw Error('invalid asset string')
+
+    const asset = Asset.fromAssetString(assetString)
+
+    if (!asset) throw Error('invalid asset')
+
+    const approved = await multichain.isAssetApproved(asset)
+
+    return {
+      asset,
+      approved,
+    }
   },
 )
 

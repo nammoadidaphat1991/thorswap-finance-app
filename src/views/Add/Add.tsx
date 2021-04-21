@@ -14,7 +14,7 @@ import {
   LiquidityTypeOption,
   LiquidityType,
 } from 'components'
-import { ActionTypeEnum, MemberPool } from 'midgard-sdk'
+import { MemberPool } from 'midgard-sdk'
 import {
   getInputAssetsForAdd,
   Amount,
@@ -29,6 +29,7 @@ import {
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
+import { TxTrackerType } from 'redux/midgard/types'
 
 import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
@@ -326,7 +327,7 @@ const AddLiquidityPanel = ({
 
       // register to tx tracker
       const trackId = submitTransaction({
-        type: ActionTypeEnum.AddLiquidity,
+        type: TxTrackerType.AddLiquidity,
         submitTx: {
           inAssets,
           outAssets: [],

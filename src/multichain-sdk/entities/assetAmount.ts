@@ -10,7 +10,14 @@ import {
 import BigNumber from 'bignumber.js'
 import invariant from 'tiny-invariant'
 
-import { RUNE_THRESHOLD_AMOUNT } from '../constants'
+import {
+  RUNE_THRESHOLD_AMOUNT,
+  ETH_THRESHOLD_AMOUNT,
+  BNB_THRESHOLD_AMOUNT,
+  BTC_THRESHOLD_AMOUNT,
+  LTC_THRESHOLD_AMOUNT,
+  BCH_THRESHOLD_AMOUNT,
+} from '../constants'
 import { AmountType, Rounding, Amount, IAmount } from './amount'
 import { Asset } from './asset'
 import { Pool } from './pool'
@@ -112,7 +119,7 @@ export class AssetAmount extends Amount implements IAssetAmount {
     if (chain === BNBChain) {
       return new AssetAmount(
         Asset.BNB(),
-        Amount.fromAssetAmount(0.01, Asset.BNB().decimal),
+        Amount.fromAssetAmount(BNB_THRESHOLD_AMOUNT, Asset.BNB().decimal),
       )
     }
 
@@ -120,7 +127,7 @@ export class AssetAmount extends Amount implements IAssetAmount {
     if (chain === BTCChain) {
       return new AssetAmount(
         Asset.BTC(),
-        Amount.fromBaseAmount(5000, Asset.BTC().decimal),
+        Amount.fromAssetAmount(BTC_THRESHOLD_AMOUNT, Asset.BTC().decimal),
       )
     }
     // 1 RUNE
@@ -134,21 +141,21 @@ export class AssetAmount extends Amount implements IAssetAmount {
     if (chain === ETHChain) {
       return new AssetAmount(
         Asset.ETH(),
-        Amount.fromAssetAmount(0.01, Asset.ETH().decimal),
+        Amount.fromAssetAmount(ETH_THRESHOLD_AMOUNT, Asset.ETH().decimal),
       )
     }
     // 5000 satoshi
     if (chain === LTCChain) {
       return new AssetAmount(
         Asset.LTC(),
-        Amount.fromBaseAmount(5000, Asset.LTC().decimal),
+        Amount.fromAssetAmount(LTC_THRESHOLD_AMOUNT, Asset.LTC().decimal),
       )
     }
     // 5000 satoshi
     if (chain === BCHChain) {
       return new AssetAmount(
         Asset.BCH(),
-        Amount.fromBaseAmount(5000, Asset.BCH().decimal),
+        Amount.fromAssetAmount(BCH_THRESHOLD_AMOUNT, Asset.BCH().decimal),
       )
     }
 

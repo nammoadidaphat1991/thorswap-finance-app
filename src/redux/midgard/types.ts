@@ -12,7 +12,6 @@ import {
   ActionsList,
   MemberDetails,
   Action,
-  ActionTypeEnum,
   Coin,
   MemberPool,
 } from 'midgard-sdk'
@@ -25,9 +24,20 @@ export enum TxTrackerStatus {
   Failed = 'Failed',
 }
 
+// TxTrackerType has additional Approve value
+export enum TxTrackerType {
+  Approve = 'Approve',
+  Swap = 'swap',
+  AddLiquidity = 'addLiquidity',
+  Withdraw = 'withdraw',
+  Donate = 'donate',
+  Refund = 'refund',
+  Switch = 'switch',
+}
+
 export interface SubmitTx {
-  inAssets: Coin[]
-  outAssets: Coin[]
+  inAssets?: Coin[]
+  outAssets?: Coin[]
   txID?: string
   submitDate?: Date
   recipient?: string
@@ -41,12 +51,15 @@ export interface SubmitTx {
 
 export interface TxTracker {
   uuid: string
-  type: ActionTypeEnum
+  type: TxTrackerType
   status: TxTrackerStatus
   submitTx: SubmitTx
   action: Action | null
   refunded: boolean | null
 }
+
+// Record<asset, tracker status>
+export type ApproveStatus = Record<string, TxTrackerStatus>
 
 export type MimirData = {
   'mimir//CHURNINTERVAL'?: number
@@ -109,4 +122,5 @@ export interface State {
   txCollapsed: boolean
   mimirLoading: boolean
   mimir: MimirData
+  approveStatus: ApproveStatus
 }

@@ -1,7 +1,7 @@
 import { ActionTypeEnum, Transaction } from 'midgard-sdk'
 import { Asset, Amount } from 'multichain-sdk'
 
-import { TxTracker, TxTrackerStatus } from 'redux/midgard/types'
+import { TxTracker, TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import { multichain } from 'services/multichain'
 
@@ -10,8 +10,8 @@ import { ProgressStatus } from './types'
 export const getTxTitle = (txTracker: TxTracker): string => {
   const { type, submitTx } = txTracker
 
-  if (type === ActionTypeEnum.Swap) {
-    const { inAssets, outAssets } = submitTx
+  if (type === TxTrackerType.Swap) {
+    const { inAssets = [], outAssets = [] } = submitTx
     const { asset: sendAsset, amount: sendAmount } = inAssets[0]
     const { asset: receiveAsset, amount: receiveAmount } = outAssets[0]
 
@@ -22,8 +22,8 @@ export const getTxTitle = (txTracker: TxTracker): string => {
     return info
   }
 
-  if (type === ActionTypeEnum.AddLiquidity) {
-    const { inAssets, poolAsset = '' } = submitTx
+  if (type === TxTrackerType.AddLiquidity) {
+    const { inAssets = [], poolAsset = '' } = submitTx
 
     // sym add liquidity
     if (inAssets.length === 2) {
@@ -51,8 +51,8 @@ export const getTxTitle = (txTracker: TxTracker): string => {
     }
   }
 
-  if (type === ActionTypeEnum.Withdraw) {
-    const { outAssets } = submitTx
+  if (type === TxTrackerType.Withdraw) {
+    const { outAssets = [] } = submitTx
 
     // sym withdraw
     if (outAssets.length === 2) {
@@ -78,8 +78,8 @@ export const getTxTitle = (txTracker: TxTracker): string => {
     }
   }
 
-  if (type === ActionTypeEnum.Switch) {
-    const { inAssets } = submitTx
+  if (type === TxTrackerType.Switch) {
+    const { inAssets = [] } = submitTx
     const { asset: sendAsset, amount: sendAmount } = inAssets[0]
 
     const info = `Upgrade ${sendAmount} ${
@@ -126,7 +126,7 @@ export const getSwapInTxUrl = (txTracker: TxTracker): string => {
   const { submitTx } = txTracker
 
   if (submitTx?.txID) {
-    const { inAssets, txID } = submitTx
+    const { inAssets = [], txID } = submitTx
     const asset = Asset.fromAssetString(inAssets[0].asset)
 
     if (asset) {

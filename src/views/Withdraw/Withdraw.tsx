@@ -17,7 +17,6 @@ import {
   PoolShareTypeSelect,
   Panel,
 } from 'components'
-import { ActionTypeEnum } from 'midgard-sdk'
 import {
   Amount,
   Asset,
@@ -30,7 +29,11 @@ import {
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
-import { PoolMemberData, PoolShareType } from 'redux/midgard/types'
+import {
+  PoolMemberData,
+  PoolShareType,
+  TxTrackerType,
+} from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
 import { useTxTracker } from 'hooks/useTxTracker'
@@ -245,7 +248,7 @@ const WithdrawPanel = ({
 
             // register to tx tracker
             trackId = submitTransaction({
-              type: ActionTypeEnum.Withdraw,
+              type: TxTrackerType.Withdraw,
               submitTx: {
                 inAssets: [],
                 outAssets,
@@ -281,7 +284,7 @@ const WithdrawPanel = ({
 
             // register to tx tracker
             trackId = submitTransaction({
-              type: ActionTypeEnum.Withdraw,
+              type: TxTrackerType.Withdraw,
               submitTx: {
                 inAssets: [],
                 outAssets,
@@ -317,7 +320,7 @@ const WithdrawPanel = ({
 
             // register to tx tracker
             trackId = submitTransaction({
-              type: ActionTypeEnum.Withdraw,
+              type: TxTrackerType.Withdraw,
               submitTx: {
                 inAssets: [],
                 outAssets,
@@ -354,7 +357,7 @@ const WithdrawPanel = ({
 
           // register to tx tracker
           trackId = submitTransaction({
-            type: ActionTypeEnum.Withdraw,
+            type: TxTrackerType.Withdraw,
             submitTx: {
               inAssets: [],
               outAssets,
@@ -390,7 +393,7 @@ const WithdrawPanel = ({
 
           // register to tx tracker
           trackId = submitTransaction({
-            type: ActionTypeEnum.Withdraw,
+            type: TxTrackerType.Withdraw,
             submitTx: {
               inAssets: [],
               outAssets,

@@ -14,7 +14,6 @@ import {
   FancyButton,
   PriceRate,
 } from 'components'
-import { ActionTypeEnum } from 'midgard-sdk'
 import {
   getInputAssets,
   Amount,
@@ -30,7 +29,9 @@ import {
 
 import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
+import { TxTrackerType } from 'redux/midgard/types'
 
+import { useApprove } from 'hooks/useApprove'
 import { useBalance } from 'hooks/useBalance'
 import useNetworkFee from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
@@ -73,6 +74,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
+  const { isApproved } = useApprove(inputAsset)
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -98,8 +100,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
   const [visibleApproveModal, setVisibleApproveModal] = useState(false)
 
-  const [isApproved, setApproved] = useState<boolean | null>(null)
-
   // NOTE: temporary disable BTC->ERC20 swap for memo issue
   const isSwapSupported = useMemo(() => {
     if (
@@ -112,17 +112,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
     return true
   }, [inputAsset, outputAsset])
-
-  useEffect(() => {
-    const checkApproved = async () => {
-      const approved = await multichain.isAssetApproved(inputAsset)
-      setApproved(approved)
-    }
-
-    if (wallet) {
-      checkApproved()
-    }
-  }, [inputAsset, wallet])
 
   const swap: Swap | null = useMemo(() => {
     if (poolLoading) return null
@@ -276,7 +265,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     if (wallet && swap) {
       // register to tx tracker
       const trackId = submitTransaction({
-        type: ActionTypeEnum.Swap,
+        type: TxTrackerType.Swap,
         submitTx: {
           inAssets: [
             {
@@ -336,26 +325,39 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     setVisibleApproveModal(false)
 
     if (wallet) {
+      // register to tx tracker
+      const trackId = submitTransaction({
+        type: TxTrackerType.Approve,
+        submitTx: {
+          inAssets: [
+            {
+              asset: inputAsset.toString(),
+              amount: '0', // not needed for approve tx
+            },
+          ],
+        },
+      })
+
       try {
         const txHash = await multichain.approveAsset(inputAsset)
-
+        console.log('approve txhash', txHash)
         if (txHash) {
-          console.log('approve txhash', txHash)
-          const txURL = multichain.getExplorerTxUrl(inputAsset.chain, txHash)
-
-          Notification({
-            type: 'open',
-            message: 'View Approve Tx.',
-            description: 'Transaction submitted successfully!',
-            btn: (
-              <a href={txURL} target="_blank" rel="noopener noreferrer">
-                View Transaction
-              </a>
-            ),
-            duration: 20,
+          // start polling
+          pollTransaction({
+            uuid: trackId,
+            submitTx: {
+              inAssets: [
+                {
+                  asset: inputAsset.toString(),
+                  amount: '0', // not needed for approve tx
+                },
+              ],
+              txID: txHash,
+            },
           })
         }
       } catch (error) {
+        setTxFailed(trackId)
         Notification({
           type: 'open',
           message: 'Approve Failed.',
@@ -364,7 +366,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         console.log(error)
       }
     }
-  }, [inputAsset, wallet])
+  }, [inputAsset, wallet, setTxFailed, submitTransaction, pollTransaction])
 
   const handleSwap = useCallback(() => {
     if (wallet && swap) {
@@ -460,8 +462,8 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     return (
       <Styled.ConfirmModalContent>
         <Information
-          title="Approve Transaction"
-          description={`${inputAsset.ticker.toUpperCase()}`}
+          title={`Approve ${inputAsset.ticker.toUpperCase()}`}
+          description=""
         />
         <Information
           title="Network Fee"
@@ -528,7 +530,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Minimum Received"
-          description={`${minReceive.toFixed(
+          description={`${minReceive.toSignificant(
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
           tooltip="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
@@ -543,7 +545,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
       {isApproved !== null && wallet && (
         <Styled.ConfirmButtonContainer>
           {!isApproved && (
-            <Styled.ApproveBtn onClick={handleApprove} error={!isValidSwap}>
+            <Styled.ApproveBtn
+              onClick={handleApprove}
+              error={!isValidSwap}
+              loading
+            >
               Approve
             </Styled.ApproveBtn>
           )}

@@ -1,9 +1,7 @@
 import { useMemo } from 'react'
 
-import { ActionTypeEnum } from 'midgard-sdk'
-
 import { useMidgard } from 'redux/midgard/hooks'
-import { TxTracker, TxTrackerStatus } from 'redux/midgard/types'
+import { TxTracker, TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import useInterval from 'hooks/useInterval'
 
@@ -15,29 +13,39 @@ import useInterval from 'hooks/useInterval'
  *    (if action type is not "refund", action type should be matched to the send type)
  */
 
-const POLL_TX_INTERVAL = 5000 // poll tx from midgard every 5s
+const POLL_TX_INTERVAL = 3000 // poll tx from midgard every 3s
 
 export const useTxManager = () => {
   const {
     pollTx,
     pollUpgradeTx,
+    pollApprove,
     txTrackers,
     txCollapsed,
     setTxCollapsed,
     clearTxTrackers,
   } = useMidgard()
 
+  /**
+   * Note: get pending txns for polling the midgard api
+   * exclude approve tx since it's just an internal action
+   */
   const pendingTransactions = useMemo(() => {
-    return txTrackers.filter(
-      (tracker: TxTracker) => tracker.status === TxTrackerStatus.Pending,
-    )
+    return txTrackers.filter((tracker: TxTracker) => {
+      return (
+        tracker.status === TxTrackerStatus.Pending &&
+        tracker.type !== TxTrackerType.Approve
+      )
+    })
   }, [txTrackers])
 
   useInterval(
     () => {
       pendingTransactions.forEach((tracker: TxTracker) => {
-        if (tracker.type === ActionTypeEnum.Switch) {
+        if (tracker.type === TxTrackerType.Switch) {
           pollUpgradeTx(tracker)
+        } else if (tracker.type === TxTrackerType.Approve) {
+          pollApprove(tracker)
         } else {
           pollTx(tracker)
         }

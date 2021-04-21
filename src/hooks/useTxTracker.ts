@@ -1,10 +1,9 @@
 import { useCallback } from 'react'
 
-import { ActionTypeEnum } from 'midgard-sdk'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useMidgard } from 'redux/midgard/hooks'
-import { TxTrackerStatus, SubmitTx } from 'redux/midgard/types'
+import { TxTrackerStatus, SubmitTx, TxTrackerType } from 'redux/midgard/types'
 
 /**
  * 1. send transaction and get txHash
@@ -23,7 +22,7 @@ export const useTxTracker = () => {
       type,
       submitTx,
     }: {
-      type: ActionTypeEnum
+      type: TxTrackerType
       submitTx: SubmitTx
     }): string => {
       const uuid = uuidv4()

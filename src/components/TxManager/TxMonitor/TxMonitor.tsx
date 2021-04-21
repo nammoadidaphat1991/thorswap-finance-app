@@ -8,10 +8,9 @@ import {
   RollbackOutlined,
   CloseCircleOutlined,
 } from '@ant-design/icons'
-import { ActionTypeEnum } from 'midgard-sdk'
 import { Asset } from 'multichain-sdk'
 
-import { TxTracker, TxTrackerStatus } from 'redux/midgard/types'
+import { TxTracker, TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import { Label } from '../../UIElements'
 import * as Styled from './TxMonitor.style'
@@ -73,7 +72,7 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
     }
 
     if (txTracker.status === TxTrackerStatus.Success) {
-      if (txTracker.type === ActionTypeEnum.Swap) {
+      if (txTracker.type === TxTrackerType.Swap) {
         getSwapTxData()
       }
     }
@@ -95,8 +94,8 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
   const renderTxContent = useMemo(() => {
     const { type, status, submitTx } = txTracker
 
-    if (type === ActionTypeEnum.Swap) {
-      const { inAssets, outAssets } = submitTx
+    if (type === TxTrackerType.Swap) {
+      const { inAssets = [], outAssets = [] } = submitTx
       const { asset: sendAsset, amount: sendAmount } = inAssets[0]
       const { asset: receiveAsset, amount: receiveAmount } = outAssets[0]
 
@@ -162,8 +161,8 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
       )
     }
 
-    if (type === ActionTypeEnum.AddLiquidity) {
-      const { inAssets } = submitTx
+    if (type === TxTrackerType.AddLiquidity) {
+      const { inAssets = [] } = submitTx
 
       return (
         <>
@@ -174,43 +173,39 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
             </Styled.TxInformation>
           )}
           {!txTracker.refunded &&
-            inAssets.map(
-              ({ asset, amount }: { asset: string; amount: string }) => {
-                const assetObj = Asset.fromAssetString(asset)
-                if (!assetObj) return null
+            inAssets.map(({ asset, amount }) => {
+              const assetObj = Asset.fromAssetString(asset)
+              if (!assetObj) return null
 
-                return (
-                  <Styled.TxInformation key={asset}>
-                    <ProgressIcon
-                      status={
-                        status !== TxTrackerStatus.Success
-                          ? 'pending'
-                          : 'success'
-                      }
-                    />
-                    <Label color="primary">
-                      {status !== TxTrackerStatus.Success
-                        ? `Add ${amount} ${assetObj?.ticker}`
-                        : `Added ${amount} ${assetObj?.ticker}`}
-                    </Label>
-                    {status !== TxTrackerStatus.Submitting && (
-                      <Styled.ExternalLinkWrapper
-                        link={getAddTxUrl({ asset: assetObj, txTracker })}
-                        color="primary"
-                      >
-                        <ExternalLink />
-                      </Styled.ExternalLinkWrapper>
-                    )}
-                  </Styled.TxInformation>
-                )
-              },
-            )}
+              return (
+                <Styled.TxInformation key={asset}>
+                  <ProgressIcon
+                    status={
+                      status !== TxTrackerStatus.Success ? 'pending' : 'success'
+                    }
+                  />
+                  <Label color="primary">
+                    {status !== TxTrackerStatus.Success
+                      ? `Add ${amount} ${assetObj?.ticker}`
+                      : `Added ${amount} ${assetObj?.ticker}`}
+                  </Label>
+                  {status !== TxTrackerStatus.Submitting && (
+                    <Styled.ExternalLinkWrapper
+                      link={getAddTxUrl({ asset: assetObj, txTracker })}
+                      color="primary"
+                    >
+                      <ExternalLink />
+                    </Styled.ExternalLinkWrapper>
+                  )}
+                </Styled.TxInformation>
+              )
+            })}
         </>
       )
     }
 
-    if (type === ActionTypeEnum.Withdraw) {
-      const { outAssets } = submitTx
+    if (type === TxTrackerType.Withdraw) {
+      const { outAssets = [] } = submitTx
 
       return (
         <>
@@ -238,43 +233,39 @@ export const TxMonitor = ({ txTracker }: { txTracker: TxTracker }) => {
           )}
           {!txTracker.refunded &&
             status !== TxTrackerStatus.Submitting &&
-            outAssets.map(
-              ({ asset, amount }: { asset: string; amount: string }) => {
-                const assetObj = Asset.fromAssetString(asset)
-                if (!assetObj) return null
+            outAssets.map(({ asset, amount }) => {
+              const assetObj = Asset.fromAssetString(asset)
+              if (!assetObj) return null
 
-                return (
-                  <Styled.TxInformation key={asset}>
-                    <ProgressIcon
-                      status={
-                        status !== TxTrackerStatus.Success
-                          ? 'pending'
-                          : 'success'
-                      }
-                    />
-                    <Label color="primary">
-                      {status !== TxTrackerStatus.Success
-                        ? `Withdraw ${amount} ${assetObj?.ticker}`
-                        : `Withdraw ${amount} ${assetObj?.ticker} Finished`}
-                    </Label>
-                    {status === TxTrackerStatus.Success && (
-                      <Styled.ExternalLinkWrapper
-                        link={getWithdrawTxUrl({ asset: assetObj, txTracker })}
-                        color="primary"
-                      >
-                        <ExternalLink />
-                      </Styled.ExternalLinkWrapper>
-                    )}
-                  </Styled.TxInformation>
-                )
-              },
-            )}
+              return (
+                <Styled.TxInformation key={asset}>
+                  <ProgressIcon
+                    status={
+                      status !== TxTrackerStatus.Success ? 'pending' : 'success'
+                    }
+                  />
+                  <Label color="primary">
+                    {status !== TxTrackerStatus.Success
+                      ? `Withdraw ${amount} ${assetObj?.ticker}`
+                      : `Withdraw ${amount} ${assetObj?.ticker} Finished`}
+                  </Label>
+                  {status === TxTrackerStatus.Success && (
+                    <Styled.ExternalLinkWrapper
+                      link={getWithdrawTxUrl({ asset: assetObj, txTracker })}
+                      color="primary"
+                    >
+                      <ExternalLink />
+                    </Styled.ExternalLinkWrapper>
+                  )}
+                </Styled.TxInformation>
+              )
+            })}
         </>
       )
     }
 
-    if (type === ActionTypeEnum.Switch) {
-      const { inAssets, outAssets } = submitTx
+    if (type === TxTrackerType.Switch) {
+      const { inAssets = [], outAssets = [] } = submitTx
       const { asset: sendAsset, amount: sendAmount } = inAssets[0]
       const { amount: receiveAmount } = outAssets[0]
 
