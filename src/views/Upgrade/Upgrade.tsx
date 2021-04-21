@@ -152,6 +152,7 @@ const UpgradePanel = ({
 
         // start polling
         pollTransaction({
+          type: TxTrackerType.Switch,
           uuid: trackId,
           submitTx: {
             inAssets: [

@@ -287,6 +287,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
         // start polling
         pollTransaction({
+          type: TxTrackerType.Swap,
           uuid: trackId,
           submitTx: {
             inAssets: [
@@ -344,6 +345,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         if (txHash) {
           // start polling
           pollTransaction({
+            type: TxTrackerType.Swap,
             uuid: trackId,
             submitTx: {
               inAssets: [

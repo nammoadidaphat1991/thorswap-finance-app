@@ -14,7 +14,12 @@ import { TxTrackerStatus, SubmitTx, TxTrackerType } from 'redux/midgard/types'
  */
 
 export const useTxTracker = () => {
-  const { addNewTxTracker, updateTxTracker, clearTxTrackers } = useMidgard()
+  const {
+    addNewTxTracker,
+    updateTxTracker,
+    clearTxTrackers,
+    processSubmittedTx,
+  } = useMidgard()
 
   // confirm and submit a transaction
   const submitTransaction = useCallback(
@@ -43,7 +48,15 @@ export const useTxTracker = () => {
 
   // start polling a transaction
   const pollTransaction = useCallback(
-    ({ uuid, submitTx }: { uuid: string; submitTx: SubmitTx }) => {
+    ({
+      uuid,
+      submitTx,
+      type,
+    }: {
+      uuid: string
+      submitTx: SubmitTx
+      type: TxTrackerType
+    }) => {
       updateTxTracker({
         uuid,
         txTracker: {
@@ -51,8 +64,9 @@ export const useTxTracker = () => {
           submitTx,
         },
       })
+      processSubmittedTx({ submitTx, type })
     },
-    [updateTxTracker],
+    [updateTxTracker, processSubmittedTx],
   )
 
   // start polling a transaction

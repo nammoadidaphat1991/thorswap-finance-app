@@ -362,6 +362,7 @@ const AddLiquidityPanel = ({
         if (runeTxHash || assetTxHash) {
           // start polling
           pollTransaction({
+            type: TxTrackerType.AddLiquidity,
             uuid: trackId,
             submitTx: {
               inAssets,

@@ -278,6 +278,7 @@ const WithdrawPanel = ({
 
             // start polling
             pollTransaction({
+              type: TxTrackerType.Withdraw,
               uuid: trackId,
               submitTx: {
                 inAssets: [],
@@ -314,6 +315,7 @@ const WithdrawPanel = ({
 
             // start polling
             pollTransaction({
+              type: TxTrackerType.Withdraw,
               uuid: trackId,
               submitTx: {
                 inAssets: [],
@@ -350,6 +352,7 @@ const WithdrawPanel = ({
 
             // start polling
             pollTransaction({
+              type: TxTrackerType.Withdraw,
               uuid: trackId,
               submitTx: {
                 inAssets: [],
@@ -387,6 +390,7 @@ const WithdrawPanel = ({
 
           // start polling
           pollTransaction({
+            type: TxTrackerType.Withdraw,
             uuid: trackId,
             submitTx: {
               inAssets: [],
@@ -423,6 +427,7 @@ const WithdrawPanel = ({
 
           // start polling
           pollTransaction({
+            type: TxTrackerType.Withdraw,
             uuid: trackId,
             submitTx: {
               inAssets: [],
