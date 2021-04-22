@@ -69,6 +69,7 @@ export type MimirData = {
   'mimir//NEWPOOLCYCLE'?: number
   'mimir//ROTATEPERBLOCKHEIGHT'?: number
   'mimir//MAXLIQUIDITYRUNE'?: number
+  'mimir//MAXIMUMLIQUIDITYRUNE'?: number
 }
 
 export type ShareType = 'sym' | 'runeAsym' | 'assetAsym'

@@ -17,8 +17,7 @@ export const useMimir = () => {
     dispatch(actions.getMimir())
   }, [dispatch, actions])
 
-  const maxLiquidityRuneMimir = mimir?.['mimir//MAXLIQUIDITYRUNE']
-
+  const maxLiquidityRuneMimir = mimir?.['mimir//MAXIMUMLIQUIDITYRUNE']
   const maxLiquidityRune = Amount.fromMidgard(maxLiquidityRuneMimir)
   const totalPooledRune = Amount.fromMidgard(networkData?.totalPooledRune)
 
