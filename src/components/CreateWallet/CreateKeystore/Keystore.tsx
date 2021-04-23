@@ -63,7 +63,7 @@ const KeystoreView = ({ onConnect }: Props) => {
 
         console.log(keystore)
 
-        await downloadAsFile('asgardex-keystore.txt', JSON.stringify(keystore))
+        await downloadAsFile('thorswap-keystore.txt', JSON.stringify(keystore))
 
         // clean up
         setPassword('')
