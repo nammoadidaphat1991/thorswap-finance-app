@@ -12,6 +12,8 @@ import { AssetAmount, Pool, Percent } from '../entities'
 
 export type Network = 'testnet' | 'mainnet'
 
+export type WalletType = 'phrase' | 'xdefi'
+
 export type TxParams = {
   assetAmount: AssetAmount
   recipient: string

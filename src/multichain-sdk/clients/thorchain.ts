@@ -1,7 +1,21 @@
-import { TxHash, Balance, Network } from '@xchainjs/xchain-client'
-import { Client as ThorClient } from '@xchainjs/xchain-thorchain'
-import { baseAmount, Chain, THORChain } from '@xchainjs/xchain-util'
+import {
+  TxParams as ClientTxParams,
+  TxHash,
+  Balance,
+  Network,
+} from '@xchainjs/xchain-client'
+import {
+  Client as ThorClient,
+  DepositParam as ClientDepositParam,
+} from '@xchainjs/xchain-thorchain'
+import {
+  assetToString,
+  baseAmount,
+  Chain,
+  THORChain,
+} from '@xchainjs/xchain-util'
 
+import { XdefiClient } from '../../xdefi-sdk'
 import {
   INSUFFICIENT_RUNE_THRESHOLD_AMOUNT_ERROR,
   INVALID_MEMO_ERROR,
@@ -51,6 +65,55 @@ export class ThorChain implements IThorChain {
 
   get balance() {
     return this.balances
+  }
+
+  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+    if (!xdefiClient) throw Error('xdefi client not found')
+
+    /**
+     * 1. load chain provider
+     * 2. patch getAddress method
+     * 3. patch transfer method
+     * 4. patch deposit method
+     */
+    xdefiClient.loadProvider(THORChain)
+
+    const address = await xdefiClient.getAddress(THORChain)
+    this.client.getAddress = () => address
+
+    const transfer = async (txParams: ClientTxParams) => {
+      const { asset, amount, recipient, memo } = txParams
+
+      if (!asset) throw Error('invalid asset to transfer')
+
+      const txHash = await xdefiClient.transfer({
+        asset: assetToString(asset),
+        amount: amount.amount().toNumber(),
+        decimal: amount.decimal,
+        recipient,
+        memo,
+      })
+
+      return txHash
+    }
+    this.client.transfer = transfer
+
+    const deposit = async (txParams: ClientDepositParam) => {
+      const { asset, amount, memo } = txParams
+
+      if (!asset) throw Error('invalid asset to deposit')
+
+      const txHash = await xdefiClient.depositTHOR({
+        asset: assetToString(asset),
+        amount: amount.amount().toNumber(),
+        decimal: amount.decimal,
+        recipient: '',
+        memo,
+      })
+
+      return txHash
+    }
+    this.client.deposit = deposit
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {

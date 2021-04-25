@@ -1,7 +1,17 @@
 import { Client as BtcClient, Network } from '@xchainjs/xchain-bitcoin'
-import { TxHash, Balance } from '@xchainjs/xchain-client'
-import { baseAmount, Chain, BTCChain } from '@xchainjs/xchain-util'
+import {
+  TxHash,
+  Balance,
+  TxParams as ClientTxParams,
+} from '@xchainjs/xchain-client'
+import {
+  baseAmount,
+  Chain,
+  BTCChain,
+  assetToString,
+} from '@xchainjs/xchain-util'
 
+import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
 import { TxParams } from './types'
@@ -40,6 +50,38 @@ export class BtcChain implements IBtcChain {
 
   get balance() {
     return this.balances
+  }
+
+  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+    if (!xdefiClient) throw Error('xdefi client not found')
+
+    /**
+     * 1. load chain provider
+     * 2. patch getAddress method
+     * 3. patch transfer method
+     */
+    xdefiClient.loadProvider(BTCChain)
+
+    const address = await xdefiClient.getAddress(BTCChain)
+    this.client.getAddress = () => address
+
+    const transfer = async (txParams: ClientTxParams) => {
+      const { asset, amount, recipient, memo } = txParams
+
+      if (!asset) throw Error('invalid asset to transfer')
+
+      const txHash = await xdefiClient.transfer({
+        asset: assetToString(asset),
+        amount: amount.amount().toNumber(),
+        decimal: amount.decimal,
+        recipient,
+        memo,
+      })
+
+      return txHash
+    }
+
+    this.client.transfer = transfer
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {

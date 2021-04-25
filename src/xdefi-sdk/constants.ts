@@ -1,9 +1,9 @@
 export const BTCChain = 'BTC'
-export const BNBChain = 'BTC'
-export const THORChain = 'BTC'
-export const ETHChain = 'BTC'
-export const LTCChain = 'BTC'
-export const BCHChain = 'BTC'
+export const BNBChain = 'BNB'
+export const THORChain = 'THOR'
+export const ETHChain = 'ETH'
+export const LTCChain = 'LTC'
+export const BCHChain = 'BCH'
 
 export type Provider = {
   title: string

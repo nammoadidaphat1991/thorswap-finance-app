@@ -41,7 +41,7 @@ export interface IXdefiClient {
   transfer(txParams: TxParams): Promise<string>
   vaultTransfer(txParams: TxParams): Promise<string>
 
-  depositTHOR(params: XdefiTxParams[]): Promise<string>
+  depositTHOR(txParams: TxParams): Promise<string>
   transferERC20(txParams: any): Promise<string>
   signTransactionERC20(txParams: any): Promise<string>
 }
@@ -222,6 +222,10 @@ export class XdefiClient implements IXdefiClient {
      * 4. request vault transfer
      */
 
+    if (chain === THORChain) {
+      return this.depositTHOR(txParams)
+    }
+
     const chainClient = this.getChainClient(chain as SupportedChain)
     const address = await this.getAddress(chain as SupportedChain)
 
@@ -237,15 +241,6 @@ export class XdefiClient implements IXdefiClient {
       },
     ]
 
-    if (chain === THORChain) {
-      return this.depositTHOR([
-        {
-          ...params[0],
-          recipient: THORCHAIN_POOL_ADDRESS,
-        },
-      ])
-    }
-
     const txHash = await chainClient.request({
       method: 'transfer',
       params,
@@ -259,8 +254,28 @@ export class XdefiClient implements IXdefiClient {
    * @param params xdefi request params
    * @returns txhash string
    */
-  depositTHOR = async (params: XdefiTxParams[]): Promise<string> => {
+  depositTHOR = async (txParams: TxParams): Promise<string> => {
     if (!this.thor) throw Error('THORChain Provider not found')
+
+    const { asset, amount, decimal, memo } = txParams
+
+    const assetObj = assetFromString(asset)
+
+    if (!assetObj) throw Error('invalid asset')
+
+    const address = await this.getAddress(THORChain)
+
+    const params: XdefiTxParams[] = [
+      {
+        from: address,
+        amount: {
+          amount,
+          decimals: decimal,
+        },
+        recipient: THORCHAIN_POOL_ADDRESS,
+        memo,
+      },
+    ]
 
     const txHash = await this.thor.request({
       method: 'deposit',

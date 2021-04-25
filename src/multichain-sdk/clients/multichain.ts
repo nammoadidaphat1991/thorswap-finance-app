@@ -24,6 +24,7 @@ import {
   InboundAddressesItem,
 } from 'midgard-sdk'
 
+import { XdefiClient } from '../../xdefi-sdk/xdefi'
 import { Swap, Memo, Asset, AssetAmount } from '../entities'
 import { removeAddressPrefix } from '../utils/wallet'
 import { BnbChain } from './binance'
@@ -42,6 +43,7 @@ import {
   SupportedChain,
   AddLiquidityTxns,
   UpgradeParams,
+  WalletType,
 } from './types'
 
 // specifying non-eth client is needed for getFees method
@@ -65,10 +67,14 @@ export interface IMultiChain {
   bch: BchChain
 
   resetClients(): void
+  getWalletType(): WalletType
+  setWalletType(type: WalletType): void
 
   getPhrase(): string
   setPhrase(phrase: string): void
   validateKeystore(keystore: Keystore, password: string): Promise<boolean>
+
+  useXdefiWallet(): Promise<void>
 
   getMidgard(): MidgardV2
 
@@ -111,7 +117,11 @@ export interface IMultiChain {
 export class MultiChain implements IMultiChain {
   private phrase: string
 
+  private xdefiClient: XdefiClient | null = null
+
   private wallet: Wallet | null = null
+
+  private walletType: WalletType = 'phrase'
 
   public readonly chains = supportedChains
 
@@ -153,18 +163,39 @@ export class MultiChain implements IMultiChain {
     this.bch = new BchChain({ network, phrase })
   }
 
-  setPhrase = (phrase: string) => {
-    this.phrase = phrase
+  getWalletType = (): WalletType => {
+    return this.walletType
+  }
 
-    this.bnb.getClient().setPhrase(phrase)
-    this.btc.getClient().setPhrase(phrase)
-    this.ltc.getClient().setPhrase(phrase)
-    this.bch.getClient().setPhrase(phrase)
+  setWalletType = (type: WalletType): void => {
+    this.walletType = type
+  }
 
-    this.thor = new ThorChain({ network: this.network, phrase })
-    this.eth = new EthChain({ network: this.network, phrase })
+  connectXDefiWallet = async (): Promise<void> => {
+    this.xdefiClient = new XdefiClient(this.network)
+
+    if (!this.xdefiClient.isWalletDetected()) {
+      throw Error('xdefi wallet not detected')
+    }
+
+    this.resetClients()
+    this.setWalletType('xdefi')
+
+    await this.useXdefiWallet()
 
     this.initWallet()
+  }
+
+  // patch client methods to use xdefi request and address
+  useXdefiWallet = async () => {
+    if (!this.xdefiClient) throw Error('xdefi client not found')
+
+    await this.thor.useXdefiWallet(this.xdefiClient)
+    await this.btc.useXdefiWallet(this.xdefiClient)
+    await this.bch.useXdefiWallet(this.xdefiClient)
+    await this.ltc.useXdefiWallet(this.xdefiClient)
+    await this.bnb.useXdefiWallet(this.xdefiClient)
+    await this.eth.useXdefiWallet(this.xdefiClient)
   }
 
   resetClients = () => {
@@ -178,6 +209,22 @@ export class MultiChain implements IMultiChain {
     this.eth = new EthChain({ network: this.network, phrase: '' })
     this.ltc = new LtcChain({ network: this.network, phrase: '' })
     this.bch = new BchChain({ network: this.network, phrase: '' })
+  }
+
+  setPhrase = (phrase: string) => {
+    this.setWalletType('phrase')
+
+    this.phrase = phrase
+
+    this.bnb.getClient().setPhrase(phrase)
+    this.btc.getClient().setPhrase(phrase)
+    this.ltc.getClient().setPhrase(phrase)
+    this.bch.getClient().setPhrase(phrase)
+
+    this.thor = new ThorChain({ network: this.network, phrase })
+    this.eth = new EthChain({ network: this.network, phrase })
+
+    this.initWallet()
   }
 
   getPhrase = () => {
