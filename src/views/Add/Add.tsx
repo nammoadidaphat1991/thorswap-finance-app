@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { useHistory, useParams } from 'react-router'
 
 import { PlusOutlined } from '@ant-design/icons'
+import { THORChain } from '@xchainjs/xchain-thorchain'
 import {
   PanelView,
   AssetInputCard,
@@ -26,6 +27,8 @@ import {
   getMemberDetailByPool,
   AssetAmount,
   Percent,
+  getEstimatedTxTime,
+  SupportedChain,
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -464,16 +467,32 @@ const AddLiquidityPanel = ({
   }, [wallet])
 
   const renderConfirmModalContent = useMemo(() => {
-    return (
-      <Styled.ConfirmModalContent>
-        <Information
-          title="Add"
-          description={`${assetAmount.toSignificant(
+    const title =
+      liquidityType === LiquidityTypeOption.SYMMETRICAL
+        ? `${assetAmount.toSignificant(
             6,
           )} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toSignificant(
             6,
-          )} RUNE`}
-        />
+          )} RUNE`
+        : LiquidityTypeOption.RUNE
+        ? `${runeAmount.toSignificant(6)} RUNE`
+        : `${assetAmount.toSignificant(6)} ${poolAsset.ticker.toUpperCase()}`
+
+    const estimatedTime =
+      liquidityType === LiquidityTypeOption.RUNE
+        ? getEstimatedTxTime({
+            chain: THORChain,
+            amount: runeAmount,
+          })
+        : getEstimatedTxTime({
+            chain: poolAsset.chain as SupportedChain,
+            amount: assetAmount,
+          })
+
+    return (
+      <Styled.ConfirmModalContent>
+        <Information title="Add" description={title} />
+        <br />
         <Information
           title="Slip"
           description={addLiquiditySlip}
@@ -489,6 +508,11 @@ const AddLiquidityPanel = ({
           description={networkFee}
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />
+        <Information
+          title="Estimated Time"
+          description={estimatedTime}
+          tooltip="Estimated time to process the transaction"
+        />
       </Styled.ConfirmModalContent>
     )
   }, [
@@ -498,6 +522,7 @@ const AddLiquidityPanel = ({
     addLiquiditySlip,
     poolShareEst,
     networkFee,
+    liquidityType,
   ])
 
   const renderApproveModal = useMemo(() => {

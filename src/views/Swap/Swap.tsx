@@ -25,6 +25,8 @@ import {
   Memo,
   Price,
   getAssetBalance,
+  getEstimatedTxTime,
+  SupportedChain,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -414,6 +416,15 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const isValidSwap = useMemo(() => swap?.isValid() ?? false, [swap])
   const isValidSlip = useMemo(() => swap?.isSlipValid() ?? false, [swap])
 
+  const estimatedTime = useMemo(
+    () =>
+      getEstimatedTxTime({
+        chain: inputAsset.chain as SupportedChain,
+        amount: inputAmount,
+      }),
+    [inputAsset, inputAmount],
+  )
+
   const renderConfirmModalContent = useMemo(() => {
     return (
       <Styled.ConfirmModalContent>
@@ -429,6 +440,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
         />
+        <br />
         <Information
           title="Slip"
           description={slipPercent.toFixed(3)}
@@ -447,6 +459,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           description={networkFee}
           tooltip="Gas fee to submit the transaction using the thorchain protocol"
         />
+        <Information
+          title="Estimated Time"
+          description={estimatedTime}
+          tooltip="Estimated time to process the transaction"
+        />
       </Styled.ConfirmModalContent>
     )
   }, [
@@ -458,6 +475,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     isValidSlip,
     minReceive,
     networkFee,
+    estimatedTime,
   ])
 
   const renderApproveModal = useMemo(() => {
