@@ -66,7 +66,7 @@ export const Layout = (props: Props) => {
     <Styled.LayoutWrapper>
       {showAnnouncement && (
         <Alert
-          message="Chaosnet is still in BETA, Take your own Risk. Back up your seed phrase, keystore, and password seriously and do not play with large funds."
+          message="Chaosnet is still in BETA, Take your own Risk. Always back up your wallet and do not play with large funds. Bookmark app.thorswap.finance to be safe."
           type="warning"
           showIcon
           closable
