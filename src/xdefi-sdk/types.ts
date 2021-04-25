@@ -44,5 +44,3 @@ export type XdefiTxParams = {
   }
   memo?: string
 }
-
-export type ApproveParams = { spender: string; sender: string }

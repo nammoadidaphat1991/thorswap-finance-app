@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Provider,
   providersList,
@@ -31,10 +32,21 @@ export interface IXdefiClient {
   providers: Provider[]
 
   isWalletDetected(): boolean
-  getAddress(chain: SupportedChain): string
+  getAddress(chain: SupportedChain): Promise<string>
+
+  reloadProviders(): void
+  loadProvider(chain: SupportedChain): void
+  getChainClient(chain: SupportedChain): any
+
+  transfer(txParams: TxParams): Promise<string>
+  vaultTransfer(txParams: TxParams): Promise<string>
+
+  depositTHOR(params: XdefiTxParams[]): Promise<string>
+  transferERC20(txParams: any): Promise<string>
+  signTransactionERC20(txParams: any): Promise<string>
 }
 
-export class XdefiClient {
+export class XdefiClient implements IXdefiClient {
   network: Network = 'testnet'
 
   providers = providersList
@@ -67,6 +79,14 @@ export class XdefiClient {
       this.ltc = window.xfi.litecoin
       this.thor = window.xfi.thorchain
     }
+  }
+
+  isWalletDetected = (): boolean => {
+    if (typeof window === 'object') {
+      return !!window.xfi
+    }
+
+    return false
   }
 
   // reload all providers
