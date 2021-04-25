@@ -7,6 +7,7 @@ import {
   ETHChain,
   LTCChain,
   BCHChain,
+  THORCHAIN_POOL_ADDRESS,
 } from './constants'
 import {
   Network,
@@ -14,7 +15,6 @@ import {
   supportedChains,
   TxParams,
   XdefiTxParams,
-  ApproveParams,
 } from './types'
 import { assetFromString } from './utils'
 
@@ -199,7 +199,7 @@ export class XdefiClient {
      * 1. get wallet client for chain
      * 2. get wallet address
      * 3. compose tx param
-     * 4. request transfer
+     * 4. request vault transfer
      */
 
     const chainClient = this.getChainClient(chain as SupportedChain)
@@ -217,6 +217,15 @@ export class XdefiClient {
       },
     ]
 
+    if (chain === THORChain) {
+      return this.depositTHOR([
+        {
+          ...params[0],
+          recipient: THORCHAIN_POOL_ADDRESS,
+        },
+      ])
+    }
+
     const txHash = await chainClient.request({
       method: 'transfer',
       params,
@@ -225,10 +234,45 @@ export class XdefiClient {
     return txHash
   }
 
-  approve = async (approveParam: any) => {
+  /**
+   * request thorchain deposit
+   * @param params xdefi request params
+   * @returns txhash string
+   */
+  depositTHOR = async (params: XdefiTxParams[]): Promise<string> => {
+    if (!this.thor) throw Error('THORChain Provider not found')
+
+    const txHash = await this.thor.request({
+      method: 'deposit',
+      params,
+    })
+
+    return txHash
+  }
+
+  /**
+   * request transfer erc20
+   * @param txParams xdefi request param
+   * @returns txhash string
+   */
+  transferERC20 = async (txParams: any) => {
     const txHash = await this.eth.request({
       method: 'eth_sendTransaction',
-      params: [approveParam],
+      params: [txParams],
+    })
+
+    return txHash
+  }
+
+  /**
+   * request sign erc20
+   * @param txParams xdefi request param
+   * @returns txhash string
+   */
+  signTransactionERC20 = async (txParams: any) => {
+    const txHash = await this.eth.request({
+      method: 'eth_signTransaction',
+      params: [txParams],
     })
 
     return txHash

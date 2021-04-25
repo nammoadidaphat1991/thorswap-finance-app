@@ -36,3 +36,5 @@ export const providersList: Provider[] = [
     providerPath: 'xfi.thorchain',
   },
 ]
+
+export const THORCHAIN_POOL_ADDRESS = ''
