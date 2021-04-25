@@ -474,7 +474,7 @@ export class MultiChain implements IMultiChain {
   }
 
   /**
-   * transfer on binance chain
+   * cross-chain transfer tx
    * @param {TxParams} tx transfer parameter
    */
   transfer = async (
@@ -516,7 +516,7 @@ export class MultiChain implements IMultiChain {
   }
 
   /**
-   * transfer on binance chain
+   * normal send tx
    * @param {TxParams} tx transfer parameter
    */
   send = async (tx: TxParams): Promise<TxHash> => {
