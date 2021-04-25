@@ -9,7 +9,7 @@ import { useMidgard } from 'redux/midgard/hooks'
 import { StatsCard } from '../UIElements/StatsCard'
 
 export const GlobalStats: React.FC = (): JSX.Element => {
-  const { stats, networkData } = useMidgard()
+  const { stats, networkData, volume24h } = useMidgard()
   const { runeToCurrency } = useGlobalState()
 
   const bondingAPYLabel = new Percent(networkData?.bondingAPY ?? 0).toFixed(2)
@@ -21,15 +21,19 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const addLiquidityVolume = Amount.fromMidgard(stats?.addLiquidityVolume)
   const withdrawVolume = Amount.fromMidgard(stats?.withdrawVolume)
 
-  const swapCount = Amount.fromNormalAmount(stats?.swapCount)
-  const addLiquidityCount = Amount.fromNormalAmount(stats?.addLiquidityCount)
-  const withdrawCount = Amount.fromNormalAmount(stats?.withdrawCount)
+  // const swapCount = Amount.fromNormalAmount(stats?.swapCount)
+  // const addLiquidityCount = Amount.fromNormalAmount(stats?.addLiquidityCount)
+  // const withdrawCount = Amount.fromNormalAmount(stats?.withdrawCount)
 
   const totalVolume = swapVolume.add(addLiquidityVolume).add(withdrawVolume)
-  const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
+  // const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
 
   const statsData = React.useMemo(() => {
     return [
+      {
+        title: '24H Volume',
+        value: `$${volume24h?.toFixed(0) ?? '0'}`,
+      },
       {
         title: 'Total Volume',
         value: runeToCurrency(totalVolume).toCurrencyFormat(0),
@@ -39,10 +43,6 @@ export const GlobalStats: React.FC = (): JSX.Element => {
         value: runeToCurrency(
           Amount.fromMidgard(stats?.runeDepth).mul(2),
         ).toCurrencyFormat(0),
-      },
-      {
-        title: 'Total Tx',
-        value: totalTx.toFixed(0),
       },
       {
         title: 'Bonding APY',
@@ -58,11 +58,11 @@ export const GlobalStats: React.FC = (): JSX.Element => {
       },
     ]
   }, [
+    volume24h,
     stats,
     bondingAPYLabel,
     liquidityAPYLabel,
     totalVolume,
-    totalTx,
     runeToCurrency,
   ])
 

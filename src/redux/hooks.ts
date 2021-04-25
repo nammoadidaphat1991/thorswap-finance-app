@@ -17,6 +17,7 @@ export const useGlobalState = () => {
   const { baseCurrency } = useApp()
 
   const loadInitialData = useCallback(() => {
+    dispatch(actions.getVolume24h())
     dispatch(actions.getPools())
     dispatch(actions.getStats())
     dispatch(actions.getNetworkData())

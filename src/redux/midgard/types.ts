@@ -15,7 +15,7 @@ import {
   Coin,
   MemberPool,
 } from 'midgard-sdk'
-import { Pool } from 'multichain-sdk'
+import { Amount, Pool } from 'multichain-sdk'
 
 export enum TxTrackerStatus {
   Submitting = 'Submitting',
@@ -124,4 +124,5 @@ export interface State {
   mimirLoading: boolean
   mimir: MimirData
   approveStatus: ApproveStatus
+  volume24h: Amount | null
 }
