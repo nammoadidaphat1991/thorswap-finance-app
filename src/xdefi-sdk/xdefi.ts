@@ -73,11 +73,13 @@ export class XdefiClient implements IXdefiClient {
     if (typeof window === 'object') {
       this.xdefi = window.xfi
       this.eth = window.ethereum
-      this.btc = window.xfi.bitcoin
-      this.bnb = window.xfi.binance
-      this.bch = window.xfi.bitcoincash
-      this.ltc = window.xfi.litecoin
-      this.thor = window.xfi.thorchain
+      if (window?.xfi) {
+        this.btc = window.xfi.bitcoin
+        this.bnb = window.xfi.binance
+        this.bch = window.xfi.bitcoincash
+        this.ltc = window.xfi.litecoin
+        this.thor = window.xfi.thorchain
+      }
     }
   }
 
@@ -94,17 +96,19 @@ export class XdefiClient implements IXdefiClient {
     if (typeof window === 'object') {
       this.xdefi = window.xfi
       this.eth = window.ethereum
-      this.btc = window.xfi.bitcoin
-      this.bnb = window.xfi.binance
-      this.bch = window.xfi.bitcoincash
-      this.ltc = window.xfi.litecoin
-      this.thor = window.xfi.thorchain
+      if (window?.xfi) {
+        this.btc = window.xfi.bitcoin
+        this.bnb = window.xfi.binance
+        this.bch = window.xfi.bitcoincash
+        this.ltc = window.xfi.litecoin
+        this.thor = window.xfi.thorchain
+      }
     }
   }
 
   // load xdefi provider for chain
   loadProvider = (chain: SupportedChain) => {
-    if (typeof window === 'object') {
+    if (typeof window === 'object' && window?.xfi) {
       if (chain === BTCChain) this.btc = window.xfi.bitcoin
       if (chain === BNBChain) this.bnb = window.xfi.binance
       if (chain === ETHChain) this.eth = window.ethereum
