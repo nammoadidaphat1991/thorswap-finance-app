@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { BigNumber as BN } from '@ethersproject/bignumber'
 import { hexlify } from '@ethersproject/bytes'
 import { toUtf8Bytes } from '@ethersproject/strings'
@@ -92,35 +91,35 @@ export class EthChain implements IEthChain {
      */
     xdefiClient.loadProvider(ETHChain)
 
+    const mockPhrase =
+      'image rally need wedding health address purse army antenna leopard sea gain'
+    const network = this.client.getNetwork()
+    this.client = new EthClient({
+      network,
+      phrase: mockPhrase,
+      etherscanApiKey: ETHERSCAN_API_KEY,
+      ethplorerApiKey: ETHPLORER_API_KEY,
+      infuraCreds: { projectId: INFURA_PROJECT_ID },
+    })
+
     const address = await xdefiClient.getAddress(ETHChain)
     this.client.getAddress = () => address
 
     // patch eth wallet
     const ethWallet = this.client.getWallet()
     ethWallet.getAddress = async () => address
-    ethWallet.sendTransaction = async (unsignedTx) => {
-      unsignedTx.value = hexlify(BN.from(unsignedTx.value || 0))
-      const hash = await xdefiClient.transferERC20(unsignedTx)
-
-      // return Transaction Object (ONLY hash value is valid)
-      return {
-        hash,
-        // unused fields
-        nonce: 0,
-        gasLimit: BN.from(0),
-        gasPrice: BN.from(0),
-        data: '',
-        value: BN.from(0),
-        chainId: 0,
-        confirmations: 0,
-        wait: () => {},
-        from: '',
-      } as TransactionResponse
+    ethWallet.sendTransaction = (unsignedTx) => {
+      const txParam = unsignedTx
+      txParam.value = hexlify(BN.from(unsignedTx.value || 0))
+      return xdefiClient
+        .transferERC20(txParam)
+        .then((hash: string) => ({ hash }))
     }
     ethWallet.signTransaction = (unsignedTx) => {
-      unsignedTx.value = hexlify(BN.from(unsignedTx.value || 0))
+      const txParam = unsignedTx
+      txParam.value = hexlify(BN.from(txParam.value || 0))
 
-      return xdefiClient.signTransactionERC20(unsignedTx)
+      return xdefiClient.signTransactionERC20(txParam)
     }
 
     this.client.getWallet = () => {
@@ -160,12 +159,12 @@ export class EthChain implements IEthChain {
         spender,
         txAmount,
         {
-          from: this.client.getAddress(),
+          from: address,
           gasPrice,
           gasLimit,
         },
       )
-      unsignedTx.from = this.client.getAddress()
+      unsignedTx.from = address
 
       const txHash = await xdefiClient.transferERC20(unsignedTx)
 
@@ -232,18 +231,18 @@ export class EthChain implements IEthChain {
             txAmount,
             { ...overrides },
           )
-          unsignedTx.from = this.client.getAddress()
+          unsignedTx.from = address
 
           txResult = await xdefiClient.transferERC20(unsignedTx)
         } else {
           // Transfer ETH
           const transactionRequest = {
+            from: address,
             to: recipient,
             value: txAmount,
             ...overrides,
             data: memo ? toUtf8Bytes(memo) : undefined,
           }
-
           txResult = await xdefiClient.transferERC20(transactionRequest)
         }
 
@@ -254,24 +253,21 @@ export class EthChain implements IEthChain {
     }
 
     this.client.call = async (
-      walletAddress: string,
+      routerAddress: string,
       abi: ethers.ContractInterface,
       func: string,
       params: Array<any>,
     ) => {
       try {
-        if (!walletAddress) {
+        if (!routerAddress) {
           return await Promise.reject(new Error('address must be provided'))
         }
         const contract = new ethers.Contract(
-          walletAddress,
+          routerAddress,
           abi,
           this.client.getProvider(),
-        )
-        const txResult = await contract[func](...params, {
-          from: this.client.getAddress(),
-        })
-        return txResult
+        ).connect(ethWallet)
+        return contract[func](...params)
       } catch (error) {
         return Promise.reject(error)
       }
@@ -394,6 +390,8 @@ export class EthChain implements IEthChain {
 
     // get gas amount based on the fee option
     const gasPrice = gasAmount[feeOptionKey].amount().toFixed(0)
+    console.log('deposit address', this.client.getAddress())
+    console.log('deposit provider', this.client.getProvider())
 
     const contractParams = [
       recipient, // vault address
@@ -408,8 +406,6 @@ export class EthChain implements IEthChain {
           }
         : { gasPrice },
     ]
-
-    console.log('contracParams', JSON.parse(JSON.stringify(contractParams)))
 
     if (!router) {
       throw Error('invalid router')

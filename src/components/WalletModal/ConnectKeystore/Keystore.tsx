@@ -17,16 +17,10 @@ import * as Styled from './Keystore.style'
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
   onCreate: () => void
-  onPhraseImport: () => void
   loading?: boolean
 }
 
-const KeystoreView = ({
-  onConnect,
-  onCreate,
-  onPhraseImport,
-  loading = false,
-}: Props) => {
+const KeystoreView = ({ onConnect, onCreate, loading = false }: Props) => {
   const [keystore, setKeystore] = useState<Keystore>()
   const [password, setPassword] = useState<string>('')
   const [invalideStatus, setInvalideStatus] = useState(false)
@@ -93,10 +87,10 @@ const KeystoreView = ({
   return (
     <Styled.Container>
       <Helmet title="Connect Wallet" content="Connect Wallet" />
-      <Styled.Header>Connect wallet using keystore file</Styled.Header>
+      <Styled.Header>Connect Keystore</Styled.Header>
       <Form onFinish={unlock}>
         <Styled.Content>
-          <Styled.FormLabel weight="bold" color="normal">
+          <Styled.FormLabel color="normal">
             Please Select Keystore File
           </Styled.FormLabel>
           <FilePicker onChange={onChangeFile} onError={onErrorFile}>
@@ -111,9 +105,7 @@ const KeystoreView = ({
           {keystoreError && <Label color="error">{keystoreError}</Label>}
           <Styled.PasswordInput>
             <Styled.PasswordLabel>
-              <Label weight="bold" color="normal">
-                Decryption password{' '}
-              </Label>
+              <Label color="normal">Decryption password </Label>
               <Tooltip
                 title="This is the password used to decrypt your encrypted keystore file"
                 placement="topLeft"
@@ -145,9 +137,6 @@ const KeystoreView = ({
             </Button>
             <Styled.ActionButton onClick={onCreate}>
               <Label color="primary">Create Wallet</Label>
-            </Styled.ActionButton>
-            <Styled.ActionButton onClick={onPhraseImport}>
-              <Label color="primary">Import Phrase</Label>
             </Styled.ActionButton>
           </Styled.FooterContent>
         </Styled.Footer>

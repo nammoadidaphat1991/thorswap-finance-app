@@ -141,10 +141,12 @@ export class XdefiClient implements IXdefiClient {
     if (chain === ETHChain) {
       if (!this.eth) throw Error('ethereum provider does not exist')
 
-      const accounts = await this.eth.request({
+      const accounts: string = await this.eth.request({
         method: 'eth_requestAccounts',
         params: [],
       })
+
+      if (!accounts?.[0]) throw Error(`${chain} wallet not found`)
 
       return accounts[0]
     }
@@ -153,12 +155,23 @@ export class XdefiClient implements IXdefiClient {
 
     if (!chainClient) throw Error(`${chain} provider does not exist`)
 
-    const accounts = await chainClient.request({
-      method: 'request_accounts',
-      params: [],
+    const account: string = await new Promise((resolve, reject) => {
+      chainClient.request(
+        {
+          method: 'request_accounts',
+          params: [],
+        },
+        (err: any, accounts: string[]) => {
+          if (err) {
+            return reject(err)
+          }
+
+          return resolve(accounts[0])
+        },
+      )
     })
 
-    return accounts[0]
+    return account
   }
 
   /**
@@ -195,9 +208,20 @@ export class XdefiClient implements IXdefiClient {
       },
     ]
 
-    const txHash = await chainClient.request({
-      method: 'transfer',
-      params,
+    const txHash: string = await new Promise((resolve, reject) => {
+      chainClient.request(
+        {
+          method: 'transfer',
+          params,
+        },
+        (err: any, txhash: string) => {
+          if (err) {
+            return reject(err)
+          }
+
+          return resolve(txhash)
+        },
+      )
     })
 
     return txHash
@@ -241,9 +265,20 @@ export class XdefiClient implements IXdefiClient {
       },
     ]
 
-    const txHash = await chainClient.request({
-      method: 'transfer',
-      params,
+    const txHash: string = await new Promise((resolve, reject) => {
+      chainClient.request(
+        {
+          method: 'transfer',
+          params,
+        },
+        (err: any, txhash: string) => {
+          if (err) {
+            return reject(err)
+          }
+
+          return resolve(txhash)
+        },
+      )
     })
 
     return txHash
@@ -277,9 +312,20 @@ export class XdefiClient implements IXdefiClient {
       },
     ]
 
-    const txHash = await this.thor.request({
-      method: 'deposit',
-      params,
+    const txHash: string = await new Promise((resolve, reject) => {
+      this.thor.request(
+        {
+          method: 'deposit',
+          params,
+        },
+        (err: any, txhash: string) => {
+          if (err) {
+            return reject(err)
+          }
+
+          return resolve(txhash)
+        },
+      )
     })
 
     return txHash
@@ -290,13 +336,13 @@ export class XdefiClient implements IXdefiClient {
    * @param txParams xdefi request param
    * @returns txhash string
    */
-  transferERC20 = async (txParams: any) => {
-    const txHash = await this.eth.request({
+  transferERC20 = (txParams: any) => {
+    console.log('tx transfer params', txParams)
+
+    return this.eth.request({
       method: 'eth_sendTransaction',
       params: [txParams],
     })
-
-    return txHash
   }
 
   /**
@@ -304,12 +350,12 @@ export class XdefiClient implements IXdefiClient {
    * @param txParams xdefi request param
    * @returns txhash string
    */
-  signTransactionERC20 = async (txParams: any) => {
-    const txHash = await this.eth.request({
+  signTransactionERC20 = (txParams: any) => {
+    console.log('tx sign params', txParams)
+
+    return this.eth.request({
       method: 'eth_signTransaction',
       params: [txParams],
     })
-
-    return txHash
   }
 }

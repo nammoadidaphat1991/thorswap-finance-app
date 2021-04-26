@@ -17,10 +17,9 @@ import * as Styled from './Phrase.style'
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
   onCreate: () => void
-  onKeystore: () => void
 }
 
-const PhraseView = ({ onConnect, onCreate, onKeystore }: Props) => {
+const PhraseView = ({ onConnect, onCreate }: Props) => {
   const [phrase, setPhrase] = useState('')
   const [invalidPhrase, setInvalidPhrase] = useState(false)
 
@@ -106,10 +105,10 @@ const PhraseView = ({ onConnect, onCreate, onKeystore }: Props) => {
   return (
     <Styled.Container>
       <Helmet title="Import Phrase" content="Import Phrase" />
-      <Styled.Header>Import Phrase and Backup Keystore</Styled.Header>
+      <Styled.Header>Import Phrase and Backup</Styled.Header>
       <Form>
         <Styled.Content>
-          <Styled.FormLabel weight="bold" color="normal">
+          <Styled.FormLabel color="normal">
             Please Enter 12 Seed Phrase
           </Styled.FormLabel>
           <Input
@@ -123,9 +122,7 @@ const PhraseView = ({ onConnect, onCreate, onKeystore }: Props) => {
           {invalidPhrase && <Label color="error">Phrase is invalid</Label>}
           <Styled.PasswordInput>
             <Styled.PasswordLabel>
-              <Label weight="bold" color="normal">
-                Decryption password
-              </Label>
+              <Label color="normal">Decryption password</Label>
               <Tooltip
                 title="Password is used to backup keystore"
                 placement="bottomRight"
@@ -147,9 +144,6 @@ const PhraseView = ({ onConnect, onCreate, onKeystore }: Props) => {
         </Styled.Content>
         <Styled.Footer>
           <Styled.FooterContent>
-            <Styled.ActionButton onClick={onKeystore}>
-              <Label color="primary">Connect</Label>
-            </Styled.ActionButton>
             <Styled.ActionButton onClick={onCreate}>
               <Label color="primary">Create</Label>
             </Styled.ActionButton>

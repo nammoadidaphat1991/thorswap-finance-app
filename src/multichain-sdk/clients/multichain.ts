@@ -74,6 +74,7 @@ export interface IMultiChain {
   setPhrase(phrase: string): void
   validateKeystore(keystore: Keystore, password: string): Promise<boolean>
 
+  connectXDefiWallet(): Promise<void>
   useXdefiWallet(): Promise<void>
 
   getMidgard(): MidgardV2
@@ -177,8 +178,11 @@ export class MultiChain implements IMultiChain {
     if (!this.xdefiClient.isWalletDetected()) {
       throw Error('xdefi wallet not detected')
     }
+    // set mock phrase for eth client
+    const mockPhrase =
+      'image rally need wedding health address purse army antenna leopard sea gain'
+    this.resetClients(mockPhrase)
 
-    this.resetClients()
     this.setWalletType('xdefi')
 
     await this.useXdefiWallet()
@@ -198,7 +202,7 @@ export class MultiChain implements IMultiChain {
     await this.eth.useXdefiWallet(this.xdefiClient)
   }
 
-  resetClients = () => {
+  resetClients = (mockPhrase = '') => {
     this.phrase = ''
     this.wallet = null
 
@@ -206,7 +210,7 @@ export class MultiChain implements IMultiChain {
     this.thor = new ThorChain({ network: this.network, phrase: '' })
     this.bnb = new BnbChain({ network: this.network, phrase: '' })
     this.btc = new BtcChain({ network: this.network, phrase: '' })
-    this.eth = new EthChain({ network: this.network, phrase: '' })
+    this.eth = new EthChain({ network: this.network, phrase: mockPhrase })
     this.ltc = new LtcChain({ network: this.network, phrase: '' })
     this.bch = new BchChain({ network: this.network, phrase: '' })
   }
@@ -350,7 +354,7 @@ export class MultiChain implements IMultiChain {
   }
 
   loadAllWallets = async (): Promise<Wallet | null> => {
-    if (this.phrase) {
+    if (this.phrase || this.walletType === 'xdefi') {
       try {
         await Promise.all(
           this.chains.map((chain: SupportedChain) => {
@@ -371,7 +375,7 @@ export class MultiChain implements IMultiChain {
         return Promise.reject(error)
       }
     }
-    return Promise.reject(Error('No phrase found'))
+    return Promise.reject(Error('load wallet error'))
   }
 
   getWalletAddressByChain = (chain: Chain): string | null => {

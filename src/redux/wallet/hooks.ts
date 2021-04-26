@@ -20,11 +20,22 @@ export const useWallet = () => {
       // set multichain phrase
       multichain.setPhrase(phrase)
 
-      dispatch(actions.connectWallet(keystore))
+      dispatch(actions.connectKeystore(keystore))
       dispatch(walletActions.loadAllWallets())
     },
     [dispatch],
   )
+
+  const connectXdefiWallet = useCallback(async () => {
+    try {
+      await multichain.connectXDefiWallet()
+
+      dispatch(actions.connectXdefi())
+      dispatch(walletActions.loadAllWallets())
+    } catch (error) {
+      console.error(error)
+    }
+  }, [dispatch])
 
   const setIsConnectModalOpen = useCallback(
     (visible: boolean) => {
@@ -45,5 +56,6 @@ export const useWallet = () => {
     unlockWallet,
     setIsConnectModalOpen,
     disconnectWallet,
+    connectXdefiWallet,
   }
 }

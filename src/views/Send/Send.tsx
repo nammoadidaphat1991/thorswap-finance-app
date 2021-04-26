@@ -45,7 +45,7 @@ enum SendMode {
 
 const SendView = () => {
   const { asset } = useParams<{ asset: string }>()
-  const { wallet, keystore } = useWallet()
+  const { wallet, keystore, walletType } = useWallet()
 
   const [sendAsset, setSendAsset] = useState<Asset>()
 
@@ -66,7 +66,7 @@ const SendView = () => {
     return null
   }
 
-  if (!wallet || !keystore) {
+  if (!wallet || (!keystore && walletType === 'keystore')) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>

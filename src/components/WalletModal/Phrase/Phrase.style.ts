@@ -40,11 +40,11 @@ export const Content = styled.div`
 
 export const Header = styled(Label).attrs({
   size: 'big',
-  weight: 'bold',
 })`
-  margin: 10px 0;
+  margin-bottom: 10px;
   padding-bottom: 4px;
   border-bottom: 1px solid ${palette('gray', 0)};
+  text-transform: uppercase;
 `
 
 export const FormLabel = styled(Label)`

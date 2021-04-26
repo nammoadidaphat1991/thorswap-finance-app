@@ -18,10 +18,9 @@ import * as Styled from './Keystore.style'
 type Props = {
   onConnect: (keystore: Keystore, phrase: string) => void
   onKeystore: () => void
-  onPhraseImport: () => void
 }
 
-const KeystoreView = ({ onConnect, onKeystore, onPhraseImport }: Props) => {
+const KeystoreView = ({ onConnect, onKeystore }: Props) => {
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const [invalideStatus, setInvalideStatus] = useState(false)
@@ -82,14 +81,12 @@ const KeystoreView = ({ onConnect, onKeystore, onPhraseImport }: Props) => {
   return (
     <Styled.Container>
       <Helmet title="Create Wallet" content="Create Wallet" />
-      <Styled.Header>Create Wallet and Download keystore</Styled.Header>
+      <Styled.Header>Create Keystore</Styled.Header>
       <Form>
         <Styled.Content>
           <div>
             <Styled.PasswordLabel>
-              <Label weight="bold" color="normal">
-                Input Password
-              </Label>
+              <Label color="normal">Input Password</Label>
               <Tooltip
                 title="This is the password used to decrypt your encrypted keystore file"
                 placement="topLeft"
@@ -108,9 +105,7 @@ const KeystoreView = ({ onConnect, onKeystore, onPhraseImport }: Props) => {
             />
           </div>
           <Styled.PasswordInput>
-            <Styled.FormLabel weight="bold" color="normal">
-              Confirm Password
-            </Styled.FormLabel>
+            <Styled.FormLabel color="normal">Confirm Password</Styled.FormLabel>
             <Input
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
@@ -138,9 +133,6 @@ const KeystoreView = ({ onConnect, onKeystore, onPhraseImport }: Props) => {
             </Button>
             <Styled.ActionButton onClick={onKeystore}>
               <Label color="primary">Connect Wallet</Label>
-            </Styled.ActionButton>
-            <Styled.ActionButton onClick={onPhraseImport}>
-              <Label color="primary">Import Phrase</Label>
             </Styled.ActionButton>
           </Styled.FooterContent>
         </Styled.Footer>
