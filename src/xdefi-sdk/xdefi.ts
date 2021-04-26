@@ -198,6 +198,7 @@ export class XdefiClient implements IXdefiClient {
 
     const params: XdefiTxParams[] = [
       {
+        asset: assetObj,
         from: address,
         amount: {
           amount,
@@ -256,6 +257,7 @@ export class XdefiClient implements IXdefiClient {
     const params: XdefiTxParams[] = [
       {
         from: address,
+        asset: assetObj,
         amount: {
           amount,
           decimals: decimal,
@@ -303,6 +305,7 @@ export class XdefiClient implements IXdefiClient {
     const params: XdefiTxParams[] = [
       {
         from: address,
+        asset: assetObj,
         amount: {
           amount,
           decimals: decimal,

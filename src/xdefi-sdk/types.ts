@@ -38,6 +38,7 @@ export type XdefiTxParams = {
   from: string
   recipient: string
   feeRate?: number
+  asset: Asset
   amount: {
     amount: number
     decimals: number
