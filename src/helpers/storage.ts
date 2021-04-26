@@ -7,6 +7,7 @@ const THORSWAP_ANNOUNCEMENT = 'THORSWAP_ANNOUNCEMENT'
 const THEME_TYPE = 'THEME_TYPE'
 const THORSWAP_MULTICHAIN_KEYSTORE = 'THORSWAP_MULTICHAIN_KEYSTORE'
 const THORSWAP_MULTICHAIN_ADDR = 'THORSWAP_MULTICHAIN_ADDR'
+const THORSWAP_XDEFI_STATUS = 'THORSWAP_XDEFI_STATUS'
 
 const BASE_CURRENCY = 'BASE_CURRENCY'
 
@@ -40,6 +41,19 @@ export const getKeystore = (): Keystore | null => {
   }
 
   return null
+}
+
+// save xdefi status to localstorage
+export const saveXdefiConnected = (connected: boolean) => {
+  if (connected) {
+    localStorage.setItem(THORSWAP_XDEFI_STATUS, 'connected')
+  } else {
+    localStorage.removeItem(THORSWAP_XDEFI_STATUS)
+  }
+}
+
+export const getXdefiConnected = (): boolean => {
+  return localStorage.getItem(THORSWAP_XDEFI_STATUS) === 'connected'
 }
 
 export const saveAddress = (address: string) => {

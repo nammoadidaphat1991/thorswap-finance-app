@@ -37,6 +37,7 @@ export const WalletButton: React.FC<Props> = (props: Props): JSX.Element => {
     <Button
       sizevalue="normal"
       color={connected ? 'primary' : 'success'}
+      typevalue={connected ? 'default' : 'outline'}
       round
       fixedWidth={false}
       {...otherProps}

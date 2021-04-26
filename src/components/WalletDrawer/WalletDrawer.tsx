@@ -36,6 +36,7 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
     walletLoading,
     wallet,
     chainWalletLoading,
+    walletType,
     disconnectWallet,
   } = useWallet()
 
@@ -78,12 +79,14 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
         )}
         {wallet && (
           <Styled.HeaderAction>
-            <CoreButton onClick={() => setShowPhraseModal(true)}>
-              <EyeOutlined />
-              <Label size="big" color="primary">
-                Phrase
-              </Label>
-            </CoreButton>
+            {walletType === 'keystore' && (
+              <CoreButton onClick={() => setShowPhraseModal(true)}>
+                <EyeOutlined />
+                <Label size="big" color="primary">
+                  Phrase
+                </Label>
+              </CoreButton>
+            )}
             <CoreButton onClick={disconnectWallet}>
               <Label size="big" color="warning">
                 Disconnect

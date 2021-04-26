@@ -31,9 +31,9 @@ import { multichain } from 'services/multichain'
 import * as Styled from './Upgrade.style'
 
 const UpgradeView = () => {
-  const { wallet, keystore } = useWallet()
+  const { wallet, keystore, walletType } = useWallet()
 
-  if (!wallet || !keystore) {
+  if (!wallet || (!keystore && walletType === 'keystore')) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>

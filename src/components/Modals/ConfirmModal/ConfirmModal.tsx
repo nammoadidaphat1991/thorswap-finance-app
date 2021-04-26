@@ -26,7 +26,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
 ): JSX.Element => {
   const { visible, onOk, onCancel, children } = props
 
-  const { keystore } = useWallet()
+  const { keystore, walletType } = useWallet()
 
   const [password, setPassword] = useState('')
   const [invalidPassword, setInvalidPassword] = useState(false)
@@ -63,6 +63,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
   )
 
   const handleOK = useCallback(async () => {
+    if (walletType === 'xdefi') {
+      handleConfirm()
+      return
+    }
+
     if (!keystore) return
     setValidating(true)
 
@@ -79,7 +84,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
     }
 
     setValidating(false)
-  }, [keystore, password, handleConfirm])
+  }, [keystore, password, handleConfirm, walletType])
 
   const renderModalContent = () => {
     const modalIcon = (
@@ -116,7 +121,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
     <Overlay isOpen={visible} onDismiss={handleCancel}>
       <Styled.Content>
         {children && <Styled.ModalData>{children}</Styled.ModalData>}
-        {renderModalContent()}
+        {walletType === 'keystore' && renderModalContent()}
+        {walletType === 'xdefi' && (
+          <Styled.Button onClick={handleOK}>Confirm</Styled.Button>
+        )}
       </Styled.Content>
     </Overlay>
   )

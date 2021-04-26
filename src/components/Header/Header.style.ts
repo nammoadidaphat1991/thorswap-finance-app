@@ -14,7 +14,6 @@ export const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  width: 100vw;
   height: 70px;
 
   background-color: transparent;

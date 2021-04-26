@@ -10,6 +10,7 @@ import { ReactComponent as ThorChainIcon } from 'assets/SVG/logo-thorchain-black
 import { ReactComponent as TelegramIcon } from 'assets/SVG/telegram.svg'
 import { ReactComponent as ThorswapBlackIcon } from 'assets/SVG/thorswap-logo-black.svg'
 import { ReactComponent as ThorswapWhiteIcon } from 'assets/SVG/thorswap-logo-white2.svg'
+import { ReactComponent as XdefiLogoIcon } from 'assets/SVG/xdefi-logo.svg'
 
 export {
   nativeRuneIcon,
@@ -22,6 +23,7 @@ export {
   ThorChainIcon,
   ThorswapMiniIcon,
   DiscordIcon,
+  XdefiLogoIcon,
 }
 
 export * from './timerIcons'
