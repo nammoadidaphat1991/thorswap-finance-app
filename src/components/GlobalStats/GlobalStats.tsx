@@ -32,7 +32,9 @@ export const GlobalStats: React.FC = (): JSX.Element => {
     return [
       {
         title: '24H Volume',
-        value: `$${volume24h?.toFixed(0) ?? '0'}`,
+        value: runeToCurrency(
+          Amount.fromMidgard(volume24h || 0),
+        ).toCurrencyFormat(0),
       },
       {
         title: 'Total Volume',

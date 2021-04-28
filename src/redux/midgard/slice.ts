@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { THORChain } from '@xchainjs/xchain-util'
 import { ActionStatusEnum, ActionTypeEnum } from 'midgard-sdk'
 import moment from 'moment'
-import { Pool, Amount } from 'multichain-sdk'
+import { Pool } from 'multichain-sdk'
 
 import * as midgardActions from './actions'
 import { State, TxTracker, TxTrackerStatus } from './types'
@@ -417,10 +417,7 @@ const slice = createSlice({
       })
       // get 24h volume
       .addCase(midgardActions.getVolume24h.fulfilled, (state, action) => {
-        const volume24h = Amount.fromMidgard(action.payload.totalVolume)
-        const value = volume24h.mul(action.payload.runePriceUSD)
-
-        state.volume24h = value
+        state.volume24h = action.payload.totalVolume
       })
   },
 })

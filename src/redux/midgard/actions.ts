@@ -177,13 +177,13 @@ export const getMimir = createAsyncThunk(
 export const getVolume24h = createAsyncThunk(
   'midgard/getVolume24h',
   async () => {
-    const { meta } = await midgardApi.getSwapHistory({
+    const { intervals } = await midgardApi.getSwapHistory({
       query: {
         interval: 'day',
-        count: 1,
+        count: 2,
       },
     })
 
-    return meta
+    return intervals[0]
   },
 )
