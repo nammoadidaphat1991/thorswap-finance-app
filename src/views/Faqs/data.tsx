@@ -25,7 +25,7 @@ export const faqs: Faq[] = [
           THORChain network to provide a front-end user interface to perform
           cross-chain swaps. This is done in a permissionless, trustless, and
           non-custodial manner. There are no pegged or wrapped assets, it is
-          purely native. For more information check out
+          purely native. For more information check out{' '}
           <ExternalLink link="https://thorswap.medium.com/thorswap-has-launched-is-this-the-death-of-cexs-cb6cf015b8f">
             here
           </ExternalLink>
@@ -66,7 +66,7 @@ export const faqs: Faq[] = [
         <Label size="big">
           <ExternalLink link="https://thorswap.medium.com/how-to-use-thorswap-e13a2a4eafdd">
             Here
-          </ExternalLink>
+          </ExternalLink>{' '}
           is an article on how to: 1. Create an Keystore wallet 2. Migrate from
           BEPSwap to THORSwap 3. Upgrade your BNB.RUNE and ETH.RUNE to native
           RUNE (THOR.RUNE)
@@ -263,11 +263,11 @@ export const faqs: Faq[] = [
           swap an amount below this 3) Add more info about fees In the future,
           you will be able to swap any small amounts - BTC/BTC synth (for
           10-20c), then redeem all at once in a large amount of BTC.BTC. For
-          more information:
+          more information:{' '}
           <ExternalLink link="https://docs.thorchain.org/how-it-works/fees#fees">
             Here
-          </ExternalLink>
-          and
+          </ExternalLink>{' '}
+          and{' '}
           <ExternalLink link="https://twitter.com/THORChain/status/1386128159649587201?s=20">
             Here
           </ExternalLink>
