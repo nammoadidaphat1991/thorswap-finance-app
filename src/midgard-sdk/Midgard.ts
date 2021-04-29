@@ -3,6 +3,7 @@
 import { DefaultApi } from './api'
 import { Configuration } from './api/configuration'
 import { MIDGARD_TESTNET_URL, MIDGARD_CHAOSNET_URL } from './config'
+import { getThornodeInboundAddress } from './thornode'
 import {
   NetworkType,
   Health,
@@ -353,17 +354,36 @@ class MidgardV2 implements MidgardSDKV2 {
     }
   }
 
+  // NOTE: get inbound address from thornode directly
+  // getInboundAddresses = async (): Promise<InboundAddressesItem[]> => {
+  //   try {
+  //     const midgard = await this.getMidgard()
+  //     const { data } = await midgard.getProxiedInboundAddresses()
+
+  //     return data
+  //   } catch (error) {
+  //     // try again
+  //     try {
+  //       const midgard = await this.getMidgard()
+  //       const { data } = await midgard.getProxiedInboundAddresses()
+  //       return data
+  //     } catch (err) {
+  //       return Promise.reject(err)
+  //     }
+  //   }
+  // }
+
+  // NOTE: get inbound address from thornode directly
   getInboundAddresses = async (): Promise<InboundAddressesItem[]> => {
+    const network = this.network === 'testnet' ? 'testnet' : 'mainnet'
     try {
-      const midgard = await this.getMidgard()
-      const { data } = await midgard.getProxiedInboundAddresses()
+      const { data } = await getThornodeInboundAddress(network)
 
       return data
     } catch (error) {
       // try again
       try {
-        const midgard = await this.getMidgard()
-        const { data } = await midgard.getProxiedInboundAddresses()
+        const { data } = await getThornodeInboundAddress(network)
         return data
       } catch (err) {
         return Promise.reject(err)
