@@ -23,7 +23,7 @@ export const getChainMemberDetails = ({
         chainMemberDetails?.[poolChain] ?? {}
       let poolMemberData: PoolMemberData = chainMemberData?.[pool] ?? {}
 
-      // check only rune asymm share
+      // get rune asymm share & sym share
       if (Number(assetAdded) === 0 && Number(runeAdded) > 0) {
         poolMemberData = {
           ...poolMemberData,
@@ -36,11 +36,24 @@ export const getChainMemberDetails = ({
         }
 
         chainMemberDetails[poolChain] = chainMemberData
+      } else if (Number(runeAdded) > 0 && Number(assetAdded) > 0) {
+        // sym share
+        poolMemberData = {
+          ...poolMemberData,
+          sym: memPool,
+        }
+
+        chainMemberData = {
+          ...chainMemberData,
+          [pool]: poolMemberData,
+        }
+
+        chainMemberDetails[poolChain] = chainMemberData
       }
     })
   }
 
-  // get sym, asset asym share from memPools fetched with non-thorchain addr
+  // get only asset asym share
   if (chain !== THORChain) {
     memPools.forEach((memPool: MemberPool) => {
       const { pool, runeAdded, assetAdded } = memPool
@@ -55,21 +68,6 @@ export const getChainMemberDetails = ({
         poolMemberData = {
           ...poolMemberData,
           assetAsym: memPool,
-        }
-
-        chainMemberData = {
-          ...chainMemberData,
-          [pool]: poolMemberData,
-        }
-
-        chainMemberDetails[poolChain] = chainMemberData
-      }
-
-      // check symm share
-      if (Number(runeAdded) > 0 && Number(assetAdded) > 0) {
-        poolMemberData = {
-          ...poolMemberData,
-          sym: memPool,
         }
 
         chainMemberData = {
