@@ -83,7 +83,7 @@ const Home = () => {
         </Styled.ActionContainer>
       ),
       render: (_: string, pool: Pool) => {
-        const swapRouter = getSwapRoute(Asset.BNB(), pool.asset)
+        const swapRouter = getSwapRoute(pool.asset, Asset.RUNE())
         const liquidityRouter = getAddLiquidityRoute(pool.asset)
 
         return (

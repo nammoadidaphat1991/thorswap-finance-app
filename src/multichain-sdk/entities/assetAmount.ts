@@ -67,11 +67,25 @@ export class AssetAmount extends Amount implements IAssetAmount {
         Amount.fromBaseAmount(1, Asset.BNB().decimal),
       )
     }
-    // 1000 satoshi
+    // 10001 satoshi
     if (chain === BTCChain) {
       return new AssetAmount(
         Asset.BTC(),
-        Amount.fromBaseAmount(1000, Asset.BTC().decimal),
+        Amount.fromBaseAmount(10001, Asset.BTC().decimal),
+      )
+    }
+    // 10001 satoshi
+    if (chain === LTCChain) {
+      return new AssetAmount(
+        Asset.LTC(),
+        Amount.fromBaseAmount(10001, Asset.LTC().decimal),
+      )
+    }
+    // 10001 satoshi
+    if (chain === BCHChain) {
+      return new AssetAmount(
+        Asset.BCH(),
+        Amount.fromBaseAmount(10001, Asset.BCH().decimal),
       )
     }
     // 1 Thor
@@ -86,20 +100,6 @@ export class AssetAmount extends Amount implements IAssetAmount {
       return new AssetAmount(
         Asset.ETH(),
         Amount.fromBaseAmount(0, Asset.ETH().decimal),
-      )
-    }
-    // 1000 satoshi
-    if (chain === LTCChain) {
-      return new AssetAmount(
-        Asset.LTC(),
-        Amount.fromBaseAmount(1000, Asset.LTC().decimal),
-      )
-    }
-    // 1000 satoshi
-    if (chain === BCHChain) {
-      return new AssetAmount(
-        Asset.BCH(),
-        Amount.fromBaseAmount(1000, Asset.BCH().decimal),
       )
     }
 

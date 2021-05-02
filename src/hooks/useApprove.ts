@@ -7,11 +7,18 @@ import { TxTrackerStatus } from 'redux/midgard/types'
 
 import { multichain } from 'services/multichain'
 
-export const useApprove = (asset: Asset) => {
+export const useApprove = (asset: Asset, hasWallet = true) => {
   const { approveStatus } = useMidgard()
-  const [isApproved, setApproved] = useState<boolean | null>(null)
+  const [isApproved, setApproved] = useState<boolean | null>(
+    hasWallet ? null : true,
+  )
 
   useEffect(() => {
+    if (!hasWallet) {
+      setApproved(true)
+      return
+    }
+
     const checkApproved = async () => {
       if (approveStatus?.[asset.toString()] === TxTrackerStatus.Success) {
         setApproved(true)
@@ -21,7 +28,7 @@ export const useApprove = (asset: Asset) => {
     }
 
     checkApproved()
-  }, [asset, approveStatus])
+  }, [asset, approveStatus, hasWallet])
 
   const assetApproveStatus = useMemo(() => approveStatus?.[asset.toString()], [
     approveStatus,

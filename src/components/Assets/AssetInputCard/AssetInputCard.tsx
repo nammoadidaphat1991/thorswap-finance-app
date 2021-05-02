@@ -81,7 +81,7 @@ export const AssetInputCard: React.FC<Props> = (props: Props): JSX.Element => {
         <AssetInfo>
           {balance && (
             <Balance onClick={() => onMax?.()}>
-              <BalanceLabel>Balance: {balance.toFixed(3)}</BalanceLabel>
+              <BalanceLabel>{balance.toFixed(3)}</BalanceLabel>
             </Balance>
           )}
           <AssetSelect

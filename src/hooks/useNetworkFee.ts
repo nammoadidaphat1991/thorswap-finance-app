@@ -8,7 +8,11 @@ import { multichain } from 'services/multichain'
 import useDebounce from './useDebounce'
 
 // TODO: update network fee logic
-const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
+const useNetworkFee = (
+  asset: Asset,
+  txParam?: TxParams,
+  hasWallet = true,
+): string => {
   const [networkFee, setNetworkFee] = useState('')
 
   // debounce tx param per 5 secs
@@ -22,6 +26,11 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
       setNetworkFee('fee estimating...')
       try {
         if (chain === ETHChain) {
+          if (!hasWallet) {
+            setNetworkFee(`${chain} Gas Fee`)
+            return
+          }
+
           if (!asset.isETH()) {
             setNetworkFee('Ethereum Gas Fee')
           } else if (txParam) {
@@ -48,14 +57,14 @@ const useNetworkFee = (asset: Asset, txParam?: TxParams): string => {
             feeValue.fast.amount(),
             asset.decimal,
           ).toSignificant(6)
+
+          const feeAsset = chainToFeeAsset(chain)
+          setNetworkFee(`${feeStr} ${feeAsset}`)
         }
       } catch (error) {
         console.log('quote fee error', error)
-        setNetworkFee(`${chain} Gas Fee`)
+        setNetworkFee(`${chain} Fee`)
       }
-
-      const feeAsset = chainToFeeAsset(chain)
-      setNetworkFee(`${feeStr} ${feeAsset}`)
     }
 
     getFeeValue()

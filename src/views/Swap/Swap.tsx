@@ -76,7 +76,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
-  const { isApproved, assetApproveStatus } = useApprove(inputAsset)
+  const { isApproved, assetApproveStatus } = useApprove(inputAsset, !!wallet)
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -195,7 +195,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     }
   }, [recipient, swap])
 
-  const networkFee = useNetworkFee(inputAsset, txParam)
+  const networkFee = useNetworkFee(inputAsset, txParam, !!wallet)
 
   useEffect(() => {
     if (wallet) {

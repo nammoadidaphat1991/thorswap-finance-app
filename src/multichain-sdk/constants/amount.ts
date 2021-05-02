@@ -1,4 +1,4 @@
-// default slip limit is 5%
+// default slip limit percentage
 export const DEFAULT_SLIP_LIMIT = 5
 
 // threshold amount enforced to retain in the wallet for gas purpose
