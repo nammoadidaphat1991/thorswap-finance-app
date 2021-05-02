@@ -1,5 +1,6 @@
 import { Button } from 'antd'
 import { ButtonProps } from 'antd/lib/button'
+import { darken } from 'polished'
 import styled from 'styled-components'
 import { palette, key } from 'styled-theme'
 
@@ -50,13 +51,17 @@ type ColorGroups = {
   [key in ButtonColor]: ColorGroup
 }
 
+const color1 = darken(0.1, '#00ccff')
+const color2 = darken(0.1, '#23dcc8')
+const gradient = `linear-gradient(to left, ${color1}, ${color2})`
+
 const colorGroups: ColorGroups = {
   primary: {
-    main: 'linear-gradient(to left, #00ccff, #23dcc8)',
+    main: gradient,
     darken: palette('gradient', 1),
     lighten: palette('gradient', 2),
     text: palette('primary', 0),
-    borderBottom: 'linear-gradient(to left, #00ccff, #23dcc8)',
+    borderBottom: gradient,
   },
   success: {
     main: palette('success', 0),

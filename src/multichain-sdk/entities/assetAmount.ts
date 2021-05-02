@@ -115,7 +115,6 @@ export class AssetAmount extends Amount implements IAssetAmount {
    * @returns min threshold amount to retain in the balance for gas purpose
    */
   public static getThresholdAmountByChain(chain: Chain): AssetAmount {
-    // 0.01 BNB
     if (chain === BNBChain) {
       return new AssetAmount(
         Asset.BNB(),
@@ -123,35 +122,34 @@ export class AssetAmount extends Amount implements IAssetAmount {
       )
     }
 
-    // 5000 satoshi
     if (chain === BTCChain) {
       return new AssetAmount(
         Asset.BTC(),
         Amount.fromAssetAmount(BTC_THRESHOLD_AMOUNT, Asset.BTC().decimal),
       )
     }
-    // 1 RUNE
+
     if (chain === THORChain) {
       return new AssetAmount(
         Asset.RUNE(),
         Amount.fromAssetAmount(RUNE_THRESHOLD_AMOUNT, Asset.RUNE().decimal),
       )
     }
-    // 0.01 ETH
+
     if (chain === ETHChain) {
       return new AssetAmount(
         Asset.ETH(),
         Amount.fromAssetAmount(ETH_THRESHOLD_AMOUNT, Asset.ETH().decimal),
       )
     }
-    // 5000 satoshi
+
     if (chain === LTCChain) {
       return new AssetAmount(
         Asset.LTC(),
         Amount.fromAssetAmount(LTC_THRESHOLD_AMOUNT, Asset.LTC().decimal),
       )
     }
-    // 5000 satoshi
+
     if (chain === BCHChain) {
       return new AssetAmount(
         Asset.BCH(),
