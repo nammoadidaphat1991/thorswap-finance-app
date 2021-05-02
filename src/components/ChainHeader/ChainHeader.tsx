@@ -64,9 +64,6 @@ export const ChainHeader = (props: ChainHeaderProps) => {
   return (
     <Styled.Container>
       <Styled.ChainInfo>
-        <Styled.InfoLabel weight="bold" color="primary">
-          {chainToString(chain)}
-        </Styled.InfoLabel>
         <Tooltip placement="top" tooltip="Reload">
           <CoreButton onClick={onReload}>
             <Styled.ToolWrapper>
@@ -74,30 +71,33 @@ export const ChainHeader = (props: ChainHeaderProps) => {
             </Styled.ToolWrapper>
           </CoreButton>
         </Tooltip>
+        <Styled.InfoLabel weight="bold" color="primary">
+          {chainToString(chain)}
+        </Styled.InfoLabel>
         {/* <Styled.InfoLabel weight="bold">
           Total: ${totalPrice} USD
         </Styled.InfoLabel> */}
       </Styled.ChainInfo>
-      <Styled.Address>
-        <Tooltip placement="top" tooltip="Copy">
-          <CoreButton onClick={handleCopyAddress}>
-            <Styled.AddressLabel weight="bold">
-              {miniAddress}
-            </Styled.AddressLabel>
-          </CoreButton>
-        </Tooltip>
-        <Tooltip placement="top" tooltip="Copy">
-          <CoreButton onClick={handleCopyAddress}>
-            <CopyOutlined />
-          </CoreButton>
-        </Tooltip>
-        <Tooltip placement="top" tooltip="QRCode">
-          <CoreButton onClick={() => handleViewQRCode(address)}>
-            <QrcodeOutlined />
-          </CoreButton>
-        </Tooltip>
-      </Styled.Address>
       <Styled.Tools>
+        <Styled.Address>
+          <Tooltip placement="top" tooltip="Copy">
+            <CoreButton onClick={handleCopyAddress}>
+              <Styled.AddressLabel weight="bold">
+                {miniAddress}
+              </Styled.AddressLabel>
+            </CoreButton>
+          </Tooltip>
+          <Tooltip placement="top" tooltip="Copy">
+            <CoreButton onClick={handleCopyAddress}>
+              <CopyOutlined />
+            </CoreButton>
+          </Tooltip>
+          <Tooltip placement="top" tooltip="QRCode">
+            <CoreButton onClick={() => handleViewQRCode(address)}>
+              <QrcodeOutlined />
+            </CoreButton>
+          </Tooltip>
+        </Styled.Address>
         <Tooltip placement="top" tooltip="Go to account">
           <a href={accountUrl} target="_blank" rel="noopener noreferrer">
             <Styled.ToolWrapper>

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 
-import { Col } from 'antd'
 import { Amount, Asset, Price } from 'multichain-sdk'
 
 import * as Styled from './AssetData.style'
@@ -46,32 +45,32 @@ export const AssetData: React.FC<Props> = (props): JSX.Element => {
 
   return (
     <Styled.Wrapper {...others}>
-      <Col>
+      <div>
         <Styled.AssetIcon asset={asset} size={size} />
-      </Col>
+      </div>
       {showLabel && (
-        <Col>
+        <div className="asset-symbol">
           <Styled.TickerRow>
             <Styled.TickerLabel size={labelSizeValue}>
               {asset.ticker}
             </Styled.TickerLabel>
             <Styled.TypeLabel>{asset.type}</Styled.TypeLabel>
           </Styled.TickerRow>
-        </Col>
+        </div>
       )}
       {!!amount && (
-        <Col>
+        <div className="asset-extra-label">
           <Styled.AmountLabel size={labelSizeValue}>
             {amount.toSignificant(decimal)}
           </Styled.AmountLabel>
-        </Col>
+        </div>
       )}
       {!!price && (
-        <Col>
+        <div>
           <Styled.PriceLabel size={labelSizeValue}>
             {price.toFixed(2)}
           </Styled.PriceLabel>
-        </Col>
+        </div>
       )}
     </Styled.Wrapper>
   )

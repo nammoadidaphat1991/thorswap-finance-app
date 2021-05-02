@@ -31,16 +31,35 @@ export const BalanceRow = styled.div`
   }
 `
 
-export const SendBtn = styled(Button).attrs({
+export const ActionButton = styled(Button).attrs({
   sizevalue: 'small',
-})``
+})`
+  padding-left: 8px;
+  padding-right: 8px;
+`
+
+export const UpgradeButton = styled(ActionButton)`
+  margin-right: 6px;
+`
 
 export const BalanceAssetData = styled(AssetData)`
   flex: 1;
+
+  .asset-symbol {
+    min-width: 60px;
+  }
+
+  .asset-extra-label > div {
+    color: ${palette('primary', 0)};
+  }
 `
 
 export const BalanceAction = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
+
+  svg {
+    width: 12px;
+  }
 `

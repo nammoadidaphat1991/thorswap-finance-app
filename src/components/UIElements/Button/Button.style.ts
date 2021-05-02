@@ -52,11 +52,11 @@ type ColorGroups = {
 
 const colorGroups: ColorGroups = {
   primary: {
-    main: palette('gradient', 0),
+    main: 'linear-gradient(to left, #00ccff, #23dcc8)',
     darken: palette('gradient', 1),
     lighten: palette('gradient', 2),
     text: palette('primary', 0),
-    borderBottom: palette('gradient', 0),
+    borderBottom: 'linear-gradient(to left, #00ccff, #23dcc8)',
   },
   success: {
     main: palette('success', 0),
@@ -109,14 +109,14 @@ const getThemes = () => {
 
   Object.keys(colorGroups).forEach((colorType) => {
     const value: ButtonTheme = {}
-    const { darken, text, borderBottom } = colorGroups[colorType as ButtonColor]
-
-    const gradient = 'linear-gradient(to left, #00ccff, #23dcc8)'
+    const { main, darken, text, borderBottom } = colorGroups[
+      colorType as ButtonColor
+    ]
 
     value.default = {
       text: palette('text', 3),
       border: text,
-      background: gradient,
+      background: main,
       action: {
         text: palette('text', 3),
         border: darken,
@@ -134,7 +134,7 @@ const getThemes = () => {
       action: {
         text: palette('text', 3),
         border: text,
-        background: gradient,
+        background: main,
       },
       focus: {
         border: text,
@@ -147,10 +147,10 @@ const getThemes = () => {
       action: {
         text: palette('text', 3),
         border: text,
-        background: gradient,
+        background: main,
       },
       focus: {
-        border: gradient,
+        border: main,
       },
     }
     value.normal = {

@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 
 import { useHistory } from 'react-router'
 
+import { SendOutlined, SwapOutlined } from '@ant-design/icons'
 import {
   Wallet,
   SupportedChain,
@@ -86,21 +87,33 @@ export const BalanceView = (props: BalanceViewProps) => {
               labelSize="normal"
             />
             <Styled.BalanceAction>
-              <Styled.SendBtn
+              {isOldRune(data.asset) && (
+                <Styled.UpgradeButton
+                  color="warning"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleUpgradeRune()
+                  }}
+                  fixedWidth={false}
+                >
+                  <SwapOutlined />
+                </Styled.UpgradeButton>
+              )}
+              <Styled.ActionButton
                 onClick={(e) => {
                   e.stopPropagation()
                   handleSendAsset(data.asset)
                 }}
                 fixedWidth={false}
               >
-                Send
-              </Styled.SendBtn>
+                <SendOutlined />
+              </Styled.ActionButton>
             </Styled.BalanceAction>
           </Styled.BalanceRow>
         )
       })
     },
-    [handleSendAsset, handleSelectRow],
+    [handleSendAsset, handleSelectRow, handleUpgradeRune],
   )
 
   const renderChainBalance = useCallback(

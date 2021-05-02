@@ -7,10 +7,9 @@ import { AssetIcon as UIAssetIcon } from '../AssetIcon'
 
 export type AssetDataSize = 'small' | 'normal' | 'big'
 
-export const Wrapper = styled(Row).attrs({
-  align: 'middle',
-})`
+export const Wrapper = styled.div`
   display: flex;
+  align-items: center;
   padding: 0 8px;
 `
 
