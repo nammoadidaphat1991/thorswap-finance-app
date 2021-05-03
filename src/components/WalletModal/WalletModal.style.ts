@@ -83,10 +83,19 @@ export const ConnectOption = styled(CoreButton)`
   }
 
   svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
+    &.xdefi-logo {
+      width: 40px;
+      height: 40px;
+      path {
+        fill: ${palette('text', 0)};
+      }
+    }
 
-    color: ${palette('text', 0)};
+    &:not(.xdefi-logo) {
+      width: 20px;
+      height: 20px;
+      color: ${palette('text', 0)};
+      margin-right: 8px;
+    }
   }
 `

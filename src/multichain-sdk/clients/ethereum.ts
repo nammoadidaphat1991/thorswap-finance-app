@@ -390,8 +390,6 @@ export class EthChain implements IEthChain {
 
     // get gas amount based on the fee option
     const gasPrice = gasAmount[feeOptionKey].amount().toFixed(0)
-    console.log('deposit address', this.client.getAddress())
-    console.log('deposit provider', this.client.getProvider())
 
     const contractParams = [
       recipient, // vault address

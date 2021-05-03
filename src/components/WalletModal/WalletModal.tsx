@@ -69,7 +69,7 @@ const WalletModal = () => {
         <Styled.ConnectOption onClick={handleConnectXDefi}>
           {xdefiInstalled && <Label>Connect Xdefi Wallet</Label>}
           {!xdefiInstalled && <Label>Install Xdefi Wallet</Label>}
-          <XdefiLogoIcon />
+          <XdefiLogoIcon className="xdefi-logo" />
         </Styled.ConnectOption>
         <Styled.ConnectOption
           onClick={() => setWalletMode(WalletMode.Keystore)}
