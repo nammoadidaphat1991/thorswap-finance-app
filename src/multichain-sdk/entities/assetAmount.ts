@@ -17,13 +17,12 @@ import {
   BTC_THRESHOLD_AMOUNT,
   LTC_THRESHOLD_AMOUNT,
   BCH_THRESHOLD_AMOUNT,
+  BN_FORMAT,
 } from '../constants'
 import { AmountType, Rounding, Amount, IAmount } from './amount'
 import { Asset } from './asset'
 import { Pool } from './pool'
 import { Price } from './price'
-
-// TODO: compare method between asset amount
 
 export interface IAssetAmount extends IAmount {
   readonly asset: Asset
@@ -247,8 +246,12 @@ export class AssetAmount extends Amount implements IAssetAmount {
       significantDigits?: number
       format?: BigNumber.Format
       rounding?: Rounding
+    } = {
+      significantDigits: 6,
+      format: BN_FORMAT,
+      rounding: Rounding.ROUND_DOWN,
     },
-    isPrefix = true,
+    isPrefix = false,
   ): string {
     const significantValue = super.toSignificant(
       significantDigits,
@@ -257,10 +260,10 @@ export class AssetAmount extends Amount implements IAssetAmount {
     )
 
     if (isPrefix) {
-      return `${this.asset.currencySymbol} ${significantValue}`
+      return `${this.asset.currencySymbol()} ${significantValue}`
     }
 
-    return `${significantValue} ${this.asset.currencySymbol}`
+    return `${significantValue} ${this.asset.currencySymbol()}`
   }
 
   unitPriceIn(quoteAsset: Asset, pools: Pool[]): Price {

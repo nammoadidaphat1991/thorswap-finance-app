@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js'
 // import invariant from 'tiny-invariant'
 
-import { AmountType, Amount, IAmount, Rounding, NUMBER_FORMAT } from './amount'
+import { BN_FORMAT } from '../constants'
+import { AmountType, Amount, IAmount, Rounding } from './amount'
 import { Asset } from './asset'
 import { Pool } from './pool'
 
@@ -117,7 +118,7 @@ export class Price extends Amount {
 
   toCurrencyFormat(
     decimalPlaces = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     const fixedLabel = this.toFixedRaw(decimalPlaces, format, rounding)
@@ -131,7 +132,7 @@ export class Price extends Amount {
 
   toFixedRaw(
     decimalPlaces = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     return Amount.fromAssetAmount(this.price, 8).toFixed(
@@ -143,7 +144,7 @@ export class Price extends Amount {
 
   toFixedInverted(
     decimalPlaces = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     return Amount.fromAssetAmount(this.invert(), 8).toFixed(

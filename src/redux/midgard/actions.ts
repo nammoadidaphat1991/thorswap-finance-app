@@ -4,7 +4,7 @@ import { Asset } from 'multichain-sdk'
 
 import { midgardApi } from 'services/midgard'
 import { multichain } from 'services/multichain'
-import { getThorchainMimir } from 'services/thornode'
+import { getThorchainMimir, getInboundData } from 'services/thornode'
 
 import { SupportedChain } from '../../multichain-sdk/clients/types'
 import { TxTracker } from './types'
@@ -187,5 +187,15 @@ export const getVolume24h = createAsyncThunk(
     })
 
     return intervals[0]
+  },
+)
+
+// get 24h volume
+export const getThorchainInboundData = createAsyncThunk(
+  'thornode/getInboundData',
+  async () => {
+    const { data } = await getInboundData()
+
+    return data
   },
 )

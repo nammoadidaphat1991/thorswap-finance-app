@@ -22,7 +22,6 @@ import {
   getWalletAddressByChain,
   Swap,
   Percent,
-  Memo,
   Price,
   getAssetBalance,
   getEstimatedTxTime,
@@ -35,7 +34,7 @@ import { TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import { useApprove } from 'hooks/useApprove'
 import { useBalance } from 'hooks/useBalance'
-import useTransactionFee from 'hooks/useTransactionFee'
+import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -83,6 +82,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
   const { isApproved, assetApproveStatus } = useApprove(inputAsset, !!wallet)
+
+  const { inboundFee, outboundFee, totalFee } = useNetworkFee({
+    inputAsset,
+    outputAsset,
+  })
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -183,25 +187,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
       }),
     [outputAsset, outputAmount, pools],
   )
-
-  const txParam = useMemo(() => {
-    if (!swap) return undefined
-
-    const assetAmount = new AssetAmount(swap.inputAsset, swap.inputAmount)
-    const memo = Memo.swapMemo(
-      swap.outputAsset,
-      recipient,
-      swap.minOutputAmount, // slip limit
-    )
-
-    return {
-      assetAmount,
-      recipient,
-      memo,
-    }
-  }, [recipient, swap])
-
-  const networkFee = useTransactionFee(inputAsset, txParam, !!wallet)
 
   useEffect(() => {
     if (wallet) {
@@ -462,8 +447,18 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={inboundFee.toCurrencyFormat()}
           tooltip={TX_FEE_TOOLTIP_LABEL}
+        />
+        <Information
+          title="Network Fee"
+          description={outboundFee?.toCurrencyFormat() ?? ''}
+          tooltip="Thorchain network fee used to pay outbound transaction"
+        />
+        <Information
+          title="Total Fee"
+          description={totalFee?.toCurrencyFormat() ?? ''}
+          tooltip="Sum of both transaction fee and network fee"
         />
         <Information
           title="Estimated Time"
@@ -480,7 +475,9 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     slipPercent,
     isValidSlip,
     minReceive,
-    networkFee,
+    inboundFee,
+    outboundFee,
+    totalFee,
     estimatedTime,
   ])
 
@@ -493,12 +490,12 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={inboundFee.toCurrencyFormat()}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
-  }, [networkFee, inputAsset])
+  }, [inboundFee, inputAsset])
 
   const title = useMemo(
     () => `Swap ${inputAsset.ticker} >> ${outputAsset.ticker}`,
@@ -561,10 +558,22 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           )} ${outputAsset.ticker.toUpperCase()}`}
           tooltip={MIN_RECEIVED_LABEL}
         />
+
+        <br />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={inboundFee.toCurrencyFormat()}
           tooltip={TX_FEE_TOOLTIP_LABEL}
+        />
+        <Information
+          title="Network Fee"
+          description={outboundFee?.toCurrencyFormat() ?? ''}
+          tooltip="Thorchain network fee used to pay outbound transaction"
+        />
+        <Information
+          title="Total Fee"
+          description={totalFee?.toCurrencyFormat() ?? ''}
+          tooltip="Sum of both transaction fee and network fee"
         />
       </Styled.SwapInfo>
 

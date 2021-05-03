@@ -294,6 +294,10 @@ export const useMidgard = () => {
     [dispatch],
   )
 
+  const getInboundData = useCallback(() => {
+    dispatch(actions.getThorchainInboundData())
+  }, [dispatch])
+
   return {
     ...midgardState,
     actions,
@@ -312,5 +316,6 @@ export const useMidgard = () => {
     pollUpgradeTx,
     pollApprove,
     processSubmittedTx,
+    getInboundData,
   }
 }

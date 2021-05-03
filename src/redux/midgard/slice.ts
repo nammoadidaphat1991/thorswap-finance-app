@@ -40,6 +40,7 @@ const initialState: State = {
   mimir: {},
   approveStatus: {},
   volume24h: null,
+  inboundData: [],
 }
 
 const slice = createSlice({
@@ -419,6 +420,13 @@ const slice = createSlice({
       .addCase(midgardActions.getVolume24h.fulfilled, (state, action) => {
         state.volume24h = action.payload.totalVolume
       })
+      // get thornode inbound addresses
+      .addCase(
+        midgardActions.getThorchainInboundData.fulfilled,
+        (state, action) => {
+          state.inboundData = action.payload
+        },
+      )
   },
 })
 

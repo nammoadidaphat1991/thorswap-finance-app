@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import invariant from 'tiny-invariant'
 
-import { MULTICHAIN_DECIMAL } from '../constants'
+import { MULTICHAIN_DECIMAL, BN_FORMAT } from '../constants'
 
 export enum Rounding {
   ROUND_DOWN,
@@ -21,16 +21,6 @@ const roundingMode = {
 }
 
 export const EMPTY_FORMAT: BigNumber.Format = { groupSeparator: '' }
-export const NUMBER_FORMAT: BigNumber.Format = {
-  prefix: '',
-  decimalSeparator: '.',
-  groupSeparator: ',',
-  groupSize: 3,
-  secondaryGroupSize: 0,
-  fractionGroupSeparator: ' ',
-  fractionGroupSize: 0,
-  suffix: '',
-}
 
 export interface IAmount {
   readonly baseAmount: BigNumber
@@ -217,7 +207,7 @@ export class Amount implements IAmount {
 
   toSignificant(
     significantDigits = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     invariant(
@@ -256,7 +246,7 @@ export class Amount implements IAmount {
 
   toFixed(
     decimalPlaces = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     return this.toFixedDecimal(decimalPlaces, format, rounding)
@@ -268,7 +258,7 @@ export const formatBigNumber = (
   decimalPlaces = 8,
   rounding: Rounding = Rounding.ROUND_DOWN,
 ): string => {
-  BigNumber.config({ FORMAT: NUMBER_FORMAT })
+  BigNumber.config({ FORMAT: BN_FORMAT })
   const fixed = new BigNumber(bn.toFixed(decimalPlaces, roundingMode[rounding]))
 
   return fixed.toFormat()

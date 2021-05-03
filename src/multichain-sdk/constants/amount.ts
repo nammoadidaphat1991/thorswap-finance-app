@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 // default slip limit percentage
 export const DEFAULT_SLIP_LIMIT = 5
 
@@ -8,3 +10,14 @@ export const BNB_THRESHOLD_AMOUNT = 0.01 // $50
 export const BTC_THRESHOLD_AMOUNT = 0.001 // $100
 export const LTC_THRESHOLD_AMOUNT = 0.001
 export const BCH_THRESHOLD_AMOUNT = 0.001
+
+export const BN_FORMAT: BigNumber.Format = {
+  prefix: '',
+  decimalSeparator: '.',
+  groupSeparator: ',',
+  groupSize: 3,
+  secondaryGroupSize: 0,
+  fractionGroupSeparator: ' ',
+  fractionGroupSize: 0,
+  suffix: '',
+}

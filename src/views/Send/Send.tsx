@@ -30,7 +30,7 @@ import {
 import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
-import useTransactionFee from 'hooks/useTransactionFee'
+import { useNetworkFee } from 'hooks/useNetworkFee'
 
 import { multichain } from 'services/multichain'
 
@@ -81,6 +81,8 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
   const history = useHistory()
   const { pools } = useMidgard()
 
+  const { inboundFee } = useNetworkFee({ inputAsset: sendAsset })
+
   const poolAssets = useMemo(() => {
     const assets = pools.map((pool) => pool.asset)
     assets.push(Asset.RUNE())
@@ -115,18 +117,6 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     }
     return Amount.fromAssetAmount(0, 8)
   }, [sendAsset, wallet])
-
-  const txParam = useMemo(() => {
-    const assetAmount = new AssetAmount(sendAsset, sendAmount)
-
-    return {
-      assetAmount,
-      recipient,
-      memo,
-    }
-  }, [sendAsset, sendAmount, recipient, memo])
-
-  const networkFee = useTransactionFee(sendAsset, txParam)
 
   useEffect(() => {
     const fetchPoolAddress = async () => {
@@ -290,12 +280,12 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={inboundFee.toCurrencyFormat()}
           tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
         />
       </Styled.ConfirmModalContent>
     )
-  }, [sendAmount, networkFee, sendAsset, recipientAddress])
+  }, [sendAmount, inboundFee, sendAsset, recipientAddress])
 
   const title = useMemo(() => `${sendAsset.chain} ${sendAsset.ticker}`, [
     sendAsset,
@@ -391,7 +381,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         <Styled.FormItem>
           <Information
             title="Transaction Fee"
-            description={networkFee}
+            description={inboundFee.toCurrencyFormat()}
             tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
           />
         </Styled.FormItem>

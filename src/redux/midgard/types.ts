@@ -14,6 +14,7 @@ import {
   Action,
   Coin,
   MemberPool,
+  InboundAddressesItem,
 } from 'midgard-sdk'
 import { Pool } from 'multichain-sdk'
 
@@ -125,4 +126,5 @@ export interface State {
   mimir: MimirData
   approveStatus: ApproveStatus
   volume24h: string | null
+  inboundData: InboundAddressesItem[]
 }

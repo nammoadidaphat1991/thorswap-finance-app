@@ -1,12 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import {
-  Rounding,
-  Amount,
-  EMPTY_FORMAT,
-  NUMBER_FORMAT,
-  AmountType,
-} from './amount'
+import { BN_FORMAT } from '../constants'
+import { Rounding, Amount, EMPTY_FORMAT, AmountType } from './amount'
 
 export class Percent extends Amount {
   constructor(
@@ -29,7 +24,7 @@ export class Percent extends Amount {
 
   toFixed(
     decimalPlaces = 8,
-    format: BigNumber.Format = NUMBER_FORMAT,
+    format: BigNumber.Format = BN_FORMAT,
     rounding: Rounding = Rounding.ROUND_DOWN,
   ): string {
     return `${super.mul(100).toFixed(decimalPlaces, format, rounding)} %`
