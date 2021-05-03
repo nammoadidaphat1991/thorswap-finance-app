@@ -130,13 +130,17 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
     try {
       const inputAssetAmount = new AssetAmount(inputAsset, inputAmount)
-      return new Swap(
+      return new Swap({
         inputAsset,
         outputAsset,
         pools,
-        inputAssetAmount,
-        slippageTolerance,
-      )
+        amount: inputAssetAmount,
+        slip: slippageTolerance,
+        fee: {
+          inboundFee,
+          outboundFee,
+        },
+      })
     } catch (error) {
       console.log(error)
       return null
@@ -148,11 +152,13 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     inputAmount,
     slippageTolerance,
     poolLoading,
+    inboundFee,
+    outboundFee,
   ])
 
   const outputAmount: Amount = useMemo(() => {
     if (swap) {
-      return swap.outputAmount.amount
+      return swap.outputAmountAfterFee.amount
     }
 
     return Amount.fromAssetAmount(0, 8)
@@ -269,7 +275,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           outAssets: [
             {
               asset: swap.outputAsset.toString(),
-              amount: swap.outputAmount.toSignificant(6),
+              amount: swap.outputAmountAfterFee.toSignificant(6),
             },
           ],
         },
@@ -292,7 +298,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
             outAssets: [
               {
                 asset: swap.outputAsset.toString(),
-                amount: swap.outputAmount.toSignificant(6),
+                amount: swap.outputAmountAfterFee.toSignificant(6),
               },
             ],
             txID: txHash,
@@ -404,8 +410,14 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     }
   }, [wallet, swap])
 
-  const isValidSwap = useMemo(() => swap?.isValid() ?? false, [swap])
-  const isValidSlip = useMemo(() => swap?.isSlipValid() ?? false, [swap])
+  const isValidSwap = useMemo(() => swap?.isValid() ?? { valid: false }, [swap])
+  const isValidSlip = useMemo(() => swap?.isSlipValid() ?? true, [swap])
+
+  const btnLabel = useMemo(() => {
+    if (isValidSwap.valid) return 'Swap'
+
+    return isValidSwap?.msg ?? 'Swap'
+  }, [isValidSwap])
 
   const estimatedTime = useMemo(
     () =>
@@ -568,7 +580,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         <Information
           title="Network Fee"
           description={outboundFee?.toCurrencyFormat() ?? ''}
-          tooltip="Thorchain network fee used to pay outbound transaction"
+          tooltip="Estimated network fee used to pay outbound transaction"
         />
         <Information
           title="Total Fee"
@@ -582,7 +594,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           {!isApproved && (
             <Styled.ApproveBtn
               onClick={handleApprove}
-              error={!isValidSwap}
+              error={!isValidSwap.valid}
               disabled={
                 assetApproveStatus === TxTrackerStatus.Pending ||
                 assetApproveStatus === TxTrackerStatus.Submitting
@@ -598,16 +610,16 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           <FancyButton
             disabled={!isApproved}
             onClick={handleSwap}
-            error={!isValidSwap}
+            error={!isValidSwap.valid}
           >
-            Swap
+            {btnLabel}
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
       {!wallet && (
         <Styled.ConfirmButtonContainer>
-          <FancyButton onClick={handleSwap} error={!isValidSwap}>
-            Swap
+          <FancyButton onClick={handleSwap} error={!isValidSwap.valid}>
+            {btnLabel}
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}

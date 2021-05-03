@@ -36,7 +36,7 @@ import { TxTrackerType } from 'redux/midgard/types'
 
 import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
-import useTransactionFee from 'hooks/useTransactionFee'
+import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -136,7 +136,19 @@ const AddLiquidityPanel = ({
 
   const [isApproved, setApproved] = useState<boolean | null>(null)
 
-  const networkFee = useTransactionFee(poolAsset)
+  const { inboundFee } = useNetworkFee({
+    inputAsset: pool.asset,
+  })
+
+  const feeLabel = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.RUNE) {
+      return '0.02 RUNE'
+    }
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return `${inboundFee.toCurrencyFormat()}`
+    }
+    return `${inboundFee.toCurrencyFormat()} + 0.02 RUNE`
+  }, [inboundFee, liquidityType])
 
   useEffect(() => {
     getAllMemberDetails()
@@ -511,7 +523,7 @@ const AddLiquidityPanel = ({
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={feeLabel}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
         <Information
@@ -527,7 +539,7 @@ const AddLiquidityPanel = ({
     poolAsset,
     addLiquiditySlip,
     poolShareEst,
-    networkFee,
+    feeLabel,
     liquidityType,
   ])
 
@@ -540,12 +552,12 @@ const AddLiquidityPanel = ({
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={feeLabel}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
-  }, [poolAsset, networkFee])
+  }, [poolAsset, feeLabel])
 
   const isAddLiquidityValid = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
@@ -628,7 +640,7 @@ const AddLiquidityPanel = ({
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={feeLabel}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.DetailContent>

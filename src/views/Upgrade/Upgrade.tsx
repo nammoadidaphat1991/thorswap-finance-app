@@ -23,7 +23,7 @@ import {
 import { TxTrackerType } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
-import useTransactionFee from 'hooks/useTransactionFee'
+import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -81,17 +81,9 @@ const UpgradePanel = ({
     return Amount.fromAssetAmount(0, 8)
   }, [selectedAsset, wallet])
 
-  const txParam = useMemo(() => {
-    const assetAmount = new AssetAmount(selectedAsset, upgradeAmount)
-
-    return {
-      assetAmount,
-      recipient: '',
-      memo: '',
-    }
-  }, [selectedAsset, upgradeAmount])
-
-  const networkFee = useTransactionFee(selectedAsset, txParam)
+  const { inboundFee } = useNetworkFee({
+    inputAsset: selectedAsset,
+  })
 
   const handleSelectAsset = useCallback((selected: Asset) => {
     setSelectedAsset(selected)
@@ -210,12 +202,12 @@ const UpgradePanel = ({
         />
         <Information
           title="Transaction Fee"
-          description={networkFee}
+          description={inboundFee.toCurrencyFormat()}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
-  }, [networkFee, selectedAsset])
+  }, [inboundFee, selectedAsset])
 
   const title = useMemo(() => `Upgrade ${selectedAsset.chain} RUNE`, [
     selectedAsset,
@@ -242,8 +234,8 @@ const UpgradePanel = ({
         <Styled.FormItem>
           <Information
             title="Transaction Fee"
-            description={networkFee}
-            tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
+            description={inboundFee.toCurrencyFormat()}
+            tooltip={TX_FEE_TOOLTIP_LABEL}
           />
         </Styled.FormItem>
 

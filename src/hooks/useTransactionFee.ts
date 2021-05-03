@@ -44,7 +44,7 @@ const useTransactionFee = (
                 recipient: ethPoolAddress,
               })
               feeStr = Amount.fromBaseAmount(
-                feeValue?.[txParam.feeOptionKey || 'fast'].amount(),
+                feeValue?.[txParam.feeOptionKey || 'average'].amount(),
                 asset.decimal,
               ).toSignificant(6)
             } else {

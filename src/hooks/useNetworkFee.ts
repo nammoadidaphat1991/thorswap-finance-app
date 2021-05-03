@@ -1,10 +1,14 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 
 import { Asset, Amount, AssetAmount, NetworkFee } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
 
 import { getGasRateByChain } from 'helpers/networkFee'
+
+import useInterval from './useInterval'
+
+const POLL_GAS_RATE_INTERVAL = 10 * 1000
 
 export const useNetworkFee = ({
   inputAsset,
@@ -15,9 +19,9 @@ export const useNetworkFee = ({
 }) => {
   const { inboundData, getInboundData, pools } = useMidgard()
 
-  useEffect(() => {
+  useInterval(() => {
     getInboundData()
-  }, [getInboundData])
+  }, POLL_GAS_RATE_INTERVAL)
 
   const inboundFee = useMemo(() => {
     const gasRate = getGasRateByChain({ inboundData, chain: inputAsset.chain })

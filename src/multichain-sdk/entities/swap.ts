@@ -55,6 +55,7 @@ export interface ISwap {
   getFee(inputAmount: AssetAmount): AssetAmount
 }
 
+// TODO: sort out fee logic
 export class Swap implements ISwap {
   public slipLimitPercent: number
 
@@ -91,13 +92,24 @@ export class Swap implements ISwap {
 
   private _0_AMOUNT: Amount
 
-  constructor(
-    inputAsset: Asset,
-    outputAsset: Asset,
-    pools: Pool[],
-    amount: AssetAmount,
+  constructor({
+    inputAsset,
+    outputAsset,
+    pools,
+    amount,
     slip = DEFAULT_SLIP_LIMIT,
-  ) {
+    fee,
+  }: {
+    inputAsset: Asset
+    outputAsset: Asset
+    pools: Pool[]
+    amount: AssetAmount
+    slip?: number
+    fee?: {
+      inboundFee: AssetAmount
+      outboundFee: AssetAmount | null
+    }
+  }) {
     this.inputAsset = inputAsset
     this.outputAsset = outputAsset
     this.slipLimitPercent = slip
@@ -111,12 +123,23 @@ export class Swap implements ISwap {
 
     this._0_AMOUNT = Amount.fromAssetAmount(0, inputAsset.decimal)
 
+    // set inbound, outbound fee
+    const inboundFee =
+      fee?.inboundFee ??
+      new AssetAmount(inputAsset, Amount.fromAssetAmount(0, inputAsset.decimal))
+    const outboundFee =
+      fee?.outboundFee ??
+      new AssetAmount(
+        outputAsset,
+        Amount.fromAssetAmount(0, outputAsset.decimal),
+      )
+
     invariant(
       !this.inputAsset.isRUNE() || !this.outputAsset.isRUNE(),
-      'Invalid pair',
+      'Ins pair',
     )
 
-    invariant(amount.gte(this._0_AMOUNT), 'Invalid Negative Amount')
+    invariant(amount.gte(0), 'Invalid Negative Amount')
 
     // set swap type and pools
     if (!this.inputAsset.isRUNE() && !this.outputAsset.isRUNE()) {
@@ -163,19 +186,32 @@ export class Swap implements ISwap {
     if (amount.asset === this.inputAsset) {
       this.quoteType = QuoteType.EXACT_IN
       this.inputAmount = amount
-      this.outputAmount = this.getOutputAmount(amount)
-      this.outputAmountAfterFee = this.getOutputAfterNetworkFee(amount)
+
+      // subtract inboundFee from input amount
+      const inputAfterFee = this.inputAmount.sub(inboundFee)
+
+      this.outputAmount = this.getOutputAmount(inputAfterFee)
+      const outputAmountAfterSlipFee = this.getOutputAfterNetworkFee(
+        inputAfterFee,
+      )
+      this.outputAmountAfterFee = outputAmountAfterSlipFee.sub(outboundFee)
 
       // validate
-      if (this.outputAmountAfterFee.lt(this._0_AMOUNT)) {
+      if (this.outputAmountAfterFee.lt(0)) {
         this.hasInSufficientFee = true
-        this.outputAmount = new AssetAmount(this.outputAsset, this._0_AMOUNT)
+        this.outputAmountAfterFee = new AssetAmount(
+          this.outputAsset,
+          Amount.fromAssetAmount(0, this.outputAsset.decimal),
+        )
       }
     } else {
       this.quoteType = QuoteType.EXACT_OUT
       this.outputAmountAfterFee = amount
-      this.outputAmount = amount.add(this.estimatedNetworkFee)
-      this.inputAmount = this.getInputAmount(amount)
+
+      // add outbound fee to exact output amount
+      this.outputAmount = amount.add(outboundFee)
+      // add inbound fee to input amount
+      this.inputAmount = this.getInputAmount(amount).add(inboundFee)
 
       // validate
       if (this.inputAmount.lt(this._0_AMOUNT)) {
@@ -187,7 +223,10 @@ export class Swap implements ISwap {
     this.fee = this.getFee(this.inputAmount)
     this.outputPercent = this.getOutputPercent(this.inputAmount)
     this.feePercent = this.getFeePercent(this.inputAmount)
-    this.slip = this.getSlip(this.inputAmount)
+
+    // subtract inboundFee from input amount
+    const inputAfterFee = this.inputAmount.sub(inboundFee)
+    this.slip = this.getSlip(inputAfterFee)
   }
 
   setSlipLimitPercent(limit: number): void {
@@ -199,7 +238,8 @@ export class Swap implements ISwap {
   }
 
   public get minOutputAmount(): Amount {
-    return this.outputAmount.mul(100 - this.slipLimitPercent).div(100).amount
+    return this.outputAmountAfterFee.mul(100 - this.slipLimitPercent).div(100)
+      .amount
   }
 
   isSlipValid(): boolean {
@@ -210,19 +250,27 @@ export class Swap implements ISwap {
     return true
   }
 
-  isValid(): boolean {
+  isValid(): { valid: boolean; msg?: string } {
+    // check fee
+    if (this.hasInSufficientFee)
+      return { valid: false, msg: 'Insufficient Fee' }
+
     // check input amount
     if (
       this.inputAmount.lte(Amount.fromAssetAmount(0, this.inputAmount.decimal))
-    )
-      return false
+    ) {
+      return { valid: false, msg: 'invalid input amount' }
+    }
 
     // check slip amount
     if (!this.isSlipValid()) {
-      return false
+      return {
+        valid: false,
+        msg: `Slip is higher than ${this.slipLimitPercent.toFixed()}%`,
+      }
     }
 
-    return true
+    return { valid: true }
   }
 
   public static getSingleSwapOutput(
