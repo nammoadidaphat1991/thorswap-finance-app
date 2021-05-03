@@ -40,6 +40,8 @@ import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
 
+import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants/label'
+
 import * as Styled from './Withdraw.style'
 
 const WithdrawView = () => {
@@ -506,7 +508,7 @@ const WithdrawPanel = ({
           />
         )}
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description="0.02 RUNE"
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />
@@ -591,9 +593,9 @@ const WithdrawPanel = ({
           />
         )}
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description="0.02 RUNE"
-          tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.DetailContent>
       {wallet && (

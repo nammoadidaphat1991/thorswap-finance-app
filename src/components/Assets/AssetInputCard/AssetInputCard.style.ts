@@ -75,5 +75,5 @@ export const MaxBtn = styled(Button).attrs({
 
 export const Balance = styled.div`
   width: 100%;
-  padding-left: 54px;
+  padding-left: 44px;
 `

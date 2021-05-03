@@ -36,12 +36,18 @@ import { TxTrackerType } from 'redux/midgard/types'
 
 import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
-import useNetworkFee from 'hooks/useNetworkFee'
+import useTransactionFee from 'hooks/useTransactionFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
 
 import { getAddLiquidityRoute } from 'settings/constants'
+import {
+  TX_FEE_TOOLTIP_LABEL,
+  SLIP_TOOLTIP_LABEL,
+  ESTIMATED_TIME_LABEL,
+  ESTIMATED_POOL_SHARE_LABEL,
+} from 'settings/constants/label'
 
 import * as Styled from './Add.style'
 import { getMaxSymAmounts } from './utils'
@@ -130,7 +136,7 @@ const AddLiquidityPanel = ({
 
   const [isApproved, setApproved] = useState<boolean | null>(null)
 
-  const networkFee = useNetworkFee(poolAsset)
+  const networkFee = useTransactionFee(poolAsset)
 
   useEffect(() => {
     getAllMemberDetails()
@@ -496,22 +502,22 @@ const AddLiquidityPanel = ({
         <Information
           title="Slip"
           description={addLiquiditySlip}
-          tooltip="The difference between the market price and estimated price due to trade size."
+          tooltip={SLIP_TOOLTIP_LABEL}
         />
         <Information
           title="Pool Share Estimated"
           description={poolShareEst}
-          tooltip="Your pool share percentage after providing the liquidity."
+          tooltip={ESTIMATED_POOL_SHARE_LABEL}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
         <Information
           title="Estimated Time"
           description={estimatedTime}
-          tooltip="Estimated time to process the transaction"
+          tooltip={ESTIMATED_TIME_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
@@ -533,9 +539,9 @@ const AddLiquidityPanel = ({
           description={`${poolAsset.ticker.toUpperCase()}`}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
@@ -613,17 +619,17 @@ const AddLiquidityPanel = ({
         <Information
           title="Slip"
           description={addLiquiditySlip}
-          tooltip="The difference between the market price and estimated price due to trade size."
+          tooltip={SLIP_TOOLTIP_LABEL}
         />
         <Information
           title="Pool Share Estimated"
           description={poolShareEst}
-          tooltip="Your pool share percentage after providing the liquidity."
+          tooltip={ESTIMATED_POOL_SHARE_LABEL}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.DetailContent>
 

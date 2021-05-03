@@ -23,10 +23,12 @@ import {
 import { TxTrackerType } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
-import useNetworkFee from 'hooks/useNetworkFee'
+import useTransactionFee from 'hooks/useTransactionFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
+
+import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants'
 
 import * as Styled from './Upgrade.style'
 
@@ -89,7 +91,7 @@ const UpgradePanel = ({
     }
   }, [selectedAsset, upgradeAmount])
 
-  const networkFee = useNetworkFee(selectedAsset, txParam)
+  const networkFee = useTransactionFee(selectedAsset, txParam)
 
   const handleSelectAsset = useCallback((selected: Asset) => {
     setSelectedAsset(selected)
@@ -207,9 +209,9 @@ const UpgradePanel = ({
           description={`${selectedAsset.ticker.toUpperCase()} (${selectedAsset.type.toUpperCase()})`}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
@@ -239,7 +241,7 @@ const UpgradePanel = ({
 
         <Styled.FormItem>
           <Information
-            title="Network Fee"
+            title="Transaction Fee"
             description={networkFee}
             tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
           />

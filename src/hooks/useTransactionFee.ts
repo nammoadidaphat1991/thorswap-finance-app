@@ -7,8 +7,8 @@ import { multichain } from 'services/multichain'
 
 import useDebounce from './useDebounce'
 
-// TODO: update network fee logic
-const useNetworkFee = (
+// TODO: update Transaction Fee logic
+const useTransactionFee = (
   asset: Asset,
   txParam?: TxParams,
   hasWallet = true,
@@ -44,7 +44,7 @@ const useNetworkFee = (
                 recipient: ethPoolAddress,
               })
               feeStr = Amount.fromBaseAmount(
-                feeValue.fast.amount(),
+                feeValue?.[txParam.feeOptionKey || 'fast'].amount(),
                 asset.decimal,
               ).toSignificant(6)
             } else {
@@ -74,4 +74,4 @@ const useNetworkFee = (
   return networkFee
 }
 
-export default useNetworkFee
+export default useTransactionFee

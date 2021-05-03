@@ -35,12 +35,18 @@ import { TxTrackerStatus, TxTrackerType } from 'redux/midgard/types'
 
 import { useApprove } from 'hooks/useApprove'
 import { useBalance } from 'hooks/useBalance'
-import useNetworkFee from 'hooks/useNetworkFee'
+import useTransactionFee from 'hooks/useTransactionFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
 
 import { getSwapRoute } from 'settings/constants'
+import {
+  TX_FEE_TOOLTIP_LABEL,
+  SLIP_TOOLTIP_LABEL,
+  ESTIMATED_TIME_LABEL,
+  MIN_RECEIVED_LABEL,
+} from 'settings/constants/label'
 
 import * as Styled from './Swap.style'
 import { Pair } from './types'
@@ -195,7 +201,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     }
   }, [recipient, swap])
 
-  const networkFee = useNetworkFee(inputAsset, txParam, !!wallet)
+  const networkFee = useTransactionFee(inputAsset, txParam, !!wallet)
 
   useEffect(() => {
     if (wallet) {
@@ -445,24 +451,24 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           title="Slip"
           description={slipPercent.toFixed(3)}
           error={!isValidSlip}
-          tooltip="The difference between the market price and estimated price due to trade size."
+          tooltip={SLIP_TOOLTIP_LABEL}
         />
         <Information
           title="Minimum Received"
           description={`${minReceive.toSignificant(
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
-          tooltip="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+          tooltip={MIN_RECEIVED_LABEL}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee to submit the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
         <Information
           title="Estimated Time"
           description={estimatedTime}
-          tooltip="Estimated time to process the transaction"
+          tooltip={ESTIMATED_TIME_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
@@ -486,9 +492,9 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           description=""
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee to submit the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.ConfirmModalContent>
     )
@@ -546,19 +552,19 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           title="Slip"
           description={slipPercent.toFixed(3)}
           error={!isValidSlip}
-          tooltip="The difference between the market price and estimated price due to trade size."
+          tooltip={SLIP_TOOLTIP_LABEL}
         />
         <Information
           title="Minimum Received"
           description={`${minReceive.toSignificant(
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
-          tooltip="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+          tooltip={MIN_RECEIVED_LABEL}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
-          tooltip="Gas fee to submit the transaction using the thorchain protocol"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.SwapInfo>
 

@@ -28,7 +28,7 @@ import { TxTrackerType } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
 import { useMimir } from 'hooks/useMimir'
-import useNetworkFee from 'hooks/useNetworkFee'
+import useTransactionFee from 'hooks/useTransactionFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -100,7 +100,7 @@ const CreateLiquidityPanel = ({
 
   const [isApproved, setApproved] = useState<boolean | null>(null)
 
-  const networkFee = useNetworkFee(inputAsset)
+  const networkFee = useTransactionFee(inputAsset)
 
   useEffect(() => {
     const checkApproved = async () => {
@@ -336,7 +336,7 @@ const CreateLiquidityPanel = ({
           tooltip="Your pool share percentage after providing the liquidity."
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />
@@ -356,7 +356,7 @@ const CreateLiquidityPanel = ({
           description={`${inputAsset.ticker.toUpperCase()}`}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />
@@ -403,7 +403,7 @@ const CreateLiquidityPanel = ({
 
       <Styled.DetailContent>
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />

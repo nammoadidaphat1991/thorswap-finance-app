@@ -30,7 +30,7 @@ import {
 import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
-import useNetworkFee from 'hooks/useNetworkFee'
+import useTransactionFee from 'hooks/useTransactionFee'
 
 import { multichain } from 'services/multichain'
 
@@ -126,7 +126,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     }
   }, [sendAsset, sendAmount, recipient, memo])
 
-  const networkFee = useNetworkFee(sendAsset, txParam)
+  const networkFee = useTransactionFee(sendAsset, txParam)
 
   useEffect(() => {
     const fetchPoolAddress = async () => {
@@ -289,7 +289,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
           )}...${recipientAddress.substr(-3)}`}
         />
         <Information
-          title="Network Fee"
+          title="Transaction Fee"
           description={networkFee}
           tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
         />
@@ -390,7 +390,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
 
         <Styled.FormItem>
           <Information
-            title="Network Fee"
+            title="Transaction Fee"
             description={networkFee}
             tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
           />

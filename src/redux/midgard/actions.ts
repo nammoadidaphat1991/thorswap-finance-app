@@ -8,6 +8,7 @@ import { getThorchainMimir } from 'services/thornode'
 
 import { SupportedChain } from '../../multichain-sdk/clients/types'
 import { TxTracker } from './types'
+import { getPastDay } from './utils'
 
 export const getPools = createAsyncThunk(
   'midgard/getPools',
@@ -180,7 +181,8 @@ export const getVolume24h = createAsyncThunk(
     const { intervals } = await midgardApi.getSwapHistory({
       query: {
         interval: 'day',
-        count: 2,
+        count: 1,
+        to: getPastDay(),
       },
     })
 

@@ -1,8 +1,21 @@
 import { THORChain } from '@xchainjs/xchain-util'
 import { MemberPool } from 'midgard-sdk'
+import moment from 'moment'
 import { SupportedChain } from 'multichain-sdk'
 
 import { ChainMemberDetails, ChainMemberData, PoolMemberData } from './types'
+
+export const getPastDay = () => {
+  return moment()
+    .subtract(1, 'days')
+    .set({
+      hour: 23,
+      minute: 59,
+      second: 59,
+      millisecond: 999,
+    })
+    .unix()
+}
 
 export const getChainMemberDetails = ({
   chain,

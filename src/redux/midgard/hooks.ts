@@ -11,7 +11,6 @@ import {
   ActionTypeEnum,
   HistoryInterval,
 } from 'midgard-sdk'
-import moment from 'moment'
 import { Asset, SupportedChain } from 'multichain-sdk'
 
 import * as actions from 'redux/midgard/actions'
@@ -22,6 +21,7 @@ import * as walletActions from 'redux/wallet/actions'
 import { TX_PUBLIC_PAGE_LIMIT } from 'settings/constants/global'
 
 import { SubmitTx, TxTracker, TxTrackerType } from './types'
+import { getPastDay } from './utils'
 
 const MAX_HISTORY_COUNT = 100
 const PER_DAY = 'day' as HistoryInterval
@@ -44,7 +44,8 @@ export const useMidgard = () => {
   const getGlobalHistory = useCallback(() => {
     // fetch historical data till past day
 
-    const pastDay = moment().subtract(1, 'days').unix()
+    const pastDay = getPastDay()
+
     dispatch(
       actions.getEarningsHistory({
         interval: PER_DAY,
@@ -76,7 +77,7 @@ export const useMidgard = () => {
     (pool: string) => {
       // fetch historical data till past day
 
-      const pastDay = moment().subtract(1, 'days').unix()
+      const pastDay = getPastDay()
       const query = {
         pool,
         query: {
