@@ -592,9 +592,9 @@ export class MultiChain implements IMultiChain {
   swap = async (swap: Swap, recipient?: string): Promise<TxHash> => {
     /**
      * 1. check if swap has sufficient fee
-     * 2. get pool address
+     * 2. get inbound address
      * 3. get swap memo
-     * 4. transfer input asset to pool address
+     * 4. transfer input asset to inbound address
      */
 
     try {

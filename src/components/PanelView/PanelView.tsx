@@ -56,7 +56,7 @@ const LiquidityButton = ({ selected }: { selected: boolean }) => (
 
 const PendingButton = ({ selected }: { selected: boolean }) => (
   <CoreButton>
-    <Tooltip tooltip="Pending Liquidity" placement="top">
+    <Tooltip tooltip="Pending Deposit" placement="top">
       <Styled.MenuIconWrapper selected={selected}>
         <HourglassOutlined />
       </Styled.MenuIconWrapper>

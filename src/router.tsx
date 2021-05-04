@@ -21,6 +21,7 @@ import {
   ADD_LIQUIDITY_ROUTE,
   LIQUIDITY_ROUTE,
   WITHDRAW_ROUTE,
+  PENDING_LIQUIDITY_ROUTE,
 } from 'settings/constants'
 
 export type Routes = {
@@ -73,6 +74,12 @@ const routes: Routes = [
     exact: true,
     path: `${WITHDRAW_ROUTE}/:asset`,
     component: lazy(() => import('views/Withdraw')),
+    background: false,
+  },
+  {
+    exact: true,
+    path: `${PENDING_LIQUIDITY_ROUTE}`,
+    component: lazy(() => import('views/PendingDeposit')),
     background: false,
   },
   // {

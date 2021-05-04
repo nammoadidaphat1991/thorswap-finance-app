@@ -130,10 +130,15 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
       <Dropdown overlay={renderMenu()} trigger={[]} visible={openDropdown}>
         <>
           {!!children && children}
-          <Selector onClick={handleDropdownButtonClicked}>
+          {disabled && (
             <AssetData asset={asset} showLabel={showLabel} size={size} />
-            {renderDropDownButton()}
-          </Selector>
+          )}
+          {!disabled && (
+            <Selector onClick={handleDropdownButtonClicked}>
+              <AssetData asset={asset} showLabel={showLabel} size={size} />
+              {renderDropDownButton()}
+            </Selector>
+          )}
         </>
       </Dropdown>
     </AssetSelectWrapper>
