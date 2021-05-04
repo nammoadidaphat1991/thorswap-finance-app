@@ -188,11 +188,14 @@ export const AddLiquidityPanel = ({
       })
 
       try {
-        const txRes = await multichain.addLiquidity({
-          pool,
-          runeAmount: runeAssetAmount,
-          assetAmount: poolAssetAmount,
-        })
+        const txRes = await multichain.addLiquidity(
+          {
+            pool,
+            runeAmount: runeAssetAmount,
+            assetAmount: poolAssetAmount,
+          },
+          'sym_rune',
+        )
 
         const runeTxHash = txRes?.runeTx
         const assetTxHash = txRes?.assetTx

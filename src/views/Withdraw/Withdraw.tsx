@@ -579,7 +579,7 @@ const WithdrawPanel = ({
             title="RUNE"
             description={`${runeAmount.toSignificant(
               6,
-            )} RUNE ($${runePriceInUSD.toSignificant(6)})`}
+            )} RUNE (${runePriceInUSD.toCurrencyFormat(2)})`}
             tooltip="You are withdrawing RUNE from the liquidity"
           />
         )}
@@ -588,7 +588,7 @@ const WithdrawPanel = ({
             title={poolAsset.ticker}
             description={`${assetAmount.toSignificant(6)} ${
               poolAsset.ticker
-            } ($${assetPriceInUSD.toSignificant(6)})`}
+            } (${assetPriceInUSD.toCurrencyFormat(2)})`}
             tooltip="You are withdrawing ASSET from the liquidity"
           />
         )}

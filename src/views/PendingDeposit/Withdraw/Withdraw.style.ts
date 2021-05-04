@@ -2,6 +2,8 @@ import { FancyButton, Label } from 'components'
 import styled from 'styled-components/macro'
 import { palette } from 'styled-theme'
 
+import { media } from 'helpers/style'
+
 export const WithdrawHeader = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,6 +20,18 @@ export const HeaderLabel = styled(Label).attrs({
 })`
   width: 80px;
   margin-bottom: 8px;
+`
+
+export const ContentPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  padding: 16px 8px 8px 8px;
+
+  ${media.sm`
+    padding: 16px 12px 4px 12px;
+  `}
 `
 
 export const LPTypes = styled.div`

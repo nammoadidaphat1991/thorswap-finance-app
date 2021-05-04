@@ -12,6 +12,7 @@ import { usePendingLP } from 'hooks/usePendingLP'
 
 import { AddLiquidityPanel } from './Add'
 import * as Styled from './PendingDeposit.style'
+import { WithdrawPanel } from './Withdraw'
 
 type Option = {
   type: 'add' | 'withdraw'
@@ -25,6 +26,7 @@ const PendingDepositView = () => {
   const {
     pools,
     pendingLP,
+    pendingLPLoading,
     hasPendingDeposit,
     getPendingDeposit,
   } = usePendingLP()
@@ -52,7 +54,11 @@ const PendingDepositView = () => {
     return (
       <>
         <Styled.ToolContainer>
-          <FancyButton size="small" onClick={getPendingDeposit}>
+          <FancyButton
+            size="small"
+            onClick={getPendingDeposit}
+            loading={pendingLPLoading}
+          >
             Check Pending Deposit
           </FancyButton>
         </Styled.ToolContainer>
@@ -78,6 +84,7 @@ const PendingDepositView = () => {
     handleComplete,
     handleWithdraw,
     pendingLP,
+    pendingLPLoading,
     hasPendingDeposit,
     wallet,
   ])
@@ -104,11 +111,27 @@ const PendingDepositView = () => {
     }
   }, [option, pools, wallet])
 
+  const renderWithdraw = useMemo(() => {
+    if (!option || !wallet) return null
+
+    const { data } = option
+    const poolAsset = Asset.fromAssetString(data.asset)
+
+    if (poolAsset) {
+      const pool = Pool.byAsset(poolAsset, pools)
+
+      if (pool) {
+        return <WithdrawPanel pools={pools} pool={pool} data={data} />
+      }
+    }
+  }, [option, pools, wallet])
+
   return (
     <PanelView meta="Pending Deposit" poolAsset={Asset.BTC()} type="pending">
       {!wallet && <Label>Please connect wallet.</Label>}
       {renderPendingDeposit}
       {option?.type === 'add' && renderDeposit}
+      {option?.type === 'withdraw' && renderWithdraw}
     </PanelView>
   )
 }

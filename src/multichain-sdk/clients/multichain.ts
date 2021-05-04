@@ -641,6 +641,7 @@ export class MultiChain implements IMultiChain {
    */
   addLiquidity = async (
     params: AddLiquidityParams,
+    type = 'auto',
   ): Promise<AddLiquidityTxns> => {
     /**
      * 1. get pool address
@@ -660,6 +661,19 @@ export class MultiChain implements IMultiChain {
 
       const assetAddress = this.getWalletAddressByChain(chain) || ''
       const thorAddress = this.getWalletAddressByChain(THORChain) || ''
+
+      // used for sym deposit recovery
+      if (type === 'sym_rune' && runeAmount?.gt(runeAmount._0_AMOUNT)) {
+        const runeTx = await this.transfer({
+          assetAmount: runeAmount,
+          recipient: THORCHAIN_POOL_ADDRESS,
+          memo: Memo.depositMemo(pool.asset, assetAddress),
+        })
+
+        return {
+          runeTx,
+        }
+      }
 
       // sym stake
       if (
