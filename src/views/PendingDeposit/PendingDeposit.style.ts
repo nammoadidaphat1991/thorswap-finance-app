@@ -16,3 +16,9 @@ export const ToolContainer = styled.div`
     width: 100%;
   }
 `
+
+export const ConfirmModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+`

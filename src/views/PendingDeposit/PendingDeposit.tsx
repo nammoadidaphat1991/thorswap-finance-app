@@ -1,18 +1,30 @@
 import React, { useState, useMemo, useCallback } from 'react'
 
-import { PanelView, FancyButton, Label } from 'components'
-import { Asset, Pool } from 'multichain-sdk'
+import { THORChain } from '@xchainjs/xchain-thorchain'
+import {
+  PanelView,
+  FancyButton,
+  Label,
+  ConfirmModal,
+  Information,
+  Notification,
+} from 'components'
+import { Asset, Pool, Amount, Percent } from 'multichain-sdk'
 
 import { PendingDepositCard } from 'components/PendingDepositCard'
 
-import { LiquidityProvider } from 'redux/midgard/types'
+import { LiquidityProvider, TxTrackerType } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
 import { usePendingLP } from 'hooks/usePendingLP'
+import { useTxTracker } from 'hooks/useTxTracker'
+
+import { multichain } from 'services/multichain'
+
+import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants/label'
 
 import { AddLiquidityPanel } from './Add'
 import * as Styled from './PendingDeposit.style'
-import { WithdrawPanel } from './Withdraw'
 
 type Option = {
   type: 'add' | 'withdraw'
@@ -20,9 +32,12 @@ type Option = {
 }
 
 const PendingDepositView = () => {
+  const { wallet } = useWallet()
+  const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
   const [option, setOption] = useState<Option>()
 
-  const { wallet } = useWallet()
+  const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
+
   const {
     pools,
     pendingLP,
@@ -31,18 +46,46 @@ const PendingDepositView = () => {
     getPendingDeposit,
   } = usePendingLP()
 
+  const poolAsset = useMemo(() => {
+    if (!option) return null
+
+    const { data } = option
+    return Asset.fromAssetString(data.asset)
+  }, [option])
+  const pool = useMemo(() => {
+    if (!poolAsset) return null
+    return Pool.byAsset(poolAsset, pools)
+  }, [poolAsset, pools])
+
   const handleComplete = useCallback((data: LiquidityProvider) => {
     setOption({
       type: 'add',
       data,
     })
   }, [])
-  const handleWithdraw = useCallback((data: LiquidityProvider) => {
-    setOption({
-      type: 'withdraw',
-      data,
-    })
-  }, [])
+
+  const handleWithdrawLiquidity = useCallback(() => {
+    if (wallet) {
+      setVisibleConfirmModal(true)
+    } else {
+      Notification({
+        type: 'info',
+        message: 'Wallet Not Found',
+        description: 'Please connect wallet',
+      })
+    }
+  }, [wallet])
+
+  const handleWithdraw = useCallback(
+    (data: LiquidityProvider) => {
+      setOption({
+        type: 'withdraw',
+        data,
+      })
+      handleWithdrawLiquidity()
+    },
+    [handleWithdrawLiquidity],
+  )
 
   const renderPendingDeposit = useMemo(() => {
     if (!wallet) return null
@@ -111,27 +154,112 @@ const PendingDepositView = () => {
     }
   }, [option, pools, wallet])
 
-  const renderWithdraw = useMemo(() => {
-    if (!option || !wallet) return null
+  const assetAmount = useMemo(() => {
+    if (!option) return null
+    return Amount.fromMidgard(option.data.pending_asset)
+  }, [option])
 
-    const { data } = option
-    const poolAsset = Asset.fromAssetString(data.asset)
+  const handleConfirmWithdraw = useCallback(async () => {
+    if (!poolAsset || !assetAmount || !pool) return null
 
-    if (poolAsset) {
-      const pool = Pool.byAsset(poolAsset, pools)
+    setVisibleConfirmModal(false)
+    if (wallet) {
+      const poolAssetString = poolAsset.toString()
+      let trackId = ''
+      try {
+        const outAssets = [
+          {
+            asset: poolAsset.toString(),
+            amount: assetAmount.toSignificant(6),
+          },
+        ]
 
-      if (pool) {
-        return <WithdrawPanel pools={pools} pool={pool} data={data} />
+        // register to tx tracker
+        trackId = submitTransaction({
+          type: TxTrackerType.Withdraw,
+          submitTx: {
+            inAssets: [],
+            outAssets,
+            poolAsset: poolAssetString,
+          },
+        })
+
+        const txID = await multichain.withdraw({
+          pool,
+          percent: new Percent(100),
+          from: 'sym',
+          to: 'sym',
+        })
+
+        // start polling
+        pollTransaction({
+          type: TxTrackerType.Withdraw,
+          uuid: trackId,
+          submitTx: {
+            inAssets: [],
+            outAssets,
+            poolAsset: poolAssetString,
+            txID,
+            withdrawChain: THORChain,
+          },
+        })
+      } catch (error) {
+        console.log(error)
+        setTxFailed(trackId)
+
+        Notification({
+          type: 'error',
+          message: 'Submit Transaction Failed.',
+          duration: 20,
+        })
       }
     }
-  }, [option, pools, wallet])
+  }, [
+    wallet,
+    pool,
+    poolAsset,
+    assetAmount,
+    submitTransaction,
+    pollTransaction,
+    setTxFailed,
+  ])
+
+  const handleCancel = useCallback(() => {
+    setVisibleConfirmModal(false)
+  }, [])
+
+  const renderWithdrawConfirmModalContent = useMemo(() => {
+    if (!assetAmount || !poolAsset) return null
+
+    return (
+      <Styled.ConfirmModalContent>
+        <Information
+          title="Withdraw"
+          description={`Pending ${assetAmount.toSignificant(
+            6,
+          )} ${poolAsset.ticker.toUpperCase()}`}
+        />
+        <Information
+          title="Transaction Fee"
+          description="0.02 RUNE"
+          tooltip={TX_FEE_TOOLTIP_LABEL}
+        />
+      </Styled.ConfirmModalContent>
+    )
+  }, [poolAsset, assetAmount])
 
   return (
     <PanelView meta="Pending Deposit" poolAsset={Asset.BTC()} type="pending">
       {!wallet && <Label>Please connect wallet.</Label>}
       {renderPendingDeposit}
       {option?.type === 'add' && renderDeposit}
-      {option?.type === 'withdraw' && renderWithdraw}
+      <ConfirmModal
+        visible={visibleConfirmModal}
+        onOk={handleConfirmWithdraw}
+        onCancel={handleCancel}
+      >
+        {renderWithdrawConfirmModalContent}
+      </ConfirmModal>
     </PanelView>
   )
 }
