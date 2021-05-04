@@ -1,6 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react'
-
-import { useParams } from 'react-router'
+import React, { useMemo, useState, useCallback } from 'react'
 
 import { THORChain } from '@xchainjs/xchain-thorchain'
 import {
@@ -15,7 +13,6 @@ import {
   MemberPoolData,
   Label,
   PoolShareTypeSelect,
-  Panel,
 } from 'components'
 import {
   Amount,
@@ -25,10 +22,8 @@ import {
   Liquidity,
   Percent,
   AmountType,
-  SupportedChain,
 } from 'multichain-sdk'
 
-import { useMidgard } from 'redux/midgard/hooks'
 import {
   PoolMemberData,
   PoolShareType,
@@ -44,88 +39,7 @@ import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants/label'
 
 import * as Styled from './Withdraw.style'
 
-const WithdrawView = () => {
-  const { asset } = useParams<{ asset: string }>()
-  const [assetObj, setAssetObj] = useState<Asset>()
-  const [pool, setPool] = useState<Pool>()
-
-  const {
-    pools,
-    poolLoading,
-    loadMemberDetailsByChain,
-    chainMemberDetails,
-  } = useMidgard()
-
-  useEffect(() => {
-    if (!pool) return
-    loadMemberDetailsByChain(pool.asset.chain as SupportedChain)
-  }, [loadMemberDetailsByChain, pool])
-
-  const poolMemberData: PoolMemberData | null = useMemo(() => {
-    if (!pool) return null
-    return (
-      chainMemberDetails?.[pool.asset.chain]?.[pool.asset.toString()] ?? null
-    )
-  }, [chainMemberDetails, pool])
-
-  useEffect(() => {
-    if (!poolLoading && pools.length && assetObj) {
-      const assetPool = Pool.byAsset(assetObj, pools)
-
-      if (assetPool) {
-        setPool(assetPool)
-      }
-    }
-  }, [pools, poolLoading, assetObj])
-
-  useEffect(() => {
-    const getAssetEntity = async () => {
-      if (!asset) {
-        return
-      }
-      const assetEntity = Asset.fromAssetString(asset)
-
-      if (assetEntity) {
-        if (assetEntity.isRUNE()) return
-
-        await assetEntity.setDecimal()
-
-        setAssetObj(assetEntity)
-      }
-    }
-
-    getAssetEntity()
-  }, [asset])
-
-  if (
-    pool &&
-    pools.length &&
-    poolMemberData &&
-    Object.keys(poolMemberData).length
-  ) {
-    const shares = []
-    if (poolMemberData.sym) shares.push(PoolShareType.SYM)
-    if (poolMemberData.runeAsym) shares.push(PoolShareType.RUNE_ASYM)
-    if (poolMemberData.assetAsym) shares.push(PoolShareType.ASSET_ASYM)
-
-    return (
-      <WithdrawPanel
-        pool={pool}
-        shareTypes={shares}
-        pools={pools}
-        poolMemberData={poolMemberData}
-      />
-    )
-  }
-
-  return (
-    <Panel>
-      <Label>You don't have LP to withdraw</Label>
-    </Panel>
-  )
-}
-
-const WithdrawPanel = ({
+export const WithdrawPanel = ({
   poolMemberData,
   pool,
   pools,
@@ -613,5 +527,3 @@ const WithdrawPanel = ({
     </PanelView>
   )
 }
-
-export default WithdrawView

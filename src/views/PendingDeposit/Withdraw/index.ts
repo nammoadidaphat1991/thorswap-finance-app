@@ -1,3 +1,1 @@
-import Withdraw from './Withdraw'
-
-export default Withdraw
+export { WithdrawPanel } from './Withdraw'
