@@ -130,6 +130,28 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
 
     try {
       const inputAssetAmount = new AssetAmount(inputAsset, inputAmount)
+
+      const inboundFeeInInputAsset = new AssetAmount(
+        inputAsset,
+        Amount.fromAssetAmount(
+          inboundFee.totalPriceIn(inputAsset, pools).price,
+          inputAsset.decimal,
+        ),
+      )
+
+      const outboundFeeInOutputAsset = outboundFee
+        ? new AssetAmount(
+            outputAsset,
+            Amount.fromAssetAmount(
+              outboundFee.totalPriceIn(outputAsset, pools).price,
+              outputAsset.decimal,
+            ),
+          )
+        : new AssetAmount(
+            outputAsset,
+            Amount.fromAssetAmount(0, outputAsset.decimal),
+          )
+
       return new Swap({
         inputAsset,
         outputAsset,
@@ -137,8 +159,8 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         amount: inputAssetAmount,
         slip: slippageTolerance,
         fee: {
-          inboundFee,
-          outboundFee,
+          inboundFee: inboundFeeInInputAsset,
+          outboundFee: outboundFeeInOutputAsset,
         },
       })
     } catch (error) {

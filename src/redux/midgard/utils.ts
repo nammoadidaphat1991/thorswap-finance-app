@@ -3,7 +3,12 @@ import { MemberPool } from 'midgard-sdk'
 import moment from 'moment'
 import { SupportedChain } from 'multichain-sdk'
 
-import { ChainMemberDetails, ChainMemberData, PoolMemberData } from './types'
+import {
+  ChainMemberDetails,
+  ChainMemberData,
+  PoolMemberData,
+  LiquidityProvider,
+} from './types'
 
 export const getPastDay = () => {
   return moment()
@@ -94,4 +99,12 @@ export const getChainMemberDetails = ({
   }
 
   return chainMemberDetails
+}
+
+export const isPendingLP = (data: LiquidityProvider): boolean => {
+  if (Number(data.pending_asset) > 0 || Number(data.pending_rune) > 0) {
+    return true
+  }
+
+  return false
 }

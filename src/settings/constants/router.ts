@@ -62,3 +62,5 @@ export const WITHDRAW_ROUTE = '/withdraw'
 export const getWithdrawRoute = (asset: Asset) => {
   return `${WITHDRAW_ROUTE}/${asset.toString()}`
 }
+
+export const PENDING_LIQUIDITY_ROUTE = '/pending'

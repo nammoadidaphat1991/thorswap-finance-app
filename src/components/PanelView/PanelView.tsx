@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   BarChartOutlined,
   UnorderedListOutlined,
+  HourglassOutlined,
 } from '@ant-design/icons'
 import { Asset } from 'multichain-sdk'
 
@@ -17,6 +18,7 @@ import {
   getAddLiquidityRoute,
   getWithdrawRoute,
   LIQUIDITY_ROUTE,
+  PENDING_LIQUIDITY_ROUTE,
 } from 'settings/constants'
 
 import { Helmet } from '../Helmet'
@@ -26,7 +28,7 @@ import { Tooltip, CoreButton, ContentTitle } from '../UIElements'
 import * as Styled from './PanelView.style'
 
 export type PanelViewProps = {
-  type: 'swap' | 'add' | 'withdraw' | 'liquidity'
+  type: 'swap' | 'add' | 'withdraw' | 'liquidity' | 'pending'
   meta: string
   poolAsset: Asset
   children: React.ReactNode
@@ -47,6 +49,16 @@ const LiquidityButton = ({ selected }: { selected: boolean }) => (
     <Tooltip tooltip="View Liquidity" placement="top">
       <Styled.MenuIconWrapper selected={selected}>
         <UnorderedListOutlined />
+      </Styled.MenuIconWrapper>
+    </Tooltip>
+  </CoreButton>
+)
+
+const PendingButton = ({ selected }: { selected: boolean }) => (
+  <CoreButton>
+    <Tooltip tooltip="Pending Liquidity" placement="top">
+      <Styled.MenuIconWrapper selected={selected}>
+        <HourglassOutlined />
       </Styled.MenuIconWrapper>
     </Tooltip>
   </CoreButton>
@@ -123,6 +135,12 @@ export const PanelView = ({
             </MenuButton>
             <MenuButton selected={type === 'liquidity'} route={LIQUIDITY_ROUTE}>
               <LiquidityButton selected={type === 'liquidity'} />
+            </MenuButton>
+            <MenuButton
+              selected={type === 'pending'}
+              route={PENDING_LIQUIDITY_ROUTE}
+            >
+              <PendingButton selected={type === 'pending'} />
             </MenuButton>
           </Styled.HeaderMenu>
           <Styled.HeaderActions>

@@ -7,7 +7,7 @@ import { Pool } from 'multichain-sdk'
 
 import * as midgardActions from './actions'
 import { State, TxTracker, TxTrackerStatus } from './types'
-import { getChainMemberDetails } from './utils'
+import { getChainMemberDetails, isPendingLP } from './utils'
 
 const initialState: State = {
   pools: [],
@@ -41,6 +41,8 @@ const initialState: State = {
   approveStatus: {},
   volume24h: null,
   inboundData: [],
+  pendingLP: {},
+  pendingLPLoading: false,
 }
 
 const slice = createSlice({
@@ -427,6 +429,30 @@ const slice = createSlice({
           state.inboundData = action.payload
         },
       )
+      // get pending LP
+      .addCase(midgardActions.getLiquidityProviderData.pending, (state) => {
+        state.pendingLPLoading = true
+      })
+      .addCase(
+        midgardActions.getLiquidityProviderData.fulfilled,
+        (state, action) => {
+          const {
+            arg: { asset },
+          } = action.meta
+          const data = action.payload
+
+          if (data && isPendingLP(data)) {
+            state.pendingLP = {
+              [asset]: data,
+              ...state.pendingLP,
+            }
+          }
+          state.pendingLPLoading = false
+        },
+      )
+      .addCase(midgardActions.getLiquidityProviderData.rejected, (state) => {
+        state.pendingLPLoading = false
+      })
   },
 })
 

@@ -97,6 +97,21 @@ export type ChainMemberDetails = Record<string, ChainMemberData>
 // Record<chainString, boolean>
 export type ChainMemberDetailsLoading = Record<string, boolean>
 
+export type LiquidityProvider = {
+  asset: string
+  rune_address?: string
+  asset_address?: string
+  last_add_height: number
+  units: string
+  pending_rune: string
+  pending_asset: string
+  pending_tx_Id?: string
+  rune_deposit_value: string
+  asset_deposit_value: string
+}
+
+export type PendingLP = Record<string, LiquidityProvider>
+
 export interface State {
   pools: Pool[]
   poolLoading: boolean
@@ -127,4 +142,6 @@ export interface State {
   approveStatus: ApproveStatus
   volume24h: string | null
   inboundData: InboundAddressesItem[]
+  pendingLP: PendingLP
+  pendingLPLoading: boolean
 }

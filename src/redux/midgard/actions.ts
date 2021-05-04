@@ -4,7 +4,11 @@ import { Asset } from 'multichain-sdk'
 
 import { midgardApi } from 'services/midgard'
 import { multichain } from 'services/multichain'
-import { getThorchainMimir, getInboundData } from 'services/thornode'
+import {
+  getThorchainMimir,
+  getInboundData,
+  getLiquidityProvider,
+} from 'services/thornode'
 
 import { SupportedChain } from '../../multichain-sdk/clients/types'
 import { TxTracker } from './types'
@@ -195,6 +199,16 @@ export const getThorchainInboundData = createAsyncThunk(
   'thornode/getInboundData',
   async () => {
     const { data } = await getInboundData()
+
+    return data
+  },
+)
+
+// get liquidity provider
+export const getLiquidityProviderData = createAsyncThunk(
+  'thornode/getLiquidityProvider',
+  async ({ address, asset }: { asset: string; address: string }) => {
+    const { data } = await getLiquidityProvider({ asset, address })
 
     return data
   },
