@@ -121,10 +121,7 @@ export const AddLiquidityPanel = ({
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [poolAsset, wallet])
 
-  const maxPoolAssetBalance: Amount = useMemo(() => getMaxBalance(poolAsset), [
-    poolAsset,
-    getMaxBalance,
-  ])
+  const maxPoolAssetBalance: Amount = assetAmount
 
   const runeBalance: Amount = useMemo(() => {
     if (wallet) {
