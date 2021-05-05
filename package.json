@@ -12,12 +12,12 @@
     "Typescript"
   ],
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "start": "craco start",
+    "build": "craco --max_old_space_size=4096 build",
     "build:dev": "yarn build && yarn release-storybook",
     "deploy": "yarn build && netlify deploy --prod",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "test": "craco test",
+    "eject": "craco eject",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "release-storybook": "build-storybook -o ./build/storybook",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@binance-chain/javascript-sdk": "^4.1.1",
+    "@craco/craco": "^6.1.2",
     "@devexperts/remote-data-ts": "^2.0.5",
     "@polkadot/api": "^4.2.1",
     "@polkadot/util": "^6.0.5",
@@ -143,7 +144,9 @@
     "eslint-watch": "^7.0.0",
     "husky": "^5.0.9",
     "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1"
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "prettier": "^2.2.1",
+    "terser-webpack-plugin": "^5.1.1"
   },
   "husky": {
     "hooks": {
