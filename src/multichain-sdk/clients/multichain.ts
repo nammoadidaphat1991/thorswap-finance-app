@@ -265,7 +265,7 @@ export class MultiChain implements IMultiChain {
         balance: [],
       },
       BCH: {
-        address: this.bch.getClient().getAddress(),
+        address: removeAddressPrefix(this.bch.getClient().getAddress()),
         balance: [],
       },
     }
@@ -332,7 +332,7 @@ export class MultiChain implements IMultiChain {
 
     try {
       const balance = (await chainClient?.loadBalance()) ?? []
-      const address = chainClient.getClient().getAddress()
+      const address = removeAddressPrefix(chainClient.getClient().getAddress())
 
       if (this.wallet && chain in this.wallet) {
         this.wallet = {
@@ -676,8 +676,7 @@ export class MultiChain implements IMultiChain {
           }
         }
         throw Error('invalid rune amount')
-      }
-      if (type === 'sym_asset') {
+      } else if (type === 'sym_asset') {
         if (assetAmount?.gt(0)) {
           const assetTx = await this.transfer({
             assetAmount,
