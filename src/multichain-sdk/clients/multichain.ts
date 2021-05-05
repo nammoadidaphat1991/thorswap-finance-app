@@ -663,27 +663,34 @@ export class MultiChain implements IMultiChain {
       const thorAddress = this.getWalletAddressByChain(THORChain) || ''
 
       // used for sym deposit recovery
-      if (type === 'sym_rune' && runeAmount?.gt(0)) {
-        const runeTx = await this.transfer({
-          assetAmount: runeAmount,
-          recipient: THORCHAIN_POOL_ADDRESS,
-          memo: Memo.depositMemo(pool.asset, assetAddress),
-        })
+      if (type === 'sym_rune') {
+        if (runeAmount?.gt(0)) {
+          const runeTx = await this.transfer({
+            assetAmount: runeAmount,
+            recipient: THORCHAIN_POOL_ADDRESS,
+            memo: Memo.depositMemo(pool.asset, assetAddress),
+          })
 
-        return {
-          runeTx,
+          return {
+            runeTx,
+          }
         }
+        throw Error('invalid rune amount')
       }
-      if (type === 'sym_asset' && assetAmount?.gt(0)) {
-        const runeTx = await this.transfer({
-          assetAmount,
-          recipient: THORCHAIN_POOL_ADDRESS,
-          memo: Memo.depositMemo(pool.asset, assetAddress),
-        })
+      if (type === 'sym_asset') {
+        if (assetAmount?.gt(0)) {
+          const assetTx = await this.transfer({
+            assetAmount,
+            recipient: poolAddress,
+            memo: Memo.depositMemo(pool.asset, thorAddress),
+          })
 
-        return {
-          runeTx,
+          return {
+            assetTx,
+          }
         }
+
+        throw Error('invalid asset amount')
       }
 
       // sym stake

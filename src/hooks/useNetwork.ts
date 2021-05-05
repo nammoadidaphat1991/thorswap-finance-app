@@ -51,10 +51,10 @@ const useNetwork = () => {
   )
 
   const globalRunePooledStatus = maxLiquidityRune.gt(0)
-    ? `TOTAL ${totalPooledRune.toFixed(0)} / ${maxLiquidityRune.toFixed(
+    ? `${totalPooledRune.toFixed(0)} / ${maxLiquidityRune.toFixed(
         0,
       )} RUNE POOLED`
-    : `TOTAL ${totalPooledRune.toFixed(0)} RUNE POOLED`
+    : `${totalPooledRune.toFixed(0)} RUNE POOLED`
 
   return {
     globalRunePooledStatus,
