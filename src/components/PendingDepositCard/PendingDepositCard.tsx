@@ -49,6 +49,14 @@ export const PendingDepositCard = ({
     return `Pending ${pendingRune.toSignificant(6)} RUNE`
   }, [assetName, pendingRune, pendingAsset])
 
+  const pendingAssetName = useMemo(() => {
+    if (pendingAsset.gt(0)) {
+      return 'RUNE'
+    }
+
+    return assetName
+  }, [assetName, pendingAsset])
+
   const solution = useMemo(() => {
     if (pendingAsset.gt(0)) {
       return 'Transaction must be completed by adding RUNE symmetrically'
@@ -100,13 +108,13 @@ export const PendingDepositCard = ({
           description={Amount.fromNormalAmount(data.last_add_height).toFixed(0)}
         />
         <Information
-          title="TIP: Add Sym RUNE to complete"
+          title={`TIP: Add Sym ${pendingAssetName} to complete`}
           description=""
           tooltip={`${solution}, Pending Liquidity is deposited automatically after 7 days of period`}
         />
       </Styled.ShareContent>
     )
-  }, [assetName, data, pendingRune, pendingAsset, solution])
+  }, [assetName, data, pendingRune, pendingAsset, solution, pendingAssetName])
 
   return (
     <Styled.Container>

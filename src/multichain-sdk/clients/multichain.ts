@@ -663,7 +663,7 @@ export class MultiChain implements IMultiChain {
       const thorAddress = this.getWalletAddressByChain(THORChain) || ''
 
       // used for sym deposit recovery
-      if (type === 'sym_rune' && runeAmount?.gt(runeAmount._0_AMOUNT)) {
+      if (type === 'sym_rune' && runeAmount?.gt(0)) {
         const runeTx = await this.transfer({
           assetAmount: runeAmount,
           recipient: THORCHAIN_POOL_ADDRESS,
@@ -674,14 +674,20 @@ export class MultiChain implements IMultiChain {
           runeTx,
         }
       }
+      if (type === 'sym_asset' && assetAmount?.gt(0)) {
+        const runeTx = await this.transfer({
+          assetAmount,
+          recipient: THORCHAIN_POOL_ADDRESS,
+          memo: Memo.depositMemo(pool.asset, assetAddress),
+        })
+
+        return {
+          runeTx,
+        }
+      }
 
       // sym stake
-      if (
-        runeAmount &&
-        runeAmount.gt(runeAmount._0_AMOUNT) &&
-        assetAmount &&
-        assetAmount.gt(assetAmount._0_AMOUNT)
-      ) {
+      if (runeAmount && runeAmount.gt(0) && assetAmount && assetAmount.gt(0)) {
         // 1. send asset tx
         const assetTx = await this.transfer({
           assetAmount,
@@ -704,8 +710,8 @@ export class MultiChain implements IMultiChain {
       }
 
       // asym deposit for asset
-      if (!runeAmount || runeAmount.lte(runeAmount._0_AMOUNT)) {
-        if (!assetAmount || assetAmount.lte(assetAmount._0_AMOUNT)) {
+      if (!runeAmount || runeAmount.lte(0)) {
+        if (!assetAmount || assetAmount.lte(0)) {
           return await Promise.reject(new Error('Invalid Asset Amount'))
         }
 

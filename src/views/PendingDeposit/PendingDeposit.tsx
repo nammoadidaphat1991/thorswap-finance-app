@@ -91,7 +91,22 @@ const PendingDepositView = () => {
     if (!wallet) return null
 
     if (!hasPendingDeposit) {
-      return <Label>You don't have pending deposit.</Label>
+      return (
+        <>
+          <Styled.ToolContainer>
+            <FancyButton
+              size="small"
+              onClick={getPendingDeposit}
+              loading={pendingLPLoading}
+            >
+              Check Pending Deposit
+            </FancyButton>
+          </Styled.ToolContainer>
+          <br />
+          <Label>You don't have any pending deposit.</Label>
+          <Label>It takes some time for the pending deposit to show up.</Label>
+        </>
+      )
     }
 
     return (
@@ -106,13 +121,13 @@ const PendingDepositView = () => {
           </FancyButton>
         </Styled.ToolContainer>
         {Object.keys(pendingLP).map((poolIndex) => {
-          const poolAsset = Asset.fromAssetString(poolIndex)
+          const poolAssetObj = Asset.fromAssetString(poolIndex)
           const data = pendingLP[poolIndex]
 
-          if (!poolAsset) return null
+          if (!poolAssetObj) return null
           return (
             <PendingDepositCard
-              poolAsset={poolAsset}
+              poolAsset={poolAssetObj}
               data={data}
               key={poolIndex}
               onComplete={() => handleComplete(data)}
@@ -133,43 +148,51 @@ const PendingDepositView = () => {
   ])
 
   const renderDeposit = useMemo(() => {
-    if (!option || !wallet) return null
+    if (!option || !wallet || !poolAsset || !pool) return null
 
     const { data } = option
-    const poolAsset = Asset.fromAssetString(data.asset)
 
-    if (poolAsset) {
-      const pool = Pool.byAsset(poolAsset, pools)
+    return (
+      <AddLiquidityPanel
+        pools={pools}
+        pool={pool}
+        assetObj={poolAsset}
+        data={data}
+      />
+    )
+  }, [option, pools, pool, poolAsset, wallet])
 
-      if (pool) {
-        return (
-          <AddLiquidityPanel
-            pools={pools}
-            pool={pool}
-            assetObj={poolAsset}
-            data={data}
-          />
-        )
-      }
+  const pendingAsset = useMemo(() => {
+    if (!option) return null
+    const { data } = option
+    if (Number(data.pending_asset) > 0) {
+      return poolAsset
     }
-  }, [option, pools, wallet])
+
+    return Asset.RUNE()
+  }, [option, poolAsset])
 
   const assetAmount = useMemo(() => {
     if (!option) return null
-    return Amount.fromMidgard(option.data.pending_asset)
+    const { data } = option
+    if (Number(data.pending_asset) > 0) {
+      return Amount.fromMidgard(option.data.pending_asset)
+    }
+
+    return Amount.fromMidgard(option.data.pending_rune)
   }, [option])
 
   const handleConfirmWithdraw = useCallback(async () => {
     if (!poolAsset || !assetAmount || !pool) return null
 
     setVisibleConfirmModal(false)
-    if (wallet) {
+    if (wallet && pendingAsset) {
       const poolAssetString = poolAsset.toString()
       let trackId = ''
       try {
         const outAssets = [
           {
-            asset: poolAsset.toString(),
+            asset: pendingAsset.toString(),
             amount: assetAmount.toSignificant(6),
           },
         ]
@@ -218,6 +241,7 @@ const PendingDepositView = () => {
     wallet,
     pool,
     poolAsset,
+    pendingAsset,
     assetAmount,
     submitTransaction,
     pollTransaction,
@@ -229,7 +253,7 @@ const PendingDepositView = () => {
   }, [])
 
   const renderWithdrawConfirmModalContent = useMemo(() => {
-    if (!assetAmount || !poolAsset) return null
+    if (!assetAmount || !pendingAsset) return null
 
     return (
       <Styled.ConfirmModalContent>
@@ -237,7 +261,7 @@ const PendingDepositView = () => {
           title="Withdraw"
           description={`Pending ${assetAmount.toSignificant(
             6,
-          )} ${poolAsset.ticker.toUpperCase()}`}
+          )} ${pendingAsset.ticker.toUpperCase()}`}
         />
         <Information
           title="Transaction Fee"
@@ -246,7 +270,7 @@ const PendingDepositView = () => {
         />
       </Styled.ConfirmModalContent>
     )
-  }, [poolAsset, assetAmount])
+  }, [pendingAsset, assetAmount])
 
   return (
     <PanelView meta="Pending Deposit" poolAsset={Asset.BTC()} type="pending">

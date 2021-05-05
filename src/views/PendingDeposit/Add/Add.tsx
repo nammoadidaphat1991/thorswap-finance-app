@@ -11,7 +11,6 @@ import {
   FancyButton,
 } from 'components'
 import {
-  getInputAssetsForAdd,
   Amount,
   Asset,
   getAssetBalance,
@@ -21,12 +20,14 @@ import {
   AssetAmount,
   Percent,
   getEstimatedTxTime,
+  SupportedChain,
 } from 'multichain-sdk'
 
 import { LiquidityProvider, TxTrackerType } from 'redux/midgard/types'
 
 import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
+import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -57,21 +58,36 @@ export const AddLiquidityPanel = ({
 
   const { isFundsCapReached } = useMimir()
 
-  const inputAssets = useMemo(() => getInputAssetsForAdd({ wallet, pools }), [
-    wallet,
-    pools,
-  ])
+  const { inboundFee } = useNetworkFee({
+    inputAsset: pool.asset,
+  })
 
-  const assetAmount = Amount.fromMidgard(data.pending_asset)
+  const isAssetPending = useMemo(() => Number(data.pending_asset) > 0, [data])
+
+  const pendingAmount = useMemo(() => {
+    if (Number(data.pending_asset) > 0) {
+      return Amount.fromMidgard(data.pending_asset)
+    }
+
+    return Amount.fromMidgard(data.pending_rune)
+  }, [data])
+
+  const [assetAmount, setAssetAmount] = useState<Amount>(
+    isAssetPending ? pendingAmount : Amount.fromAssetAmount(0, 8),
+  )
   const [runeAmount, setRuneAmount] = useState<Amount>(
-    Amount.fromAssetAmount(0, 8),
+    !isAssetPending ? pendingAmount : Amount.fromAssetAmount(0, 8),
   )
   const [percent, setPercent] = useState(0)
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
 
   const feeLabel = useMemo(() => {
-    return '0.02 RUNE'
-  }, [])
+    if (!isAssetPending) {
+      return '0.02 RUNE'
+    }
+
+    return `${inboundFee.toCurrencyFormat()}`
+  }, [isAssetPending, inboundFee])
 
   const liquidityUnits = useMemo(() => {
     return Amount.fromMidgard(data.units)
@@ -121,7 +137,10 @@ export const AddLiquidityPanel = ({
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [poolAsset, wallet])
 
-  const maxPoolAssetBalance: Amount = assetAmount
+  const maxPoolAssetBalance: Amount = useMemo(
+    () => (isAssetPending ? pendingAmount : getMaxBalance(poolAsset)),
+    [poolAsset, getMaxBalance, isAssetPending, pendingAmount],
+  )
 
   const runeBalance: Amount = useMemo(() => {
     if (wallet) {
@@ -132,11 +151,12 @@ export const AddLiquidityPanel = ({
     return Amount.fromAssetAmount(10 ** 3, 8)
   }, [wallet])
 
-  const maxRuneBalance: Amount = useMemo(() => getMaxBalance(Asset.RUNE()), [
-    getMaxBalance,
-  ])
+  const maxRuneBalance: Amount = useMemo(
+    () => (!isAssetPending ? pendingAmount : getMaxBalance(Asset.RUNE())),
+    [getMaxBalance, isAssetPending, pendingAmount],
+  )
 
-  const { maxSymRuneAmount } = getMaxSymAmounts({
+  const { maxSymAssetAmount, maxSymRuneAmount } = getMaxSymAmounts({
     runeAmount: maxRuneBalance,
     assetAmount: maxPoolAssetBalance,
     pool,
@@ -145,90 +165,167 @@ export const AddLiquidityPanel = ({
   const handleChangePercent = useCallback(
     (p: number) => {
       setPercent(p)
-      setRuneAmount(maxSymRuneAmount.mul(p).div(100))
-    },
-    [maxSymRuneAmount],
-  )
 
-  const handleChangeRuneAmount = useCallback(
-    (amount: Amount) => {
-      const maxAmount = maxSymRuneAmount
-      if (amount.gt(maxAmount)) {
-        setRuneAmount(maxAmount)
+      if (isAssetPending) {
+        setRuneAmount(maxSymRuneAmount.mul(p).div(100))
       } else {
-        setRuneAmount(amount)
-        setPercent(amount.div(maxAmount).mul(100).assetAmount.toNumber())
+        setAssetAmount(maxSymAssetAmount.mul(p).div(100))
       }
     },
-    [maxSymRuneAmount],
+    [maxSymRuneAmount, maxSymAssetAmount, isAssetPending],
+  )
+
+  const handleChangePendingAmount = useCallback(
+    (amount: Amount) => {
+      if (isAssetPending) {
+        const maxAmount = maxSymRuneAmount
+        if (amount.gt(maxAmount)) {
+          setRuneAmount(maxAmount)
+        } else {
+          setRuneAmount(amount)
+          setPercent(amount.div(maxAmount).mul(100).assetAmount.toNumber())
+        }
+      } else {
+        const maxAmount = maxSymAssetAmount
+        if (amount.gt(maxAmount)) {
+          setAssetAmount(maxAmount)
+        } else {
+          setAssetAmount(amount)
+          setPercent(amount.div(maxAmount).mul(100).assetAmount.toNumber())
+        }
+      }
+    },
+    [isAssetPending, maxSymRuneAmount, maxSymAssetAmount],
   )
 
   const handleConfirmAdd = useCallback(async () => {
     setVisibleConfirmModal(false)
     if (wallet) {
-      const runeAssetAmount = new AssetAmount(Asset.RUNE(), runeAmount)
-      const poolAssetAmount = undefined
+      if (isAssetPending) {
+        const runeAssetAmount = new AssetAmount(Asset.RUNE(), runeAmount)
+        const poolAssetAmount = undefined
 
-      const inAssets = []
-      inAssets.push({
-        asset: Asset.RUNE().toString(),
-        amount: runeAmount.toSignificant(6),
-      })
-      // register to tx tracker
-      const trackId = submitTransaction({
-        type: TxTrackerType.AddLiquidity,
-        submitTx: {
-          inAssets,
-          outAssets: [],
-          poolAsset: poolAsset.ticker,
-        },
-      })
-
-      try {
-        const txRes = await multichain.addLiquidity(
-          {
-            pool,
-            runeAmount: runeAssetAmount,
-            assetAmount: poolAssetAmount,
-          },
-          'sym_rune',
-        )
-
-        const runeTxHash = txRes?.runeTx
-        const assetTxHash = txRes?.assetTx
-
-        if (runeTxHash || assetTxHash) {
-          // start polling
-          pollTransaction({
-            type: TxTrackerType.AddLiquidity,
-            uuid: trackId,
-            submitTx: {
-              inAssets,
-              outAssets: [],
-              txID: runeTxHash || assetTxHash,
-              addTx: {
-                runeTxID: runeTxHash,
-                assetTxID: assetTxHash,
-              },
-              poolAsset: poolAsset.ticker,
-            },
-          })
-        }
-      } catch (error) {
-        setTxFailed(trackId)
-        Notification({
-          type: 'error',
-          message: 'Submit Transaction Failed.',
-          duration: 20,
+        const inAssets = []
+        inAssets.push({
+          asset: Asset.RUNE().toString(),
+          amount: runeAmount.toSignificant(6),
         })
-        console.log(error)
+        // register to tx tracker
+        const trackId = submitTransaction({
+          type: TxTrackerType.AddLiquidity,
+          submitTx: {
+            inAssets,
+            outAssets: [],
+            poolAsset: poolAsset.ticker,
+          },
+        })
+
+        try {
+          const txRes = await multichain.addLiquidity(
+            {
+              pool,
+              runeAmount: runeAssetAmount,
+              assetAmount: poolAssetAmount,
+            },
+            'sym_rune',
+          )
+
+          const runeTxHash = txRes?.runeTx
+          const assetTxHash = txRes?.assetTx
+
+          if (runeTxHash || assetTxHash) {
+            // start polling
+            pollTransaction({
+              type: TxTrackerType.AddLiquidity,
+              uuid: trackId,
+              submitTx: {
+                inAssets,
+                outAssets: [],
+                txID: runeTxHash || assetTxHash,
+                addTx: {
+                  runeTxID: runeTxHash,
+                  assetTxID: assetTxHash,
+                },
+                poolAsset: poolAsset.ticker,
+              },
+            })
+          }
+        } catch (error) {
+          setTxFailed(trackId)
+          Notification({
+            type: 'error',
+            message: 'Submit Transaction Failed.',
+            duration: 20,
+          })
+          console.log(error)
+        }
+      } else {
+        const runeAssetAmount = undefined
+        const poolAssetAmount = new AssetAmount(poolAsset, assetAmount)
+
+        const inAssets = []
+        inAssets.push({
+          asset: poolAsset.toString(),
+          amount: assetAmount.toSignificant(6),
+        })
+        // register to tx tracker
+        const trackId = submitTransaction({
+          type: TxTrackerType.AddLiquidity,
+          submitTx: {
+            inAssets,
+            outAssets: [],
+            poolAsset: poolAsset.ticker,
+          },
+        })
+
+        try {
+          const txRes = await multichain.addLiquidity(
+            {
+              pool,
+              runeAmount: runeAssetAmount,
+              assetAmount: poolAssetAmount,
+            },
+            'sym_asset',
+          )
+
+          const runeTxHash = txRes?.runeTx
+          const assetTxHash = txRes?.assetTx
+
+          if (runeTxHash || assetTxHash) {
+            // start polling
+            pollTransaction({
+              type: TxTrackerType.AddLiquidity,
+              uuid: trackId,
+              submitTx: {
+                inAssets,
+                outAssets: [],
+                txID: runeTxHash || assetTxHash,
+                addTx: {
+                  runeTxID: runeTxHash,
+                  assetTxID: assetTxHash,
+                },
+                poolAsset: poolAsset.ticker,
+              },
+            })
+          }
+        } catch (error) {
+          setTxFailed(trackId)
+          Notification({
+            type: 'error',
+            message: 'Submit Transaction Failed.',
+            duration: 20,
+          })
+          console.log(error)
+        }
       }
     }
   }, [
+    isAssetPending,
     wallet,
     pool,
     poolAsset,
     runeAmount,
+    assetAmount,
     submitTransaction,
     pollTransaction,
     setTxFailed,
@@ -262,11 +359,18 @@ export const AddLiquidityPanel = ({
   }, [wallet, isFundsCapReached])
 
   const renderConfirmModalContent = useMemo(() => {
-    const title = `${runeAmount.toSignificant(6)} RUNE`
-    const estimatedTime = getEstimatedTxTime({
-      chain: THORChain,
-      amount: runeAmount,
-    })
+    const title = isAssetPending
+      ? `${runeAmount.toSignificant(6)} RUNE`
+      : `${assetAmount.toSignificant(6)} ${poolAsset.ticker}`
+    const estimatedTime = isAssetPending
+      ? getEstimatedTxTime({
+          chain: THORChain,
+          amount: runeAmount,
+        })
+      : getEstimatedTxTime({
+          chain: poolAsset.chain as SupportedChain,
+          amount: assetAmount,
+        })
 
     return (
       <Styled.ConfirmModalContent>
@@ -294,7 +398,15 @@ export const AddLiquidityPanel = ({
         />
       </Styled.ConfirmModalContent>
     )
-  }, [runeAmount, addLiquiditySlip, poolShareEst, feeLabel])
+  }, [
+    runeAmount,
+    addLiquiditySlip,
+    poolShareEst,
+    feeLabel,
+    isAssetPending,
+    poolAsset,
+    assetAmount,
+  ])
 
   const isAddLiquidityValid = useMemo(() => {
     return runeAmount.gt(0)
@@ -305,11 +417,10 @@ export const AddLiquidityPanel = ({
       <AssetInputCard
         title="Pending"
         asset={poolAsset}
-        assets={inputAssets}
         amount={assetAmount}
         balance={poolAssetBalance}
         usdPrice={poolAssetPriceInUSD}
-        inputProps={{ disabled: true }}
+        inputProps={{ disabled: isAssetPending }}
         selectDisabled
       />
       <Styled.ToolContainer>
@@ -327,7 +438,8 @@ export const AddLiquidityPanel = ({
         usdPrice={runeAssetPriceInUSD}
         selectDisabled
         balance={runeBalance}
-        onChange={handleChangeRuneAmount}
+        onChange={handleChangePendingAmount}
+        inputProps={{ disabled: !isAssetPending }}
       />
 
       <Styled.DetailContent>

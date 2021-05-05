@@ -441,11 +441,13 @@ const slice = createSlice({
           } = action.meta
           const data = action.payload
 
-          if (data && isPendingLP(data)) {
+          if (isPendingLP(data)) {
             state.pendingLP = {
               [asset]: data,
               ...state.pendingLP,
             }
+          } else {
+            delete state.pendingLP?.[asset]
           }
           state.pendingLPLoading = false
         },
