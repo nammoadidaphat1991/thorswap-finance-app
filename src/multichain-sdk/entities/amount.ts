@@ -251,6 +251,21 @@ export class Amount implements IAmount {
   ): string {
     return this.toFixedDecimal(decimalPlaces, format, rounding)
   }
+
+  toAbbreviate(decimalPlaces = 8): string {
+    let newValue = this.assetAmount.toNumber()
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'Q', 'Q', 's']
+    let suffixNum = 0
+
+    while (newValue >= 1000) {
+      newValue /= 1000
+      suffixNum++
+    }
+
+    return `${newValue.toFixed(decimalPlaces)}${
+      suffixNum > 0 ? ` ${suffixes[suffixNum]}` : ''
+    }`
+  }
 }
 
 export const formatBigNumber = (

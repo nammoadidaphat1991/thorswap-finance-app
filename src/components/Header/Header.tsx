@@ -89,8 +89,8 @@ export const Header = () => {
       </Styled.HeaderLogo>
 
       <Styled.HeaderCenterWrapper>
-        <Label weight="bold">
-          {globalRunePooledStatus} {!isValidFundCaps && '(Funds Cap Reached)'}
+        <Label color={isValidFundCaps ? 'primary' : 'warning'} weight="bold">
+          {globalRunePooledStatus} {!isValidFundCaps ? '#RAISETHECAPS' : '🚀'}
         </Label>
       </Styled.HeaderCenterWrapper>
 
