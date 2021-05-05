@@ -1,3 +1,4 @@
+// https://github.com/gsoft-inc/craco/issues/44#issuecomment-573554956
 module.exports = {
   plugins: [
     {
