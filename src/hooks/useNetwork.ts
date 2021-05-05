@@ -51,10 +51,10 @@ const useNetwork = () => {
   )
 
   const globalRunePooledStatus = maxLiquidityRune.gt(0)
-    ? `${totalPooledRune.toAbbreviate(0)} / ${maxLiquidityRune.toAbbreviate(
-        0,
+    ? `${totalPooledRune.toAbbreviate(2)} / ${maxLiquidityRune.toAbbreviate(
+        2,
       )} RUNE POOLED`
-    : `${totalPooledRune.toAbbreviate(0)} RUNE POOLED`
+    : `${totalPooledRune.toAbbreviate(2)} RUNE POOLED`
 
   return {
     globalRunePooledStatus,
