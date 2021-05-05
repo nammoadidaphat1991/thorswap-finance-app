@@ -154,13 +154,15 @@ export class BchChain implements IBchChain {
       const feeRates = await this.client.getFeeRates()
       const feeRate = feeRates[feeOptionKey]
 
-      return await this.client.transfer({
+      const hash = await this.client.transfer({
         asset: asset.getAssetObj(),
         amount,
         recipient,
         memo,
         feeRate,
       })
+
+      return hash
     } catch (error) {
       return Promise.reject(error)
     }

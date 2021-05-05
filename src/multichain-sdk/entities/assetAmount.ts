@@ -94,11 +94,11 @@ export class AssetAmount extends Amount implements IAssetAmount {
         Amount.fromBaseAmount(1, Asset.RUNE().decimal),
       )
     }
-    // 0 ETH
+    // 10 gwei ETH
     if (chain === ETHChain) {
       return new AssetAmount(
         Asset.ETH(),
-        Amount.fromBaseAmount(0, Asset.ETH().decimal),
+        Amount.fromBaseAmount(10 * 10 ** 9, Asset.ETH().decimal),
       )
     }
 

@@ -334,7 +334,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           message: 'Submit Transaction Failed.',
           duration: 20,
         })
-        window.alert(error)
         console.log(error)
       }
     }
