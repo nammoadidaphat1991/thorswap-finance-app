@@ -276,6 +276,9 @@ export class EthChain implements IEthChain {
 
   loadBalance = async (): Promise<AssetAmount[]> => {
     try {
+      const address = this.client.getAddress()
+      const ethBalance = await this.client.getProvider().getBalance(address)
+
       let balances: Balance[] = await this.client.getBalance(
         this.client.getAddress(),
         this.client.getNetwork() === 'testnet' ? ETHAssets : undefined,
@@ -292,11 +295,17 @@ export class EthChain implements IEthChain {
           // set asset decimal
           await assetObj.setDecimal()
 
-          const amountObj = new Amount(
-            amount.amount(),
-            AmountType.BASE_AMOUNT,
-            assetObj.decimal,
-          )
+          const amountObj = assetObj.isETH()
+            ? new Amount(
+                new BigNumber(ethBalance.toString()),
+                AmountType.BASE_AMOUNT,
+                assetObj.decimal,
+              )
+            : new Amount(
+                amount.amount(),
+                AmountType.BASE_AMOUNT,
+                assetObj.decimal,
+              )
 
           return new AssetAmount(assetObj, amountObj)
         }),

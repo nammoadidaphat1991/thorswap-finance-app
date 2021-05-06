@@ -1,3 +1,4 @@
+// this config is intended to fix BCH transfer issues due to minifying JS after build
 // https://github.com/gsoft-inc/craco/issues/44#issuecomment-573554956
 module.exports = {
   plugins: [

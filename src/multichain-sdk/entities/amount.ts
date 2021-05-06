@@ -105,6 +105,9 @@ export class Amount implements IAmount {
       this.assetAmount = new BigNumber(amount)
       this.baseAmount = this.assetAmount.multipliedBy(decimalAmount)
     }
+
+    // remove decimal points for baseAmount
+    this.baseAmount = new BigNumber(this.baseAmount.toFixed(0))
   }
 
   get _0_AMOUNT() {
