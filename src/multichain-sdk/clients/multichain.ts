@@ -543,12 +543,14 @@ export class MultiChain implements IMultiChain {
       return this.thor.deposit(tx)
     }
 
+    // set fastest fee option key for eth
     // deposit contract for eth chain
     if (chain === ETHChain) {
       if (tx.router) {
         return this.eth.deposit({
           ...tx,
           router: tx.router,
+          feeOptionKey: 'fastest',
         })
       }
       throw new Error('Invalid ETH Router')
