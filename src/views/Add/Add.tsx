@@ -31,6 +31,7 @@ import {
   SupportedChain,
 } from 'multichain-sdk'
 
+import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 import { TxTrackerType } from 'redux/midgard/types'
 
@@ -105,6 +106,7 @@ const AddLiquidityPanel = ({
   pools: Pool[]
 }) => {
   const history = useHistory()
+  const { expertMode } = useApp()
   const { wallet, getMaxBalance } = useBalance()
   const { getAllMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
@@ -120,8 +122,9 @@ const AddLiquidityPanel = ({
     LiquidityTypeOption.SYMMETRICAL,
   )
   const isSymDeposit = useMemo(
-    () => liquidityType === LiquidityTypeOption.SYMMETRICAL,
-    [liquidityType],
+    () =>
+      liquidityType === LiquidityTypeOption.SYMMETRICAL && expertMode === 'off',
+    [liquidityType, expertMode],
   )
 
   const [assetAmount, setAssetAmount] = useState<Amount>(
@@ -287,7 +290,9 @@ const AddLiquidityPanel = ({
     (p: number) => {
       setPercent(p)
 
-      if (isSymDeposit) {
+      if (expertMode === 'on') {
+        setAssetAmount(maxSymAssetAmount.mul(p).div(100))
+      } else if (isSymDeposit) {
         setAssetAmount(maxSymAssetAmount.mul(p).div(100))
         setRuneAmount(maxSymRuneAmount.mul(p).div(100))
       } else if (liquidityType === LiquidityTypeOption.ASSET) {
@@ -297,6 +302,7 @@ const AddLiquidityPanel = ({
       }
     },
     [
+      expertMode,
       maxRuneBalance,
       maxSymAssetAmount,
       maxSymRuneAmount,

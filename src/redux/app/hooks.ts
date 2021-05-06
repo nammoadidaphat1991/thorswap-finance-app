@@ -9,7 +9,7 @@ import { Asset } from 'multichain-sdk'
 import { actions } from 'redux/app/slice'
 import { RootState } from 'redux/store'
 
-import { FeeOptions } from './types'
+import { FeeOptions, ExpertOptions } from './types'
 
 export const useApp = () => {
   const dispatch = useDispatch()
@@ -51,6 +51,13 @@ export const useApp = () => {
     [dispatch],
   )
 
+  const setExpertMode = useCallback(
+    (mode: ExpertOptions) => {
+      dispatch(actions.setExpertMode(mode))
+    },
+    [dispatch],
+  )
+
   const setReadStatus = useCallback(
     (readStatus: boolean) => {
       dispatch(actions.setReadStatus(readStatus))
@@ -60,6 +67,7 @@ export const useApp = () => {
 
   return {
     ...appState,
+    ExpertOptions,
     FeeOptions,
     baseCurrencyAsset,
     setTheme,
@@ -68,5 +76,6 @@ export const useApp = () => {
     setSlippage,
     setFeeOptionType,
     setReadStatus,
+    setExpertMode,
   }
 }

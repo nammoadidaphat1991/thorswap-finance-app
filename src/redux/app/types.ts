@@ -7,6 +7,10 @@ export enum FeeOptions {
   'fastest' = 'fastest',
 }
 
+export enum ExpertOptions {
+  'on' = 'on',
+  'off' = 'off',
+}
 export interface State {
   themeType: ThemeType
   baseCurrency: string
@@ -14,4 +18,5 @@ export interface State {
   slippageTolerance: number
   feeOptionType: FeeOptionKey
   showAnnouncement: boolean
+  expertMode: ExpertOptions
 }

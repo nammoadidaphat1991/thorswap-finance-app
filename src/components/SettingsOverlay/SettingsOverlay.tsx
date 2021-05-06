@@ -87,6 +87,9 @@ export const SettingsOverlay = () => {
     slippageTolerance,
     feeOptionType,
     FeeOptions,
+    expertMode,
+    ExpertOptions,
+    setExpertMode,
     setSlippage,
     setFeeOptionType,
   } = useApp()
@@ -148,6 +151,29 @@ export const SettingsOverlay = () => {
                 focused={feeOptionType === FeeOptions.fastest}
               >
                 Fastest
+              </StyledToggleBtn>
+            </StyledRow>
+          </StyledCol>
+          <StyledCol>
+            <StyledRow>
+              <Label>Expert Mode</Label>
+              <Question
+                tooltip="You are able to pool RUNE + Asset with the dynamic ratio in Expert Mode"
+                placement="top"
+              />
+            </StyledRow>
+            <StyledRow>
+              <StyledToggleBtn
+                onClick={() => setExpertMode(ExpertOptions.on)}
+                focused={expertMode === ExpertOptions.on}
+              >
+                On
+              </StyledToggleBtn>
+              <StyledToggleBtn
+                onClick={() => setExpertMode(ExpertOptions.off)}
+                focused={expertMode === ExpertOptions.off}
+              >
+                Off
               </StyledToggleBtn>
             </StyledRow>
           </StyledCol>

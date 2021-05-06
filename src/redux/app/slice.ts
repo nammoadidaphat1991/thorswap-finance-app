@@ -15,7 +15,7 @@ import {
 
 import { DEFAULT_SLIPPAGE_TOLERANCE } from 'settings/constants/global'
 
-import { State } from './types'
+import { ExpertOptions, State } from './types'
 
 const defaultTheme = getTheme()
 
@@ -26,6 +26,7 @@ const initialState: State = {
   isSettingOpen: false,
   slippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
   feeOptionType: 'fast',
+  expertMode: ExpertOptions.off,
 }
 
 const slice = createSlice({
@@ -57,6 +58,9 @@ const slice = createSlice({
     },
     setFeeOptionType(state, action: PayloadAction<FeeOptionKey>) {
       state.feeOptionType = action.payload
+    },
+    setExpertMode(state, action: PayloadAction<ExpertOptions>) {
+      state.expertMode = action.payload
     },
     setReadStatus(state, action: PayloadAction<boolean>) {
       state.showAnnouncement = !action.payload
