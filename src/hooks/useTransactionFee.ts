@@ -36,7 +36,7 @@ const useTransactionFee = (
           } else if (txParam) {
             const {
               router: ethPoolAddress,
-            } = await multichain.getPoolAddressDataByChain(ETHChain)
+            } = await multichain.getInboundDataByChain(ETHChain)
 
             if (ethPoolAddress) {
               const feeValue = await multichain.getFees(asset.chain, {

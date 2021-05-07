@@ -148,18 +148,25 @@ export class BchChain implements IBchChain {
   transfer = async (tx: TxParams): Promise<TxHash> => {
     // use xchainjs-client standard internally
     try {
-      const { assetAmount, recipient, memo, feeOptionKey = 'fast' } = tx
+      const {
+        assetAmount,
+        recipient,
+        memo,
+        feeRate,
+        feeOptionKey = 'fast',
+      } = tx
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
-      const feeRates = await this.client.getFeeRates()
-      const feeRate = feeRates[feeOptionKey]
+
+      const feeRateValue =
+        feeRate || (await this.client.getFeeRates())[feeOptionKey]
 
       const hash = await this.client.transfer({
         asset: asset.getAssetObj(),
         amount,
         recipient,
         memo,
-        feeRate,
+        feeRate: feeRateValue,
       })
 
       return hash

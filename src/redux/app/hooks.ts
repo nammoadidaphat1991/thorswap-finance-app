@@ -9,6 +9,8 @@ import { Asset } from 'multichain-sdk'
 import { actions } from 'redux/app/slice'
 import { RootState } from 'redux/store'
 
+import { multichain } from 'services/multichain'
+
 import { FeeOptions, ExpertOptions } from './types'
 
 export const useApp = () => {
@@ -46,6 +48,8 @@ export const useApp = () => {
 
   const setFeeOptionType = useCallback(
     (feeOption: FeeOptionKey) => {
+      // set feeOption for multichain client
+      multichain.setFeeOption(feeOption)
       dispatch(actions.setFeeOptionType(feeOption))
     },
     [dispatch],

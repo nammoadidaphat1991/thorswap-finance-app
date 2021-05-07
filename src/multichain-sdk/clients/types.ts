@@ -19,6 +19,7 @@ export type TxParams = {
   recipient: string
   memo?: string
   feeOptionKey?: FeeOptionKey
+  feeRate?: number
 }
 
 export type MultiSendParams = {
@@ -69,6 +70,7 @@ export type Wallet = Record<SupportedChain, ChainWallet>
 export type ApproveParams = {
   spender: string
   sender: string
+  feeOptionKey?: FeeOptionKey
 }
 
 export type DepositParams = TxParams & {

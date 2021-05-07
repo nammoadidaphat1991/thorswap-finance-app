@@ -19,6 +19,7 @@ import {
 } from '@xchainjs/xchain-util'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 
 import { ETH_DECIMAL } from 'multichain-sdk/constants'
 
@@ -34,6 +35,11 @@ import { TCRopstenAbi } from '../constants/thorchain-ropsten.abi'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
 import { TxParams, ApproveParams, DepositParams } from './types'
+
+// from https://github.com/MetaMask/metamask-extension/blob/ee205b893fe61dc4736efc576e0663189a9d23da/ui/app/pages/send/send.constants.js#L39
+// and based on recommendations of https://ethgasstation.info/blog/gas-limit/
+export const SIMPLE_GAS_COST: ethers.BigNumber = BN.from(21000)
+export const BASE_TOKEN_GAS_COST: ethers.BigNumber = BN.from(100000)
 
 export interface IEthChain extends IClient {
   getClient(): EthClient
@@ -191,7 +197,6 @@ export class EthChain implements IEthChain {
         const isETHAddress = assetAddress === ETHAddress
 
         // feeOptionKey
-
         const defaultGasLimit: ethers.BigNumber = isETHAddress
           ? BN.from(21000)
           : BN.from(100000)
@@ -357,16 +362,42 @@ export class EthChain implements IEthChain {
   transfer = async (tx: TxParams): Promise<TxHash> => {
     // use xchainjs-client standard internally
     try {
-      const { assetAmount, recipient, memo, feeOptionKey = 'fast' } = tx
+      const {
+        assetAmount,
+        recipient,
+        memo,
+        feeRate,
+        feeOptionKey = 'fast',
+      } = tx
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
+
+      // estimate gas limit
+      const defaultGasLimit: ethers.BigNumber = asset.isETH()
+        ? SIMPLE_GAS_COST
+        : BASE_TOKEN_GAS_COST
+
+      const gasLimit = await this.client
+        .estimateGasLimit({ asset, recipient, amount, memo })
+        .catch(() => defaultGasLimit)
+
+      const feeParam = feeRate
+        ? {
+            gasLimit,
+            gasPrice: baseAmount(
+              parseUnits(String(feeRate), 'gwei').toString(),
+              ETH_DECIMAL,
+            ),
+          }
+        : { feeOptionKey }
 
       const txHash = await this.client.transfer({
         asset: asset.getAssetObj(),
         amount,
         recipient,
         memo,
-        feeOptionKey,
+        gasLimit,
+        ...feeParam,
       })
 
       return txHash
@@ -380,6 +411,7 @@ export class EthChain implements IEthChain {
       assetAmount,
       recipient,
       memo,
+      feeRate,
       feeOptionKey = 'fast',
       router,
     } = params
@@ -394,11 +426,12 @@ export class EthChain implements IEthChain {
 
     const checkSummedAddress = this.getCheckSumAddress(asset)
 
-    // get estimated gas price
-    const gasAmount = await this.client.estimateGasPrices()
-
     // get gas amount based on the fee option
-    const gasPrice = gasAmount[feeOptionKey].amount().toFixed(0)
+    const gasPrice = feeRate
+      ? parseUnits(String(feeRate), 'gwei').toString()
+      : (await this.client.estimateGasPrices())[feeOptionKey]
+          .amount()
+          .toFixed(0)
 
     const contractParams = [
       recipient, // vault address
@@ -440,8 +473,16 @@ export class EthChain implements IEthChain {
    * @param param0 approve params
    * @returns approved status
    */
-  approve = async ({ spender, sender }: ApproveParams): Promise<TxHash> => {
-    const response = await this.client.approve({ spender, sender })
+  approve = async ({
+    spender,
+    sender,
+    feeOptionKey = 'fast',
+  }: ApproveParams): Promise<TxHash> => {
+    const response = await this.client.approve({
+      spender,
+      sender,
+      feeOptionKey,
+    })
 
     return response.hash
   }

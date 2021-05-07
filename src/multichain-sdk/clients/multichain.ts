@@ -5,6 +5,7 @@ import {
   TxsPage,
   TxHistoryParams,
   Tx,
+  FeeOptionKey,
 } from '@xchainjs/xchain-client'
 import { decryptFromKeystore, Keystore } from '@xchainjs/xchain-crypto'
 import { getTokenAddress } from '@xchainjs/xchain-ethereum'
@@ -26,6 +27,7 @@ import {
 
 import { XdefiClient } from '../../xdefi-sdk/xdefi'
 import { Swap, Memo, Asset, AssetAmount } from '../entities'
+import { getFeeRate } from '../utils/fee'
 import { removeAddressPrefix } from '../utils/wallet'
 import { BnbChain } from './binance'
 import { BtcChain } from './bitcoin'
@@ -33,6 +35,7 @@ import { BchChain } from './bitcoinCash'
 import { EthChain } from './ethereum'
 import { LtcChain } from './litecoin'
 import { ThorChain } from './thorchain'
+import { getInboundDataByChain } from './thornode'
 import {
   TxParams,
   AddLiquidityParams,
@@ -66,6 +69,8 @@ export interface IMultiChain {
   ltc: LtcChain
   bch: BchChain
 
+  feeOption: FeeOptionKey
+
   resetClients(): void
   getWalletType(): WalletType
   setWalletType(type: WalletType): void
@@ -81,7 +86,7 @@ export interface IMultiChain {
 
   getChainClient(chain: Chain): void
 
-  getPoolAddressDataByChain(chain: Chain): Promise<InboundAddressesItem>
+  getInboundDataByChain(chain: Chain): Promise<InboundAddressesItem>
 
   getWalletByChain(chain: Chain): Promise<ChainWallet>
   loadAllWallets(): Promise<Wallet | null>
@@ -102,6 +107,7 @@ export interface IMultiChain {
   getTransactions(chain: Chain, params?: TxHistoryParams): Promise<TxsPage>
   getTransactionData(chain: Chain, txHash: string): Promise<Tx>
 
+  setFeeOption(option: FeeOptionKey): void
   getFees(chain: Chain): Promise<Fees>
 
   isAssetApproved(asset: Asset): Promise<boolean>
@@ -141,6 +147,8 @@ export class MultiChain implements IMultiChain {
   public bch: BchChain
 
   public ltc: LtcChain
+
+  public feeOption: FeeOptionKey = 'fast'
 
   constructor({
     network = 'testnet',
@@ -292,7 +300,7 @@ export class MultiChain implements IMultiChain {
     return this.midgard
   }
 
-  getPoolAddressDataByChain = async (
+  getInboundDataByChain = async (
     chain: Chain,
   ): Promise<InboundAddressesItem> => {
     try {
@@ -306,9 +314,9 @@ export class MultiChain implements IMultiChain {
         }
       }
 
-      const poolAddress = await this.midgard.getInboundDataByChain(chain)
+      const inboundData = await getInboundDataByChain(chain, this.network)
 
-      return poolAddress
+      return inboundData
     } catch (error) {
       return Promise.reject(error)
     }
@@ -464,6 +472,10 @@ export class MultiChain implements IMultiChain {
     return chainClient.getClient().getTransactionData(txHash)
   }
 
+  setFeeOption = (option: FeeOptionKey) => {
+    this.feeOption = option
+  }
+
   getFees = (chain: Chain, tx?: TxParams): Promise<Fees> => {
     const chainClient = this.getChainClient(chain)
     if (!chainClient) throw new Error('invalid chain')
@@ -491,7 +503,7 @@ export class MultiChain implements IMultiChain {
   isAssetApproved = async (asset: Asset): Promise<boolean> => {
     if (asset.chain !== ETHChain || asset.isETH()) return true
 
-    const { router } = await this.getPoolAddressDataByChain(ETHChain)
+    const { router } = await this.getInboundDataByChain(ETHChain)
 
     const assetAddress = getTokenAddress(asset.getAssetObj())
 
@@ -510,7 +522,7 @@ export class MultiChain implements IMultiChain {
   approveAsset = async (asset: Asset): Promise<TxHash | null> => {
     if (asset.chain !== ETHChain || asset.isETH()) return null
 
-    const { router } = await this.getPoolAddressDataByChain(ETHChain)
+    const { router } = await this.getInboundDataByChain(ETHChain)
 
     const assetAddress = getTokenAddress(asset.getAssetObj())
 
@@ -543,14 +555,12 @@ export class MultiChain implements IMultiChain {
       return this.thor.deposit(tx)
     }
 
-    // set fastest fee option key for eth
-    // deposit contract for eth chain
+    // call deposit contract for eth chain
     if (chain === ETHChain) {
       if (tx.router) {
         return this.eth.deposit({
           ...tx,
           router: tx.router,
-          feeOptionKey: 'fastest',
         })
       }
       throw new Error('Invalid ETH Router')
@@ -616,10 +626,13 @@ export class MultiChain implements IMultiChain {
 
       const recipientAddress = recipient || walletAddress
 
-      const {
-        address: poolAddress,
-        router,
-      } = await this.getPoolAddressDataByChain(swap.inputAsset.chain)
+      const inboundData = await this.getInboundDataByChain(
+        swap.inputAsset.chain,
+      )
+
+      const { address: poolAddress, router } = inboundData
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
+
       const memo = Memo.swapMemo(
         swap.outputAsset,
         recipientAddress,
@@ -631,6 +644,7 @@ export class MultiChain implements IMultiChain {
         recipient: poolAddress,
         memo,
         router,
+        feeRate: feeRate ? Number(feeRate) : undefined,
       })
     } catch (error) {
       return Promise.reject(error)
@@ -656,10 +670,10 @@ export class MultiChain implements IMultiChain {
       const { pool, runeAmount, assetAmount } = params
       const { chain } = pool.asset
 
-      const {
-        address: poolAddress,
-        router,
-      } = await this.getPoolAddressDataByChain(chain)
+      const inboundData = await this.getInboundDataByChain(chain)
+      const { address: poolAddress, router } = inboundData
+
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
 
       const assetAddress = this.getWalletAddressByChain(chain) || ''
       const thorAddress = this.getWalletAddressByChain(THORChain) || ''
@@ -671,6 +685,7 @@ export class MultiChain implements IMultiChain {
             assetAmount: runeAmount,
             recipient: THORCHAIN_POOL_ADDRESS,
             memo: Memo.depositMemo(pool.asset, assetAddress),
+            feeRate,
           })
 
           return {
@@ -684,6 +699,7 @@ export class MultiChain implements IMultiChain {
             assetAmount,
             recipient: poolAddress,
             memo: Memo.depositMemo(pool.asset, thorAddress),
+            feeRate,
           })
 
           return {
@@ -702,6 +718,7 @@ export class MultiChain implements IMultiChain {
           recipient: poolAddress,
           memo: Memo.depositMemo(pool.asset, thorAddress),
           router,
+          feeRate,
         })
 
         // 2. send rune tx (NOTE: recipient should be empty string)
@@ -709,6 +726,7 @@ export class MultiChain implements IMultiChain {
           assetAmount: runeAmount,
           recipient: THORCHAIN_POOL_ADDRESS,
           memo: Memo.depositMemo(pool.asset, assetAddress),
+          feeRate,
         })
 
         return {
@@ -728,6 +746,7 @@ export class MultiChain implements IMultiChain {
           recipient: poolAddress,
           memo: Memo.depositMemo(pool.asset),
           router,
+          feeRate,
         })
 
         return {
@@ -740,6 +759,7 @@ export class MultiChain implements IMultiChain {
         assetAmount: runeAmount,
         recipient: THORCHAIN_POOL_ADDRESS,
         memo: Memo.depositMemo(pool.asset),
+        feeRate,
       })
 
       return {
@@ -767,14 +787,15 @@ export class MultiChain implements IMultiChain {
       const memo = Memo.withdrawMemo(pool.asset, percent)
 
       // get thorchain pool address
-      const { address: poolAddress } = await this.getPoolAddressDataByChain(
-        THORChain,
-      )
+      const inboundData = await this.getInboundDataByChain(THORChain)
+      const { address: poolAddress } = inboundData
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
 
       const txHash = await this.transfer({
         assetAmount: AssetAmount.getMinAmountByChain(THORChain),
         recipient: poolAddress,
         memo,
+        feeRate,
       })
 
       return txHash
@@ -783,16 +804,16 @@ export class MultiChain implements IMultiChain {
       const memo = Memo.withdrawMemo(pool.asset, percent)
 
       // get inbound address for asset chain
-      const {
-        address: poolAddress,
-        router,
-      } = await this.getPoolAddressDataByChain(pool.asset.chain)
+      const inboundData = await this.getInboundDataByChain(pool.asset.chain)
+      const { address: poolAddress, router } = inboundData
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
 
       const txHash = await this.transfer({
         assetAmount: AssetAmount.getMinAmountByChain(pool.asset.chain),
         recipient: poolAddress,
         memo,
         router,
+        feeRate,
       })
 
       return txHash
@@ -804,14 +825,15 @@ export class MultiChain implements IMultiChain {
       const memo = Memo.withdrawMemo(pool.asset, percent, Asset.RUNE())
 
       // get thorchain pool address
-      const { address: poolAddress } = await this.getPoolAddressDataByChain(
-        THORChain,
-      )
+      const inboundData = await this.getInboundDataByChain(THORChain)
+      const { address: poolAddress } = inboundData
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
 
       const txHash = await this.transfer({
         assetAmount: AssetAmount.getMinAmountByChain(THORChain),
         recipient: poolAddress,
         memo,
+        feeRate,
       })
 
       return txHash
@@ -821,14 +843,15 @@ export class MultiChain implements IMultiChain {
     const memo = Memo.withdrawMemo(pool.asset, percent, pool.asset)
 
     // get thorchain pool address
-    const { address: poolAddress } = await this.getPoolAddressDataByChain(
-      THORChain,
-    )
+    const inboundData = await this.getInboundDataByChain(THORChain)
+    const { address: poolAddress } = inboundData
+    const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
 
     const txHash = await this.transfer({
       assetAmount: AssetAmount.getMinAmountByChain(THORChain),
       recipient: poolAddress,
       memo,
+      feeRate,
     })
 
     return txHash
@@ -850,10 +873,10 @@ export class MultiChain implements IMultiChain {
       const { runeAmount } = params
       const { chain } = runeAmount.asset
 
-      const {
-        address: poolAddress,
-        router,
-      } = await this.getPoolAddressDataByChain(chain)
+      const inboundData = await this.getInboundDataByChain(chain)
+      const { address: poolAddress, router } = inboundData
+      const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
+
       const walletAddress = this.getWalletAddressByChain(THORChain)
 
       if (!walletAddress) {
@@ -867,6 +890,7 @@ export class MultiChain implements IMultiChain {
           assetAmount: runeAmount,
           recipient: poolAddress,
           memo,
+          feeRate,
         })
         return txHash
       }
@@ -877,6 +901,7 @@ export class MultiChain implements IMultiChain {
           assetAmount: runeAmount,
           recipient: poolAddress,
           memo,
+          feeRate,
         })
         return txHash
       }

@@ -147,18 +147,25 @@ export class LtcChain implements ILtcChain {
   transfer = async (tx: TxParams): Promise<TxHash> => {
     // use xchainjs-client standard internally
     try {
-      const { assetAmount, recipient, memo, feeOptionKey = 'average' } = tx
+      const {
+        assetAmount,
+        recipient,
+        memo,
+        feeRate,
+        feeOptionKey = 'average',
+      } = tx
       const { asset } = assetAmount
       const amount = baseAmount(assetAmount.amount.baseAmount)
-      const feeRates = await this.client.getFeeRates()
-      const feeRate = feeRates[feeOptionKey]
+
+      const feeRateValue =
+        feeRate || (await this.client.getFeeRates())[feeOptionKey]
 
       return await this.client.transfer({
         asset: asset.getAssetObj(),
         amount,
         recipient,
         memo,
-        feeRate,
+        feeRate: feeRateValue,
       })
     } catch (error) {
       return Promise.reject(error)
