@@ -2,9 +2,10 @@ import { useMemo } from 'react'
 
 import { Asset, Amount, AssetAmount, NetworkFee } from 'multichain-sdk'
 
+import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
-import { getGasRateByChain } from 'helpers/networkFee'
+import { getGasRateByChain, getGasRateByFeeOption } from 'helpers/networkFee'
 
 import useInterval from './useInterval'
 
@@ -17,6 +18,7 @@ export const useNetworkFee = ({
   inputAsset: Asset
   outputAsset?: Asset
 }) => {
+  const { feeOptionType } = useApp()
   const { inboundData, getInboundData, pools } = useMidgard()
 
   useInterval(() => {
@@ -24,7 +26,12 @@ export const useNetworkFee = ({
   }, POLL_GAS_RATE_INTERVAL)
 
   const inboundFee = useMemo(() => {
-    const gasRate = getGasRateByChain({ inboundData, chain: inputAsset.chain })
+    // get inbound gasRate with fee option
+    const gasRate = getGasRateByFeeOption({
+      inboundData,
+      chain: inputAsset.chain,
+      feeOptionType,
+    })
     const networkFee = NetworkFee.getNetworkFeeByAsset({
       asset: inputAsset,
       gasRate,
@@ -32,7 +39,7 @@ export const useNetworkFee = ({
     })
 
     return networkFee
-  }, [inputAsset, inboundData])
+  }, [inputAsset, inboundData, feeOptionType])
 
   const outboundFee = useMemo(() => {
     if (!outputAsset) return null
