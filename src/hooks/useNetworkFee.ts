@@ -68,9 +68,15 @@ export const useNetworkFee = ({
     return inboundFee.add(outboundFeeInSendAsset)
   }, [inputAsset, inboundFee, outboundFee, pools])
 
+  const totalFeeInUSD = useMemo(
+    () => totalFee.totalPriceIn(Asset.USD(), pools),
+    [totalFee, pools],
+  )
+
   return {
     totalFee,
     inboundFee,
     outboundFee,
+    totalFeeInUSD,
   }
 }

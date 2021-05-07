@@ -530,6 +530,7 @@ export class MultiChain implements IMultiChain {
       return this.eth.approve({
         spender: router,
         sender: assetAddress,
+        feeOptionKey: this.feeOption,
       })
     }
 
@@ -585,10 +586,14 @@ export class MultiChain implements IMultiChain {
   send = async (tx: TxParams): Promise<TxHash> => {
     const { chain } = tx.assetAmount.asset
 
+    const inboundData = await this.getInboundDataByChain(chain)
+
+    const feeRate = getFeeRate({ inboundData, feeOptionKey: this.feeOption })
+
     const chainClient = this.getChainClient(chain)
     if (chainClient) {
       try {
-        return await chainClient.transfer(tx)
+        return await chainClient.transfer({ ...tx, feeRate })
       } catch (error) {
         return Promise.reject(error)
       }

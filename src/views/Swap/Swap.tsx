@@ -83,7 +83,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
   const { isApproved, assetApproveStatus } = useApprove(inputAsset, !!wallet)
 
-  const { inboundFee, outboundFee, totalFee } = useNetworkFee({
+  const { inboundFee, outboundFee, totalFeeInUSD } = useNetworkFee({
     inputAsset,
     outputAsset,
   })
@@ -491,7 +491,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Total Fee"
-          description={totalFee?.toCurrencyFormat() ?? ''}
+          description={totalFeeInUSD.toCurrencyFormat(2) ?? ''}
           tooltip="Sum of both transaction fee and network fee"
         />
         <Information
@@ -511,7 +511,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     minReceive,
     inboundFee,
     outboundFee,
-    totalFee,
+    totalFeeInUSD,
     estimatedTime,
   ])
 
@@ -606,7 +606,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <Information
           title="Total Fee"
-          description={totalFee?.toCurrencyFormat() ?? ''}
+          description={totalFeeInUSD?.toCurrencyFormat(2) ?? ''}
           tooltip="Sum of both transaction fee and network fee"
         />
       </Styled.SwapInfo>

@@ -67,6 +67,14 @@ export class NetworkFee {
     }
 
     if (chain === BNBChain) {
+      // if inbound tx, retrieve original amount instead of 1.5x
+      if (direction === 'inbound') {
+        return new AssetAmount(
+          Asset.BNB(),
+          Amount.fromBaseAmount(gasRate, BNB_DECIMAL).div(3).mul(2),
+        )
+      }
+
       return new AssetAmount(
         Asset.BNB(),
         Amount.fromBaseAmount(gasRate, BNB_DECIMAL).mul(multiplier),

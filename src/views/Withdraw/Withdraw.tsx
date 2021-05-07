@@ -36,6 +36,7 @@ import {
 } from 'redux/midgard/types'
 import { useWallet } from 'redux/wallet/hooks'
 
+import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -156,6 +157,17 @@ const WithdrawPanel = ({
 
   const [percent, setPercent] = useState(0)
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
+
+  const { inboundFee } = useNetworkFee({
+    inputAsset: poolAsset,
+  })
+
+  const feeLabel = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return `${inboundFee.toCurrencyFormat()}`
+    }
+    return '0.02 RUNE'
+  }, [inboundFee, liquidityType])
 
   const memberPoolData = useMemo(() => {
     if (lpType === PoolShareType.RUNE_ASYM) return poolMemberData.runeAsym
@@ -509,12 +521,12 @@ const WithdrawPanel = ({
         )}
         <Information
           title="Transaction Fee"
-          description="0.02 RUNE"
+          description={feeLabel}
           tooltip="Gas fee used for submitting the transaction using the thorchain protocol"
         />
       </Styled.ConfirmModalContent>
     )
-  }, [assetAmount, runeAmount, poolAsset, lpType])
+  }, [assetAmount, runeAmount, poolAsset, lpType, feeLabel])
 
   const title = useMemo(() => `Withdraw ${poolAsset.ticker} Liquidity`, [
     poolAsset,
@@ -594,7 +606,7 @@ const WithdrawPanel = ({
         )}
         <Information
           title="Transaction Fee"
-          description="0.02 RUNE"
+          description={feeLabel}
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.DetailContent>

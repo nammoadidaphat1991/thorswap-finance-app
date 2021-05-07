@@ -81,7 +81,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
   const history = useHistory()
   const { pools } = useMidgard()
 
-  const { inboundFee } = useNetworkFee({ inputAsset: sendAsset })
+  const { inboundFee, totalFeeInUSD } = useNetworkFee({ inputAsset: sendAsset })
 
   const poolAssets = useMemo(() => {
     const assets = pools.map((pool) => pool.asset)
@@ -280,12 +280,14 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         />
         <Information
           title="Transaction Fee"
-          description={inboundFee.toCurrencyFormat()}
+          description={`${inboundFee.toCurrencyFormat()} (${totalFeeInUSD.toCurrencyFormat(
+            2,
+          )})`}
           tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
         />
       </Styled.ConfirmModalContent>
     )
-  }, [sendAmount, inboundFee, sendAsset, recipientAddress])
+  }, [sendAmount, inboundFee, sendAsset, totalFeeInUSD, recipientAddress])
 
   const title = useMemo(() => `${sendAsset.chain} ${sendAsset.ticker}`, [
     sendAsset,
@@ -381,7 +383,9 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         <Styled.FormItem>
           <Information
             title="Transaction Fee"
-            description={inboundFee.toCurrencyFormat()}
+            description={`${inboundFee.toCurrencyFormat()} (${totalFeeInUSD.toCurrencyFormat(
+              2,
+            )})`}
             tooltip="Gas fee to send the transaction, There's no extra charges from THORChain Protocol"
           />
         </Styled.FormItem>

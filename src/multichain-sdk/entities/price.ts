@@ -127,7 +127,7 @@ export class Price extends Amount {
 
     return isUSDBased
       ? `$${fixedLabel}`
-      : `${fixedLabel} ${this.quoteAsset?.ticker}`
+      : `${fixedLabel} ${this.quoteAsset?.currencySymbol()}`
   }
 
   toFixedRaw(
