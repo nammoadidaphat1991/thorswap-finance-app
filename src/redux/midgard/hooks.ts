@@ -54,6 +54,13 @@ export const useMidgard = () => {
       }),
     )
     dispatch(
+      actions.getTVLHistory({
+        interval: PER_DAY,
+        count: MAX_HISTORY_COUNT,
+        to: pastDay,
+      }),
+    )
+    dispatch(
       actions.getSwapHistory({
         query: {
           interval: PER_DAY,

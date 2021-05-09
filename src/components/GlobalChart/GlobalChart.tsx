@@ -25,6 +25,7 @@ export const GlobalChart = () => {
     earningsHistory,
     swapHistory,
     liquidityHistory,
+    tvlHistory,
   } = useMidgard()
 
   useEffect(() => {
@@ -151,8 +152,9 @@ export const GlobalChart = () => {
     }
 
     const earningsData = earningsHistory.intervals || []
-    const liquidityData = liquidityHistory.intervals || []
+    const tvlData = tvlHistory?.intervals || []
 
+    // const tvl: ChartDetail[] = []
     const runePrice: ChartDetail[] = []
     const liquidityEarning: ChartDetail[] = []
     const liquidity: ChartDetail[] = []
@@ -161,16 +163,24 @@ export const GlobalChart = () => {
 
     earningsData.forEach((data, index) => {
       const time = Number(data?.startTime ?? 0)
-      const liquidityValue = liquidityData[index]
+
+      // midgard reponse doesn't match the type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tvlValue: any = tvlData[index]
 
       liquidity.push({
         time,
-        value: runeToCurrency(
-          Amount.fromMidgard(liquidityValue?.addLiquidityVolume).add(
-            Amount.fromMidgard(liquidityValue?.withdrawVolume),
-          ),
-        ).toFixedRaw(0),
+        value: Amount.fromMidgard(tvlValue?.totalRuneDepth)
+          .mul(Amount.fromNormalAmount(tvlValue?.runePriceUSD))
+          .toFixed(0),
       })
+
+      // tvl.push({
+      //   time,
+      //   value: Amount.fromMidgard(tvlValue?.totalValueLocked)
+      //     .mul(Amount.fromMidgard(tvlValue?.runePriceUSD))
+      //     .toFixed(0),
+      // })
 
       // ILPaid.push({
       //   time,
@@ -199,9 +209,13 @@ export const GlobalChart = () => {
     })
 
     return {
+      // tvl: {
+      //   values: tvl,
+      //   unit: '$',
+      // },
       Liquidity: {
         values: liquidity,
-        unit: chartValueUnit,
+        unit: '$',
       },
       'LP Earning': {
         values: liquidityEarning,
@@ -221,6 +235,7 @@ export const GlobalChart = () => {
       },
     }
   }, [
+    tvlHistory,
     liquidityHistory,
     earningsHistory,
     isGlobalHistoryLoading,
