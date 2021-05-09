@@ -100,7 +100,6 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
       <AssetSelectMenuWrapper hasTitle={hasTitle}>
         <AssetMenu
           searchPlaceholder={searchPlaceholder}
-          closeMenu={closeMenu}
           assets={sortedAssetData}
           asset={asset}
           withSearch={withSearch}
@@ -112,7 +111,6 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
   }, [
     assets,
     asset,
-    closeMenu,
     handleChangeAsset,
     searchDisable,
     withSearch,
@@ -148,6 +146,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
       <Modal
         title={selectorTitle}
         visible={modalShown}
+        onCancel={closeMenu}
         footer={null}
         width="90vw"
         centered

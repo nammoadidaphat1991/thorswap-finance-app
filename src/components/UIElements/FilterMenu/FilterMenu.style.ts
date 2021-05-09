@@ -4,7 +4,6 @@ import { palette } from 'styled-theme'
 
 const { Item } = AntdMenu
 // export const MenuItem = styled<MenuProps & MenuItemProps>(AntdMenu.Item)`
-
 export const MenuItem = styled(Item)`
   ${({ disabled }) => (disabled ? 'opacity: 0.5' : '')}
   padding: 0 8px !important;

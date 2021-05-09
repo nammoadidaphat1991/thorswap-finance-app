@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react'
 
 import { Asset } from 'multichain-sdk'
 
-import { FilterMenu } from 'components/UIElements/FilterMenu'
+import { FilterList } from 'components/UIElements/FilterList'
 
 import { AssetData } from '../AssetData'
 
@@ -18,7 +18,6 @@ export type Props = {
   withSearch?: boolean
   searchPlaceholder?: string
   onSelect: (value: string) => void
-  closeMenu?: () => void
 }
 
 export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
@@ -29,7 +28,6 @@ export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
     withSearch = true,
     searchDisable = [],
     onSelect = () => {},
-    closeMenu,
   } = props
 
   const filteredData = useMemo(
@@ -49,9 +47,8 @@ export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
   )
 
   return (
-    <FilterMenu
+    <FilterList
       placeholder={searchPlaceholder}
-      closeMenu={closeMenu}
       searchEnabled={withSearch}
       filterFunction={filterFunction}
       cellRenderer={cellRenderer}
