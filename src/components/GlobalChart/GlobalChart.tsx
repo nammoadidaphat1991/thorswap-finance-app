@@ -41,7 +41,7 @@ export const GlobalChart = () => {
   const liquidityChartIndexes = useMemo(
     () =>
       isDesktopView
-        ? ['Liquidity', 'LP Earnings', 'Bonding Earnings', '$RUNE Price']
+        ? ['Liquidity', 'LP Earning', 'Bonding Earning', '$RUNE Price']
         : ['Liquidity'],
     [isDesktopView],
   )
@@ -203,7 +203,7 @@ export const GlobalChart = () => {
         values: liquidity,
         unit: chartValueUnit,
       },
-      'LP Earnings': {
+      'LP Earning': {
         values: liquidityEarning,
         unit: chartValueUnit,
       },
@@ -211,7 +211,7 @@ export const GlobalChart = () => {
       //   values: ILPaid,
       //   unit: chartValueUnit,
       // },
-      'Bonding Earnings': {
+      'Bonding Earning': {
         values: bondingEarnings,
         unit: chartValueUnit,
       },

@@ -25,7 +25,7 @@ import {
   StatsData,
   Constants,
   InboundAddressesItem,
-  Lastblock,
+  LastblockItem,
   Queue,
   PoolAddress,
 } from './types'
@@ -64,7 +64,7 @@ export interface MidgardSDKV2 {
   getInboundAddresses: () => Promise<InboundAddressesItem[]>
   getInboundAddressByChain: (chain: string) => Promise<PoolAddress>
   getInboundDataByChain: (chain: string) => Promise<InboundAddressesItem>
-  getLastblock: () => Promise<Lastblock>
+  getLastblock: () => Promise<LastblockItem[]>
   getQueue: () => Promise<Queue>
 }
 
@@ -430,7 +430,7 @@ class MidgardV2 implements MidgardSDKV2 {
     }
   }
 
-  getLastblock = async (): Promise<Lastblock> => {
+  getLastblock = async (): Promise<LastblockItem[]> => {
     try {
       const midgard = await this.getMidgard()
       const { data } = await midgard.getProxiedLastblock()
