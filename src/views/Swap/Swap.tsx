@@ -109,7 +109,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   )
   const [percent, setPercent] = useState(0)
   const [recipient, setRecipient] = useState('')
-  const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
+  const [visibleConfirmModal, setVisibleConfirmModal] = useState(true)
   const [visibleApproveModal, setVisibleApproveModal] = useState(false)
 
   // NOTE: temporary disable BTC->ERC20 swap for memo issue

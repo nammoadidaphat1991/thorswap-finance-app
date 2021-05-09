@@ -4,6 +4,7 @@ import { palette } from 'styled-theme'
 
 import { transition } from 'settings/style-util'
 
+import { Modal as UnstyledModal } from '../../UIElements'
 import { AssetData as UnstyledAssetData } from '../AssetData'
 
 export const AssetSelectWrapper = styled.div<{ minWidth?: number }>`
@@ -16,8 +17,9 @@ export const AssetSelectWrapper = styled.div<{ minWidth?: number }>`
   ${transition()};
 `
 
-export const AssetSelectMenuWrapper = styled.div<{ minWidth?: number }>`
-  margin-top: 10px;
+export const AssetSelectMenuWrapper = styled.div<{ hasTitle: boolean }>`
+  padding: 8px 0px;
+  padding-top: ${(props) => (props.hasTitle ? 0 : 32)}px;
 `
 
 export const DropdownIcon = styled(CaretDownOutlined)`
@@ -87,5 +89,17 @@ export const Selector = styled.div<{ disabled?: boolean }>`
   :hover {
     background-color: ${(props) =>
       props.disabled ? 'inherit' : palette('background', 2)};
+  }
+`
+
+export const Modal = styled(UnstyledModal)`
+  max-width: 300px;
+
+  .ant-modal-body {
+    padding: 0px 0px;
+  }
+
+  .ant-modal-content {
+    background: transparent;
   }
 `
