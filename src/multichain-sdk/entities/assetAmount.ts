@@ -55,7 +55,8 @@ export class AssetAmount extends Amount implements IAssetAmount {
   public readonly amount: Amount
 
   /**
-   * min amount allowed for transfer
+   * min send amount allowed for transaction to avoid dust attack
+   * if the amount is smaller than min threshold amount, it will not be observed from bifrost
    * @param chain asset chain
    * @returns min amount
    */
