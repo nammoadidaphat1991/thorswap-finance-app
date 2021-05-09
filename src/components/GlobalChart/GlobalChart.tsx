@@ -171,7 +171,7 @@ export const GlobalChart = () => {
       liquidity.push({
         time,
         value: Amount.fromMidgard(tvlValue?.totalValuePooled)
-          .mul(Amount.fromNormalAmount(tvlValue?.runePriceUSD).mul(2))
+          .mul(Amount.fromNormalAmount(tvlValue?.runePriceUSD))
           .toFixed(0),
       })
 
