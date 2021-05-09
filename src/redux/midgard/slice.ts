@@ -28,6 +28,8 @@ const initialState: State = {
   depthHistoryLoading: false,
   earningsHistory: null,
   earningsHistoryLoading: false,
+  tvlHistory: null,
+  tvlHistoryLoading: false,
   swapHistory: null,
   swapHistoryLoading: false,
   liquidityHistory: null,
@@ -273,6 +275,17 @@ const slice = createSlice({
       })
       .addCase(midgardActions.getEarningsHistory.rejected, (state) => {
         state.earningsHistoryLoading = true
+      })
+      // get tvl history
+      .addCase(midgardActions.getTVLHistory.pending, (state) => {
+        state.tvlHistoryLoading = true
+      })
+      .addCase(midgardActions.getTVLHistory.fulfilled, (state, action) => {
+        state.tvlHistoryLoading = false
+        state.tvlHistory = action.payload
+      })
+      .addCase(midgardActions.getTVLHistory.rejected, (state) => {
+        state.tvlHistoryLoading = true
       })
       // get swap history
       .addCase(midgardActions.getSwapHistory.pending, (state) => {

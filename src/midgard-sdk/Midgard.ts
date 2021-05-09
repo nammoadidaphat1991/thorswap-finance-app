@@ -28,6 +28,7 @@ import {
   LastblockItem,
   Queue,
   PoolAddress,
+  TVLHistory,
 } from './types'
 
 export interface MidgardSDKV2 {
@@ -46,6 +47,7 @@ export interface MidgardSDKV2 {
     query?: HistoryQuery
   }) => Promise<DepthHistory>
   getEarningsHistory: (query: HistoryQuery) => Promise<EarningsHistory>
+  getTVLHistory: (query: HistoryQuery) => Promise<TVLHistory>
   getSwapHistory: (param: {
     pool?: string
     query?: HistoryQuery
@@ -54,12 +56,14 @@ export interface MidgardSDKV2 {
     pool?: string
     query?: HistoryQuery
   }) => Promise<LiquidityHistory>
+
   getNodes: () => Promise<Node[]>
   getNetworkData: () => Promise<Network>
   getActions: (params: ActionListParams) => Promise<ActionsList>
   getMembersAddresses: () => Promise<string[]>
   getMemberDetail: (address: string) => Promise<MemberDetails>
   getStats: () => Promise<StatsData>
+
   getConstants: () => Promise<Constants>
   getInboundAddresses: () => Promise<InboundAddressesItem[]>
   getInboundAddressByChain: (chain: string) => Promise<PoolAddress>
@@ -213,6 +217,19 @@ class MidgardV2 implements MidgardSDKV2 {
         to,
         from,
       )
+
+      return data
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  getTVLHistory = async (query: HistoryQuery): Promise<TVLHistory> => {
+    try {
+      const { interval, count, from, to } = query
+
+      const midgard = await this.getMidgard()
+      const { data } = await midgard.getTVLHistory(interval, count, to, from)
 
       return data
     } catch (error) {

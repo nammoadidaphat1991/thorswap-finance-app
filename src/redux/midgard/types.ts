@@ -15,6 +15,7 @@ import {
   Coin,
   MemberPool,
   InboundAddressesItem,
+  TVLHistory,
 } from 'midgard-sdk'
 import { Pool } from 'multichain-sdk'
 
@@ -125,6 +126,8 @@ export interface State {
   depthHistoryLoading: boolean
   earningsHistory: EarningsHistory | null
   earningsHistoryLoading: boolean
+  tvlHistory: TVLHistory | null
+  tvlHistoryLoading: boolean
   swapHistory: SwapHistory | null
   swapHistoryLoading: boolean
   liquidityHistory: LiquidityHistory | null

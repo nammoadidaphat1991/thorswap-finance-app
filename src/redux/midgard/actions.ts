@@ -54,6 +54,11 @@ export const getActions = createAsyncThunk(
   midgardApi.getActions,
 )
 
+export const getTVLHistory = createAsyncThunk(
+  'midgard/getTVLHistory',
+  midgardApi.getTVLHistory,
+)
+
 export const getSwapHistory = createAsyncThunk(
   'midgard/getSwapHistory',
   midgardApi.getSwapHistory,
