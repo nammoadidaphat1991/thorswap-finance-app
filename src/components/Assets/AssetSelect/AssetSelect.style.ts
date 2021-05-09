@@ -19,7 +19,7 @@ export const AssetSelectWrapper = styled.div<{ minWidth?: number }>`
 
 export const AssetSelectMenuWrapper = styled.div<{ hasTitle: boolean }>`
   padding: 8px 0px;
-  padding-top: ${(props) => (props.hasTitle ? 0 : 32)}px;
+  padding-top: ${(props) => (props.hasTitle ? 4 : 32)}px;
 `
 
 export const DropdownIcon = styled(CaretDownOutlined)`
