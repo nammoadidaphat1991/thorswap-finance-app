@@ -65,16 +65,16 @@ export const FilterList = <T extends unknown>(props: Props<T>): JSX.Element => {
         />
       )}
       <List>
-        {filteredData.map((item: T, index: number) => {
+        {filteredData.map((item: T) => {
           const { key, node } = cellRenderer(item)
           const disableItem = disableItemFilter(item)
 
           return (
             <ListItem
               onClick={() => {
-                if (!disableItem && index !== 1) handleClick(key)
+                if (!disableItem) handleClick(key)
               }}
-              disabled={disableItem || index === 1}
+              disabled={disableItem}
               key={key}
             >
               {node}

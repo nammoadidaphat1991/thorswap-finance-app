@@ -128,21 +128,16 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
 
   return (
     <AssetSelectWrapper minWidth={minWidth} {...others}>
-      <>
-        {!!children && children}
-        {disabled && (
+      {!!children && children}
+      {disabled && (
+        <AssetData asset={asset} showLabel={showLabel} size={size} />
+      )}
+      {!disabled && (
+        <Selector disabled={emptyAssets} onClick={handleDropdownButtonClicked}>
           <AssetData asset={asset} showLabel={showLabel} size={size} />
-        )}
-        {!disabled && (
-          <Selector
-            disabled={emptyAssets}
-            onClick={handleDropdownButtonClicked}
-          >
-            <AssetData asset={asset} showLabel={showLabel} size={size} />
-            {renderDropDownButton()}
-          </Selector>
-        )}
-      </>
+          {renderDropDownButton()}
+        </Selector>
+      )}
       <Modal
         title={selectorTitle}
         visible={modalShown}
