@@ -75,16 +75,17 @@ export const AssetData = styled(UnstyledAssetData)`
   padding-left: 0;
 `
 
-export const Selector = styled.div`
+export const Selector = styled.div<{ disabled?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
 
   padding: 2px 4px 2px 4px;
   border-radius: 0.5rem;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'inherit' : 'pointer')};
 
   :hover {
-    background-color: ${palette('background', 2)};
+    background-color: ${(props) =>
+      props.disabled ? 'inherit' : palette('background', 2)};
   }
 `

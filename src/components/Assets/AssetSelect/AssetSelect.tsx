@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { delay } from '@xchainjs/xchain-util'
 import { Dropdown } from 'antd'
@@ -61,6 +61,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
   } = props
 
   const [openDropdown, setOpenDropdown] = useState<boolean>(false)
+  const emptyAssets = useMemo(() => assets.length === 0, [assets])
 
   const closeMenu = useCallback(() => {
     if (openDropdown) {
@@ -71,7 +72,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
   const handleDropdownButtonClicked = (e: React.MouseEvent) => {
     e.stopPropagation()
     // toggle dropdown state
-    setOpenDropdown(!openDropdown)
+    setOpenDropdown(!emptyAssets && !openDropdown)
   }
 
   const handleChangeAsset = useCallback(
@@ -117,10 +118,9 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
   ])
 
   const renderDropDownButton = () => {
-    const invalid = assets.length === 0
     return (
-      <AssetDropdownButton disabled={invalid || disabled}>
-        {!invalid ? <DropdownCarret open={openDropdown} /> : null}
+      <AssetDropdownButton disabled={emptyAssets || disabled}>
+        {!emptyAssets ? <DropdownCarret open={openDropdown} /> : null}
       </AssetDropdownButton>
     )
   }
@@ -134,7 +134,10 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
             <AssetData asset={asset} showLabel={showLabel} size={size} />
           )}
           {!disabled && (
-            <Selector onClick={handleDropdownButtonClicked}>
+            <Selector
+              disabled={emptyAssets}
+              onClick={handleDropdownButtonClicked}
+            >
               <AssetData asset={asset} showLabel={showLabel} size={size} />
               {renderDropDownButton()}
             </Selector>
