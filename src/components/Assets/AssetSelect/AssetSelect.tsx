@@ -1,7 +1,6 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { delay } from '@xchainjs/xchain-util'
-import { Dropdown } from 'antd'
 import { Asset } from 'multichain-sdk'
 
 import { AssetMenu } from '../AssetMenu'
@@ -13,6 +12,7 @@ import {
   DropdownIcon,
   AssetData,
   Selector,
+  Modal,
 } from './AssetSelect.style'
 
 type DropdownCarretProps = {
@@ -42,6 +42,7 @@ export type Props = {
   searchPlaceholder?: string
   size?: 'small' | 'normal' | 'big'
   disabled?: boolean
+  selectorTitle?: string
 }
 
 export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
@@ -55,28 +56,31 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
     children,
     minWidth,
     searchPlaceholder = 'Search...',
+    selectorTitle = 'Select a token',
     size = 'small',
     disabled = false,
     ...others
   } = props
 
-  const [openDropdown, setOpenDropdown] = useState<boolean>(false)
+  const [modalShown, setModalShown] = useState<boolean>(false)
+  const emptyAssets = useMemo(() => assets.length === 0, [assets])
+  const hasTitle = useMemo(() => selectorTitle.length > 0, [selectorTitle])
 
   const closeMenu = useCallback(() => {
-    if (openDropdown) {
-      setOpenDropdown(false)
+    if (modalShown) {
+      setModalShown(false)
     }
-  }, [setOpenDropdown, openDropdown])
+  }, [setModalShown, modalShown])
 
   const handleDropdownButtonClicked = (e: React.MouseEvent) => {
     e.stopPropagation()
     // toggle dropdown state
-    setOpenDropdown(!openDropdown)
+    setModalShown(!emptyAssets && !modalShown)
   }
 
   const handleChangeAsset = useCallback(
     async (assetId: string) => {
-      setOpenDropdown(false)
+      setModalShown(false)
 
       // Wait for the dropdown to close
       await delay(100)
@@ -93,10 +97,9 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
       a.sortsBefore(b),
     )
     return (
-      <AssetSelectMenuWrapper minWidth={minWidth}>
+      <AssetSelectMenuWrapper hasTitle={hasTitle}>
         <AssetMenu
           searchPlaceholder={searchPlaceholder}
-          closeMenu={closeMenu}
           assets={sortedAssetData}
           asset={asset}
           withSearch={withSearch}
@@ -108,39 +111,43 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
   }, [
     assets,
     asset,
-    closeMenu,
     handleChangeAsset,
     searchDisable,
     withSearch,
-    minWidth,
     searchPlaceholder,
+    hasTitle,
   ])
 
   const renderDropDownButton = () => {
-    const invalid = assets.length === 0
     return (
-      <AssetDropdownButton disabled={invalid || disabled}>
-        {!invalid ? <DropdownCarret open={openDropdown} /> : null}
+      <AssetDropdownButton disabled={emptyAssets || disabled}>
+        {!emptyAssets ? <DropdownCarret open={modalShown} /> : null}
       </AssetDropdownButton>
     )
   }
 
   return (
     <AssetSelectWrapper minWidth={minWidth} {...others}>
-      <Dropdown overlay={renderMenu()} trigger={[]} visible={openDropdown}>
-        <>
-          {!!children && children}
-          {disabled && (
-            <AssetData asset={asset} showLabel={showLabel} size={size} />
-          )}
-          {!disabled && (
-            <Selector onClick={handleDropdownButtonClicked}>
-              <AssetData asset={asset} showLabel={showLabel} size={size} />
-              {renderDropDownButton()}
-            </Selector>
-          )}
-        </>
-      </Dropdown>
+      {!!children && children}
+      {disabled && (
+        <AssetData asset={asset} showLabel={showLabel} size={size} />
+      )}
+      {!disabled && (
+        <Selector disabled={emptyAssets} onClick={handleDropdownButtonClicked}>
+          <AssetData asset={asset} showLabel={showLabel} size={size} />
+          {renderDropDownButton()}
+        </Selector>
+      )}
+      <Modal
+        title={selectorTitle}
+        visible={modalShown}
+        onCancel={closeMenu}
+        footer={null}
+        width="90vw"
+        centered
+      >
+        {renderMenu()}
+      </Modal>
     </AssetSelectWrapper>
   )
 }
