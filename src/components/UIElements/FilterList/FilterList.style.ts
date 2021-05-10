@@ -29,6 +29,6 @@ export const ListWrapper = styled.div`
 
 export const List = styled.div`
   padding-top: 8px;
-  height: 280px;
+  height: 340px;
   overflow-y: scroll;
 `
