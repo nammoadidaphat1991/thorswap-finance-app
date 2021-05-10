@@ -421,6 +421,7 @@ export const AddLiquidityPanel = ({
         balance={poolAssetBalance}
         usdPrice={poolAssetPriceInUSD}
         inputProps={{ disabled: isAssetPending }}
+        wallet={wallet || undefined}
         selectDisabled
       />
       <Styled.ToolContainer>
@@ -439,6 +440,7 @@ export const AddLiquidityPanel = ({
         selectDisabled
         balance={runeBalance}
         onChange={handleChangePendingAmount}
+        wallet={wallet || undefined}
         inputProps={{ disabled: !isAssetPending }}
       />
 

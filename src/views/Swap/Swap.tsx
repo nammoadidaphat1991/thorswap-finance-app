@@ -552,6 +552,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         onSelect={handleSelectInputAsset}
         onMax={handleSelectMax}
         usdPrice={inputAssetPriceInUSD}
+        wallet={wallet || undefined}
       />
       <Styled.ToolContainer>
         <Styled.SliderWrapper>
@@ -571,6 +572,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         onSelect={handleSelectOutputAsset}
         inputProps={{ disabled: true }}
         usdPrice={outputAssetPriceInUSD}
+        wallet={wallet || undefined}
       />
 
       <Styled.SwapInfo>

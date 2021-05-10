@@ -228,6 +228,7 @@ const UpgradePanel = ({
           onChange={handleChangeUpgradeAmount}
           onSelect={handleSelectAsset}
           onMax={handleSelectMax}
+          wallet={wallet || undefined}
         />
         <Slider value={percent} onChange={handleChangePercent} withLabel />
 
