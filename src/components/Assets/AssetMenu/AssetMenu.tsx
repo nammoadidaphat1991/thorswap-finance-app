@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react'
 
-import { Asset } from 'multichain-sdk'
+import { Asset, Wallet, getAssetBalance } from 'multichain-sdk'
 
 import { FilterList } from 'components/UIElements/FilterList'
 
@@ -18,6 +18,7 @@ export type Props = {
   withSearch?: boolean
   searchPlaceholder?: string
   onSelect: (value: string) => void
+  wallet?: Wallet
 }
 
 export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
@@ -28,6 +29,7 @@ export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
     withSearch = true,
     searchDisable = [],
     onSelect = () => {},
+    wallet,
   } = props
 
   const filteredData = useMemo(
@@ -35,11 +37,15 @@ export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
     [asset, assets],
   )
 
-  const cellRenderer = useCallback((a: Asset) => {
-    const node = <AssetData asset={a} />
-    const key = a.toString()
-    return { key, node }
-  }, [])
+  const cellRenderer = useCallback(
+    (a: Asset) => {
+      const balance = wallet && getAssetBalance(a, wallet).amount
+      const node = <AssetData asset={a} amount={balance} />
+      const key = a.toString()
+      return { key, node }
+    },
+    [wallet],
+  )
 
   const disableItemFilterHandler = useCallback(
     (a: Asset) => searchDisable.indexOf(a.ticker) > -1,

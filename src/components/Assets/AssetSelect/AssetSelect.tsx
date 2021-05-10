@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { delay } from '@xchainjs/xchain-util'
-import { Asset } from 'multichain-sdk'
+import { Asset, Wallet } from 'multichain-sdk'
 
 import { AssetMenu } from '../AssetMenu'
 import {
@@ -43,6 +43,7 @@ export type Props = {
   size?: 'small' | 'normal' | 'big'
   disabled?: boolean
   selectorTitle?: string
+  wallet?: Wallet
 }
 
 export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
@@ -59,6 +60,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
     selectorTitle = 'Select a token',
     size = 'small',
     disabled = false,
+    wallet,
     ...others
   } = props
 
@@ -105,6 +107,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
           withSearch={withSearch}
           searchDisable={searchDisable}
           onSelect={handleChangeAsset}
+          wallet={wallet}
         />
       </AssetSelectMenuWrapper>
     )
@@ -116,6 +119,7 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
     withSearch,
     searchPlaceholder,
     hasTitle,
+    wallet,
   ])
 
   const renderDropDownButton = () => {

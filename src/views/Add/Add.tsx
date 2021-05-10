@@ -612,6 +612,7 @@ const AddLiquidityPanel = ({
         onSelect={handleSelectPoolAsset}
         onMax={handleSelectAssetMax}
         usdPrice={poolAssetPriceInUSD}
+        wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.RUNE }}
       />
       <Styled.ToolContainer>
@@ -630,6 +631,7 @@ const AddLiquidityPanel = ({
         selectDisabled={false}
         balance={runeBalance}
         onChange={handleChangeRuneAmount}
+        wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.ASSET }}
       />
 

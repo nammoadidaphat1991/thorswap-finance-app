@@ -307,6 +307,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
           onChange={handleChangeSendAmount}
           onSelect={handleSelectAsset}
           onMax={handleSelectMax}
+          wallet={wallet || undefined}
         />
         <Slider value={percent} onChange={handleChangePercent} withLabel />
 
