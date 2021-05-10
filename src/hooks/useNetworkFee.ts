@@ -55,7 +55,7 @@ export const useNetworkFee = ({
   }, [outputAsset, inboundData])
 
   const totalFee = useMemo(() => {
-    if (!outboundFee || !inboundFee.asset.eq(inputAsset)) return inboundFee
+    if (!outboundFee) return inboundFee
 
     const outboundFeeInSendAsset = new AssetAmount(
       inputAsset,
@@ -65,13 +65,26 @@ export const useNetworkFee = ({
       ),
     )
 
-    return inboundFee.add(outboundFeeInSendAsset)
+    if (inboundFee.asset.eq(inputAsset)) {
+      return inboundFee.add(outboundFeeInSendAsset)
+    }
+
+    const inboundFeeInSendAsset = new AssetAmount(
+      inputAsset,
+      Amount.fromAssetAmount(
+        inboundFee.totalPriceIn(inputAsset, pools).price,
+        inputAsset.decimal,
+      ),
+    )
+    return inboundFeeInSendAsset.add(outboundFeeInSendAsset)
   }, [inputAsset, inboundFee, outboundFee, pools])
 
   const totalFeeInUSD = useMemo(
     () => totalFee.totalPriceIn(Asset.USD(), pools),
     [totalFee, pools],
   )
+
+  console.log(totalFee.toFixed())
 
   return {
     totalFee,
