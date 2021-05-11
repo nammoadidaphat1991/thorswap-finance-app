@@ -12,7 +12,6 @@ import {
 
 import { SupportedChain } from '../../multichain-sdk/clients/types'
 import { TxTracker } from './types'
-import { getPastDay } from './utils'
 
 export const getPools = createAsyncThunk(
   'midgard/getPools',
@@ -191,7 +190,6 @@ export const getVolume24h = createAsyncThunk(
       query: {
         interval: 'day',
         count: 1,
-        to: getPastDay(),
       },
     })
 
