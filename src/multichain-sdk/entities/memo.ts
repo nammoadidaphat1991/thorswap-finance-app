@@ -16,7 +16,13 @@ export class Memo {
 
     const limitString = getTradeLimitWithIdentifier(limit)
 
-    return `SWAP:${chain}.${symbol}:${address}:${limitString}`
+    let shortenedSymbol = symbol
+    // use shortened asset name for ERC20 tokens
+    if (chain === 'ETH' && !asset.isETH()) {
+      shortenedSymbol = `${asset.ticker}-${asset.symbol.slice(-3)}`
+    }
+
+    return `SWAP:${chain}.${shortenedSymbol}:${address}:${limitString}`
   }
 
   public static depositMemo(asset: Asset, address = '') {

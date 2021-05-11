@@ -644,6 +644,8 @@ export class MultiChain implements IMultiChain {
         swap.minOutputAmount, // slip limit
       )
 
+      console.log('memo - ', memo)
+
       return await this.transfer({
         assetAmount: swap.inputAmount,
         recipient: poolAddress,
