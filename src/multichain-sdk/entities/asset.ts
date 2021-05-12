@@ -9,7 +9,6 @@ import {
   assetFromString,
   assetToString,
   Chain,
-  currencySymbolByAsset,
   AssetBNB,
   AssetBTC,
   AssetETH,

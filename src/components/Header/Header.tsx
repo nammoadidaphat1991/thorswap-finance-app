@@ -22,7 +22,7 @@ import { NetworkStatus } from '../NetworkStatus'
 import { Refresh } from '../Refresh'
 import { ThemeSwitch } from '../ThemeSwitch'
 import { TxManager } from '../TxManager'
-import { Label } from '../UIElements'
+import { Label, Question } from '../UIElements'
 import { WalletDrawer } from '../WalletDrawer'
 import * as Styled from './Header.style'
 
@@ -69,7 +69,7 @@ export const Header = () => {
       )}`
     }
 
-    return `1R=$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`
+    return `1ᚱ=$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`
   }, [isDesktopView, stats])
 
   return (
@@ -92,6 +92,19 @@ export const Header = () => {
         <Label color={isValidFundCaps ? 'primary' : 'warning'} weight="bold">
           {globalRunePooledStatus} {!isValidFundCaps ? '#RAISETHECAPS' : '🚀'}
         </Label>
+        {isValidFundCaps && (
+          <Question
+            tooltip="You can provide the liquidity until Funds Cap reaches the limit."
+            placement="bottom"
+          />
+        )}
+        {!isValidFundCaps && (
+          <Question
+            tooltip="Funds Cap reached the limit, Please wait for the next raise moment."
+            placement="bottom"
+            color="warning"
+          />
+        )}
       </Styled.HeaderCenterWrapper>
 
       <Styled.HeaderAction>
