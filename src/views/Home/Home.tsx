@@ -152,8 +152,8 @@ const Home = () => {
           ),
       },
       {
-        key: 'Depth',
-        title: 'Depth',
+        key: 'Liquidity',
+        title: 'Liquidity',
         render: (pool: Pool) =>
           runeToCurrency(
             Amount.fromMidgard(pool.detail.runeDepth).mul(2),
