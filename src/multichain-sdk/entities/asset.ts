@@ -163,8 +163,12 @@ export class Asset implements IAsset {
     this.decimal = Asset.getDecimalByChain(chain)
   }
 
-  public setDecimal = async () => {
-    this.decimal = await Asset.getDecimalByAsset(this)
+  public setDecimal = async (decimal?: number) => {
+    if (decimal !== undefined) {
+      this.decimal = decimal
+    } else {
+      this.decimal = await Asset.getDecimalByAsset(this)
+    }
   }
 
   public static getTicker(symbol: string): string {

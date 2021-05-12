@@ -298,7 +298,7 @@ export class EthChain implements IEthChain {
           const assetObj = new Asset(asset.chain, asset.symbol)
 
           // set asset decimal
-          await assetObj.setDecimal()
+          await assetObj.setDecimal(amount.decimal)
 
           const amountObj = assetObj.isETH()
             ? new Amount(
