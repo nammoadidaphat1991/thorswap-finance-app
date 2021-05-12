@@ -31,9 +31,9 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const statsData = React.useMemo(() => {
     return [
       {
-        title: '24H Volume',
+        title: 'Total Liquidity',
         value: runeToCurrency(
-          Amount.fromMidgard(volume24h || 0),
+          Amount.fromMidgard(stats?.runeDepth).mul(2),
         ).toCurrencyFormat(0),
       },
       {
@@ -41,10 +41,12 @@ export const GlobalStats: React.FC = (): JSX.Element => {
         value: runeToCurrency(totalVolume).toCurrencyFormat(0),
       },
       {
-        title: 'Total Liquidity',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.runeDepth).mul(2),
-        ).toCurrencyFormat(0),
+        title: '24H Volume',
+        value: volume24h
+          ? runeToCurrency(Amount.fromMidgard(volume24h || 0)).toCurrencyFormat(
+              0,
+            )
+          : '-',
       },
       {
         title: 'Bonding APY',

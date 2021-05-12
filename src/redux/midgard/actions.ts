@@ -186,14 +186,29 @@ export const getMimir = createAsyncThunk(
 export const getVolume24h = createAsyncThunk(
   'midgard/getVolume24h',
   async () => {
-    const { intervals } = await midgardApi.getSwapHistory({
+    const { intervals: swapIntervals } = await midgardApi.getSwapHistory({
       query: {
         interval: 'day',
         count: 1,
       },
     })
 
-    return intervals[0]
+    const {
+      intervals: liquidityIntervals,
+    } = await midgardApi.getLiquidityHistory({
+      query: {
+        interval: 'day',
+        count: 1,
+      },
+    })
+
+    // swap + add + withdraw
+    const volume24h =
+      Number(swapIntervals[0].totalVolume) +
+      Number(liquidityIntervals[0].addLiquidityVolume) +
+      Number(liquidityIntervals[0].withdrawVolume)
+
+    return volume24h
   },
 )
 

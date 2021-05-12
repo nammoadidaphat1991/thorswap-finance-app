@@ -143,7 +143,7 @@ export interface State {
   mimirLoading: boolean
   mimir: MimirData
   approveStatus: ApproveStatus
-  volume24h: string | null
+  volume24h: number | null
   inboundData: InboundAddressesItem[]
   pendingLP: PendingLP
   pendingLPLoading: boolean

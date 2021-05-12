@@ -433,7 +433,7 @@ const slice = createSlice({
       })
       // get 24h volume
       .addCase(midgardActions.getVolume24h.fulfilled, (state, action) => {
-        state.volume24h = action.payload.totalVolume
+        state.volume24h = action.payload
       })
       // get thornode inbound addresses
       .addCase(
