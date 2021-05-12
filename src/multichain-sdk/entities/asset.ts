@@ -181,7 +181,8 @@ export class Asset implements IAsset {
   }
 
   currencySymbol(): string {
-    return currencySymbolByAsset(this.getAssetObj())
+    return this.ticker
+    // return currencySymbolByAsset(this.getAssetObj())
   }
 
   eq(asset: Asset): boolean {
