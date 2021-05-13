@@ -8,6 +8,8 @@ import { ThemeProvider } from 'styled-components'
 
 import { store as reduxStore, RootState } from 'redux/store'
 
+import { useGlobalRefresh } from 'hooks/useGlobalRefresh'
+
 import { AppHolder, fontConfig, ThemedGlobalStyle } from 'settings/appStyle'
 
 import Router from './router'
@@ -17,6 +19,8 @@ const Main = () => {
   const isLight = themeType === ThemeType.LIGHT
   const { light, dark } = themes
   const defaultTheme = isLight ? light : dark
+
+  useGlobalRefresh()
 
   return (
     <ThemeProvider theme={defaultTheme}>
