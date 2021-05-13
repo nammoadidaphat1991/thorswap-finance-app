@@ -25,5 +25,5 @@ export const BN_FORMAT: BigNumber.Format = {
 
 // from https://github.com/MetaMask/metamask-extension/blob/ee205b893fe61dc4736efc576e0663189a9d23da/ui/app/pages/send/send.constants.js#L39
 // and based on recommendations of https://ethgasstation.info/blog/gas-limit/
-export const SIMPLE_GAS_COST_VALUE = 35000
-export const BASE_TOKEN_GAS_COST_VALUE = 70000
+export const SIMPLE_GAS_COST_VALUE = 21000
+export const BASE_TOKEN_GAS_COST_VALUE = 100000

@@ -406,6 +406,7 @@ const AddLiquidityPanel = ({
         Notification({
           type: 'error',
           message: 'Submit Transaction Failed.',
+          description: error?.toString(),
           duration: 20,
         })
         console.log(error)

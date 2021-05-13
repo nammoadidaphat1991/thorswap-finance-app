@@ -383,13 +383,13 @@ export class EthChain implements IEthChain {
         ? SIMPLE_GAS_COST
         : BASE_TOKEN_GAS_COST
 
-      // const gasLimit = await this.client
-      //   .estimateGasLimit({ asset, recipient, amount, memo })
-      //   .catch(() => defaultGasLimit)
+      const gasLimit = await this.client
+        .estimateGasLimit({ asset, recipient, amount, memo })
+        .catch(() => defaultGasLimit)
 
       const feeParam = feeRate
         ? {
-            gasLimit: defaultGasLimit,
+            gasLimit,
             gasPrice: baseAmount(
               parseUnits(String(feeRate), 'gwei').toString(),
               ETH_DECIMAL,
@@ -402,7 +402,7 @@ export class EthChain implements IEthChain {
         amount,
         recipient,
         memo,
-        gasLimit: defaultGasLimit,
+        gasLimit,
         ...feeParam,
       })
 
@@ -439,17 +439,6 @@ export class EthChain implements IEthChain {
           .amount()
           .toFixed(0)
 
-    // estimate gas limit
-    const defaultGasLimit: ethers.BigNumber = asset.isETH()
-      ? SIMPLE_GAS_COST
-      : BASE_TOKEN_GAS_COST
-
-    // const amountObj = baseAmount(assetAmount.amount.baseAmount)
-
-    // const gasLimit = await this.client
-    //   .estimateGasLimit({ asset, recipient, amount: amountObj, memo })
-    //   .catch(() => defaultGasLimit)
-
     const contractParams = [
       recipient, // vault address
       checkSummedAddress, // asset checksum address
@@ -460,9 +449,8 @@ export class EthChain implements IEthChain {
             from: this.client.getAddress(),
             value: amount,
             gasPrice,
-            gasLimit: defaultGasLimit,
           }
-        : { gasPrice, gasLimit: defaultGasLimit },
+        : { gasPrice },
     ]
 
     if (!router) {

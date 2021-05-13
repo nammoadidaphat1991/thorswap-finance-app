@@ -215,27 +215,34 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     if (sendAsset) {
       const assetAmount = new AssetAmount(sendAsset, sendAmount)
 
-      const txHash = await multichain.send({
-        assetAmount,
-        recipient,
-        memo,
-      })
+      try {
+        const txHash = await multichain.send({
+          assetAmount,
+          recipient,
+          memo,
+        })
 
-      console.log('txhash', txHash)
+        const txURL = multichain.getExplorerTxUrl(sendAsset.chain, txHash)
 
-      const txURL = multichain.getExplorerTxUrl(sendAsset.chain, txHash)
-
-      Notification({
-        type: 'open',
-        message: 'View Send Tx.',
-        description: 'Transaction sent successfully!',
-        btn: (
-          <a href={txURL} target="_blank" rel="noopener noreferrer">
-            View Transaction
-          </a>
-        ),
-        duration: 20,
-      })
+        Notification({
+          type: 'open',
+          message: 'View Send Tx.',
+          description: 'Transaction sent successfully!',
+          btn: (
+            <a href={txURL} target="_blank" rel="noopener noreferrer">
+              View Transaction
+            </a>
+          ),
+          duration: 20,
+        })
+      } catch (error) {
+        Notification({
+          type: 'error',
+          message: 'Send Transaction Failed.',
+          description: error?.toString(),
+          duration: 20,
+        })
+      }
     }
   }, [sendAsset, sendAmount, recipient, memo])
 

@@ -58,10 +58,10 @@ export const useBalance = () => {
 
       const balance = getAssetBalance(asset, wallet).amount
 
-      // max spendable amount = balance amount - threshold amount - gas fee(if send asset equals to gas asset)
+      // max spendable amount = balance amount - threshold amount - 2 x gas fee(if send asset equals to gas asset)
       const maxSpendableAmount = balance
         .sub(thresholdAmount)
-        .sub(inboundFee.amount)
+        .sub(inboundFee.mul(2).amount)
 
       if (maxSpendableAmount.gt(0)) {
         return maxSpendableAmount
