@@ -78,6 +78,8 @@ export class Swap implements ISwap {
 
   public readonly outputAmountAfterFee: AssetAmount
 
+  public readonly outboundNetworkFee: AssetAmount
+
   public readonly fee: AssetAmount
 
   public readonly outputPercent: Percent
@@ -127,7 +129,7 @@ export class Swap implements ISwap {
     const inboundFee =
       fee?.inboundFee ??
       new AssetAmount(inputAsset, Amount.fromAssetAmount(0, inputAsset.decimal))
-    const outboundFee =
+    this.outboundNetworkFee =
       fee?.outboundFee ??
       new AssetAmount(
         outputAsset,
@@ -177,6 +179,8 @@ export class Swap implements ISwap {
       this.swapType === SwapType.SINGLE_SWAP
         ? this.swapPools[0]
         : this.swapPools[1]
+
+    // TODO: fix wrong fee
     this.estimatedNetworkFee = this.getNetworkFee(
       lastPool,
       this.outputAsset.isRUNE(),
@@ -191,10 +195,10 @@ export class Swap implements ISwap {
       // const inputAfterFee = this.inputAmount.sub(inboundFee)
 
       this.outputAmount = this.getOutputAmount(this.inputAmount)
-      const outputAmountAfterSlipFee = this.getOutputAfterNetworkFee(
+      this.outputAmountAfterFee = this.getOutputAfterNetworkFee(
         this.inputAmount,
       )
-      this.outputAmountAfterFee = outputAmountAfterSlipFee.sub(outboundFee)
+      // this.outputAmountAfterFee = outputAmountAfterSlipFee.sub(outboundFee)
 
       // validate
       if (this.outputAmountAfterFee.lt(0)) {
@@ -209,7 +213,7 @@ export class Swap implements ISwap {
       this.outputAmountAfterFee = amount
 
       // add outbound fee to exact output amount
-      this.outputAmount = amount.add(outboundFee)
+      this.outputAmount = amount.add(this.outboundNetworkFee)
       // add inbound fee to input amount
       this.inputAmount = this.getInputAmount(amount).add(inboundFee)
 
