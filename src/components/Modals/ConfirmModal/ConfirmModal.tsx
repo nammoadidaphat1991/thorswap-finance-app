@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import { LockOutlined } from '@ant-design/icons'
 import { Form } from 'antd'
@@ -36,6 +36,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
   useTimeout(() => {
     handleCancel()
   }, MODAL_DISMISS_TIME)
+
+  // reset password on visible update
+  useEffect(() => {
+    setPassword('')
+    setInvalidPassword(false)
+    setValidating(false)
+  }, [visible])
 
   const handleConfirm = useCallback(() => {
     if (!onOk || !visible) {
