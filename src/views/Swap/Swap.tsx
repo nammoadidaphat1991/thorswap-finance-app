@@ -210,9 +210,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     }
   }, [wallet, outputAsset])
 
-  const maxInputBalance: Amount = useMemo(() => {
-    return getMaxBalance(inputAsset)
-  }, [inputAsset, getMaxBalance])
+  const maxInputBalance: Amount = useMemo(() => getMaxBalance(inputAsset), [
+    inputAsset,
+    getMaxBalance,
+  ])
 
   const inputAssetBalance: Amount = useMemo(() => {
     if (!wallet) {

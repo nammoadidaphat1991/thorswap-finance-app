@@ -306,7 +306,7 @@ const AddLiquidityPanel = ({
     ],
   )
 
-  const handleSelectAssetMax = useCallback(() => {
+  const handleSelectMax = useCallback(() => {
     handleChangePercent(100)
   }, [handleChangePercent])
 
@@ -645,7 +645,7 @@ const AddLiquidityPanel = ({
         balance={poolAssetBalance}
         onChange={handleChangeAssetAmount}
         onSelect={handleSelectPoolAsset}
-        onMax={handleSelectAssetMax}
+        onMax={handleSelectMax}
         usdPrice={poolAssetPriceInUSD}
         wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.RUNE }}
@@ -666,6 +666,7 @@ const AddLiquidityPanel = ({
         selectDisabled={false}
         balance={runeBalance}
         onChange={handleChangeRuneAmount}
+        onMax={handleSelectMax}
         wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.ASSET }}
       />
