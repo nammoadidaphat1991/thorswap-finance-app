@@ -6,6 +6,10 @@ import { Amount, Asset, Price, runeToAsset } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
 
+import useInterval from 'hooks/useInterval'
+
+import { POLL_GAS_RATE_INTERVAL } from 'settings/constants'
+
 import { useApp } from './app/hooks'
 
 /**
@@ -13,8 +17,12 @@ import { useApp } from './app/hooks'
  */
 export const useGlobalState = () => {
   const dispatch = useDispatch()
-  const { actions, pools, getTxData } = useMidgard()
+  const { actions, pools, getTxData, getInboundData } = useMidgard()
   const { baseCurrency } = useApp()
+
+  useInterval(() => {
+    getInboundData()
+  }, POLL_GAS_RATE_INTERVAL)
 
   const loadInitialData = useCallback(() => {
     dispatch(actions.getVolume24h())

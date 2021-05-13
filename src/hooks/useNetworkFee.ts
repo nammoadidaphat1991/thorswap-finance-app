@@ -7,10 +7,6 @@ import { useMidgard } from 'redux/midgard/hooks'
 
 import { getGasRateByChain, getGasRateByFeeOption } from 'helpers/networkFee'
 
-import useInterval from './useInterval'
-
-const POLL_GAS_RATE_INTERVAL = 10 * 1000
-
 export const useNetworkFee = ({
   inputAsset,
   outputAsset,
@@ -19,11 +15,7 @@ export const useNetworkFee = ({
   outputAsset?: Asset
 }) => {
   const { feeOptionType } = useApp()
-  const { inboundData, getInboundData, pools } = useMidgard()
-
-  useInterval(() => {
-    getInboundData()
-  }, POLL_GAS_RATE_INTERVAL)
+  const { inboundData, pools } = useMidgard()
 
   const inboundFee = useMemo(() => {
     // get inbound gasRate with fee option

@@ -4,7 +4,8 @@ import BigNumber from 'bignumber.js'
 export const DEFAULT_SLIP_LIMIT = 5
 
 // threshold amount enforced to retain in the wallet for gas purpose
-export const RUNE_THRESHOLD_AMOUNT = 0.02 // gas fee for rune transfer/deposit
+// Note: disabled all threshold amount to 0
+export const RUNE_THRESHOLD_AMOUNT = 0 // gas fee for rune transfer/deposit
 export const ETH_THRESHOLD_AMOUNT = 0
 export const BNB_THRESHOLD_AMOUNT = 0
 export const BTC_THRESHOLD_AMOUNT = 0
