@@ -18,13 +18,13 @@ export const usePendingLP = () => {
 
   const getPendingDeposit = useCallback(() => {
     if (wallet) {
-      const activePools = pools.filter(
-        (pool) => pool.detail.status === 'available',
-      )
+      // const activePools = pools.filter(
+      //   (pool) => pool.detail.status === 'available',
+      // )
       const thorAddress = getWalletAddressByChain(wallet, THORChain)
 
       if (thorAddress) {
-        activePools.forEach((pool) => {
+        pools.forEach((pool) => {
           dispatch(
             getLiquidityProviderData({
               address: thorAddress,
