@@ -126,7 +126,7 @@ export class Price extends Amount {
     const isUSDBased = !this.quoteAsset || this.quoteAsset.ticker === 'USD'
 
     return isUSDBased
-      ? `$${this.toFixedRaw(2, format, rounding)}`
+      ? `$${this.toFixedRaw(decimalPlaces, format, rounding)}`
       : `${fixedLabel} ${this.quoteAsset?.currencySymbol()}`
   }
 
