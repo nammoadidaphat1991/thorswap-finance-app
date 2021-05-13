@@ -285,7 +285,8 @@ const AddLiquidityPanel = ({
       setPercent(p)
 
       if (expertMode === 'on') {
-        setAssetAmount(maxSymAssetAmount.mul(p).div(100))
+        setAssetAmount(maxPoolAssetBalance)
+        setRuneAmount(maxRuneBalance)
       } else if (isSymDeposit) {
         setAssetAmount(maxSymAssetAmount.mul(p).div(100))
         setRuneAmount(maxSymRuneAmount.mul(p).div(100))
