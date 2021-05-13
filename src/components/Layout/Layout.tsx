@@ -41,7 +41,7 @@ export const Layout = (props: Props) => {
         const oldRuneChain = `${runesToUpgrade?.[0]?.chain ?? ''} ${
           runesToUpgrade?.[1]?.chain ?? ''
         }`
-        return `${oldRuneChain} RUNE Detected, Click to Upgrade to Native Rune.`
+        return `Click to upgrade ${oldRuneChain} to Native RUNE.`
       }
     }
 
