@@ -29,6 +29,10 @@ import {
   ETHPLORER_API_KEY,
   INFURA_PROJECT_ID,
 } from '../config'
+import {
+  SIMPLE_GAS_COST_VALUE,
+  BASE_TOKEN_GAS_COST_VALUE,
+} from '../constants/amount'
 import { erc20ABI } from '../constants/erc20.abi'
 import { ETHAssets } from '../constants/erc20Assets'
 import { TCRopstenAbi } from '../constants/thorchain-ropsten.abi'
@@ -38,8 +42,10 @@ import { TxParams, ApproveParams, DepositParams } from './types'
 
 // from https://github.com/MetaMask/metamask-extension/blob/ee205b893fe61dc4736efc576e0663189a9d23da/ui/app/pages/send/send.constants.js#L39
 // and based on recommendations of https://ethgasstation.info/blog/gas-limit/
-export const SIMPLE_GAS_COST: ethers.BigNumber = BN.from(21000)
-export const BASE_TOKEN_GAS_COST: ethers.BigNumber = BN.from(100000)
+export const SIMPLE_GAS_COST: ethers.BigNumber = BN.from(SIMPLE_GAS_COST_VALUE)
+export const BASE_TOKEN_GAS_COST: ethers.BigNumber = BN.from(
+  BASE_TOKEN_GAS_COST_VALUE,
+)
 
 export interface IEthChain extends IClient {
   getClient(): EthClient
@@ -198,8 +204,8 @@ export class EthChain implements IEthChain {
 
         // feeOptionKey
         const defaultGasLimit: ethers.BigNumber = isETHAddress
-          ? BN.from(21000)
-          : BN.from(100000)
+          ? SIMPLE_GAS_COST
+          : BASE_TOKEN_GAS_COST
 
         let overrides: TxOverrides = {
           gasLimit: gasLimit || defaultGasLimit,
@@ -377,13 +383,13 @@ export class EthChain implements IEthChain {
         ? SIMPLE_GAS_COST
         : BASE_TOKEN_GAS_COST
 
-      const gasLimit = await this.client
-        .estimateGasLimit({ asset, recipient, amount, memo })
-        .catch(() => defaultGasLimit)
+      // const gasLimit = await this.client
+      //   .estimateGasLimit({ asset, recipient, amount, memo })
+      //   .catch(() => defaultGasLimit)
 
       const feeParam = feeRate
         ? {
-            gasLimit,
+            gasLimit: defaultGasLimit,
             gasPrice: baseAmount(
               parseUnits(String(feeRate), 'gwei').toString(),
               ETH_DECIMAL,
@@ -396,7 +402,7 @@ export class EthChain implements IEthChain {
         amount,
         recipient,
         memo,
-        gasLimit,
+        gasLimit: defaultGasLimit,
         ...feeParam,
       })
 
@@ -433,6 +439,17 @@ export class EthChain implements IEthChain {
           .amount()
           .toFixed(0)
 
+    // estimate gas limit
+    const defaultGasLimit: ethers.BigNumber = asset.isETH()
+      ? SIMPLE_GAS_COST
+      : BASE_TOKEN_GAS_COST
+
+    // const amountObj = baseAmount(assetAmount.amount.baseAmount)
+
+    // const gasLimit = await this.client
+    //   .estimateGasLimit({ asset, recipient, amount: amountObj, memo })
+    //   .catch(() => defaultGasLimit)
+
     const contractParams = [
       recipient, // vault address
       checkSummedAddress, // asset checksum address
@@ -443,8 +460,9 @@ export class EthChain implements IEthChain {
             from: this.client.getAddress(),
             value: amount,
             gasPrice,
+            gasLimit: defaultGasLimit,
           }
-        : { gasPrice },
+        : { gasPrice, gasLimit: defaultGasLimit },
     ]
 
     if (!router) {

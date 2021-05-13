@@ -2,12 +2,17 @@ import { transparentize } from 'polished'
 import styled from 'styled-components'
 import { palette } from 'styled-theme'
 
-export const ContentTitleWrapper = styled.div`
+export const ContentTitleWrapper = styled.div<{
+  justifyContent: 'space-between' | 'center' | 'space-around'
+  hasPadding?: boolean
+}>`
   display: flex;
-  justify-content: center;
+  justify-content: ${(props) => props.justifyContent};
   align-items: center;
   width: 100%;
   height: 64px;
+
+  ${(props) => props.hasPadding && 'padding: 0 20px;'}
 
   background-color: ${(props) =>
     transparentize(0.5, props.theme.palette.gray[0])};

@@ -15,6 +15,7 @@ import {
   Button,
   AssetSelect,
   Label,
+  SettingsOverlay,
 } from 'components'
 import {
   getWalletAssets,
@@ -30,6 +31,7 @@ import {
 import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
+import { useBalance } from 'hooks/useBalance'
 import { useNetworkFee } from 'hooks/useNetworkFee'
 
 import { multichain } from 'services/multichain'
@@ -80,6 +82,12 @@ const SendView = () => {
 const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
   const history = useHistory()
   const { pools } = useMidgard()
+  const { getMaxBalance } = useBalance()
+
+  const maxSpendableBalance: Amount = useMemo(() => getMaxBalance(sendAsset), [
+    sendAsset,
+    getMaxBalance,
+  ])
 
   const { inboundFee, totalFeeInUSD } = useNetworkFee({ inputAsset: sendAsset })
 
@@ -145,24 +153,26 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
 
   const handleChangeSendAmount = useCallback(
     (amount: Amount) => {
-      if (amount.gt(assetBalance)) {
-        setSendAmount(assetBalance)
+      if (amount.gt(maxSpendableBalance)) {
+        setSendAmount(maxSpendableBalance)
         setPercent(100)
       } else {
         setSendAmount(amount)
-        setPercent(amount.div(assetBalance).mul(100).assetAmount.toNumber())
+        setPercent(
+          amount.div(maxSpendableBalance).mul(100).assetAmount.toNumber(),
+        )
       }
     },
-    [assetBalance],
+    [maxSpendableBalance],
   )
 
   const handleChangePercent = useCallback(
     (p: number) => {
       setPercent(p)
-      const newAmount = assetBalance.mul(p).div(100)
+      const newAmount = maxSpendableBalance.mul(p).div(100)
       setSendAmount(newAmount)
     },
-    [assetBalance],
+    [maxSpendableBalance],
   )
 
   const handleSelectMax = useCallback(() => {
@@ -289,14 +299,19 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
     )
   }, [sendAmount, inboundFee, sendAsset, totalFeeInUSD, recipientAddress])
 
-  const title = useMemo(() => `${sendAsset.chain} ${sendAsset.ticker}`, [
+  const title = useMemo(() => `${sendAsset.ticker} (${sendAsset.type})`, [
     sendAsset,
   ])
 
   return (
     <Styled.Container>
       <Helmet title={`Send ${title}`} content={`Send ${title}`} />
-      <ContentTitle>Send {title}</ContentTitle>
+      <ContentTitle justifyContent="space-between" hasPadding>
+        <Label size="large" weight="bold">
+          Send {title}
+        </Label>
+        <SettingsOverlay />
+      </ContentTitle>
       <Styled.ContentPanel>
         <AssetInputCard
           title="send"
