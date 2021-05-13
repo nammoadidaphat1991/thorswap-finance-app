@@ -285,8 +285,12 @@ const AddLiquidityPanel = ({
       setPercent(p)
 
       if (expertMode === 'on') {
-        setAssetAmount(maxPoolAssetBalance)
-        setRuneAmount(maxRuneBalance)
+        if (liquidityType !== LiquidityTypeOption.RUNE) {
+          setAssetAmount(maxPoolAssetBalance.mul(p).div(100))
+        }
+        if (liquidityType !== LiquidityTypeOption.ASSET) {
+          setRuneAmount(maxRuneBalance.mul(p).div(100))
+        }
       } else if (isSymDeposit) {
         setAssetAmount(maxSymAssetAmount.mul(p).div(100))
         setRuneAmount(maxSymRuneAmount.mul(p).div(100))
@@ -644,7 +648,11 @@ const AddLiquidityPanel = ({
         balance={poolAssetBalance}
         onChange={handleChangeAssetAmount}
         onSelect={handleSelectPoolAsset}
-        onMax={handleSelectMax}
+        onMax={
+          liquidityType !== LiquidityTypeOption.RUNE
+            ? handleSelectMax
+            : undefined
+        }
         usdPrice={poolAssetPriceInUSD}
         wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.RUNE }}
@@ -665,7 +673,11 @@ const AddLiquidityPanel = ({
         selectDisabled={false}
         balance={runeBalance}
         onChange={handleChangeRuneAmount}
-        onMax={handleSelectMax}
+        onMax={
+          liquidityType !== LiquidityTypeOption.ASSET
+            ? handleSelectMax
+            : undefined
+        }
         wallet={wallet || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.ASSET }}
       />
