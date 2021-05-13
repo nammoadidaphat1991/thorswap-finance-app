@@ -187,12 +187,12 @@ export class Swap implements ISwap {
       this.quoteType = QuoteType.EXACT_IN
       this.inputAmount = amount
 
-      // subtract inboundFee from input amount
-      const inputAfterFee = this.inputAmount.sub(inboundFee)
+      // // subtract inboundFee from input amount
+      // const inputAfterFee = this.inputAmount.sub(inboundFee)
 
-      this.outputAmount = this.getOutputAmount(inputAfterFee)
+      this.outputAmount = this.getOutputAmount(this.inputAmount)
       const outputAmountAfterSlipFee = this.getOutputAfterNetworkFee(
-        inputAfterFee,
+        this.inputAmount,
       )
       this.outputAmountAfterFee = outputAmountAfterSlipFee.sub(outboundFee)
 
@@ -224,9 +224,9 @@ export class Swap implements ISwap {
     this.outputPercent = this.getOutputPercent(this.inputAmount)
     this.feePercent = this.getFeePercent(this.inputAmount)
 
-    // subtract inboundFee from input amount
-    const inputAfterFee = this.inputAmount.sub(inboundFee)
-    this.slip = this.getSlip(inputAfterFee)
+    // // subtract inboundFee from input amount
+    // const inputAfterFee = this.inputAmount.sub(inboundFee)
+    this.slip = this.getSlip(this.inputAmount)
   }
 
   setSlipLimitPercent(limit: number): void {

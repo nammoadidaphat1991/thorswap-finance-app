@@ -52,7 +52,7 @@ export class NetworkFee {
       if (asset.isETH()) {
         return new AssetAmount(
           Asset.ETH(),
-          Amount.fromBaseAmount(35000 * 10 ** 9 * gasRate, ETH_DECIMAL).mul(
+          Amount.fromBaseAmount(38000 * 10 ** 9 * gasRate, ETH_DECIMAL).mul(
             multiplier,
           ),
         )
@@ -60,7 +60,7 @@ export class NetworkFee {
 
       return new AssetAmount(
         Asset.ETH(),
-        Amount.fromBaseAmount(70000 * 10 ** 9 * gasRate, ETH_DECIMAL).mul(
+        Amount.fromBaseAmount(75000 * 10 ** 9 * gasRate, ETH_DECIMAL).mul(
           multiplier,
         ),
       )
