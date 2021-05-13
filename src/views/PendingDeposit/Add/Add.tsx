@@ -58,8 +58,12 @@ export const AddLiquidityPanel = ({
 
   const { isFundsCapReached } = useMimir()
 
-  const { inboundFee } = useNetworkFee({
+  const { inboundFee: inboundAssetFee } = useNetworkFee({
     inputAsset: pool.asset,
+  })
+
+  const { inboundFee: inboundRuneFee } = useNetworkFee({
+    inputAsset: Asset.RUNE(),
   })
 
   const isAssetPending = useMemo(() => Number(data.pending_asset) > 0, [data])
@@ -83,11 +87,15 @@ export const AddLiquidityPanel = ({
 
   const feeLabel = useMemo(() => {
     if (!isAssetPending) {
-      return '0.02 RUNE'
+      return `${inboundRuneFee.toCurrencyFormat()} (${inboundRuneFee
+        .totalPriceIn(Asset.USD(), pools)
+        .toCurrencyFormat(2)})`
     }
 
-    return `${inboundFee.toCurrencyFormat()}`
-  }, [isAssetPending, inboundFee])
+    return `${inboundAssetFee.toCurrencyFormat()} (${inboundAssetFee
+      .totalPriceIn(Asset.USD(), pools)
+      .toCurrencyFormat(2)})`
+  }, [isAssetPending, inboundAssetFee, inboundRuneFee, pools])
 
   const liquidityUnits = useMemo(() => {
     return Amount.fromMidgard(data.units)

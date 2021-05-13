@@ -158,16 +158,25 @@ const WithdrawPanel = ({
   const [percent, setPercent] = useState(0)
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
 
-  const { inboundFee } = useNetworkFee({
+  const { inboundFee: inboundAssetFee } = useNetworkFee({
     inputAsset: poolAsset,
+  })
+
+  const { inboundFee: inboundRuneFee } = useNetworkFee({
+    inputAsset: Asset.RUNE(),
   })
 
   const feeLabel = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.ASSET) {
-      return `${inboundFee.toCurrencyFormat()}`
+      return `${inboundAssetFee.toCurrencyFormat()} (${inboundAssetFee
+        .totalPriceIn(Asset.USD(), pools)
+        .toCurrencyFormat(2)})`
     }
-    return '0.02 RUNE'
-  }, [inboundFee, liquidityType])
+
+    return `${inboundRuneFee.toCurrencyFormat()} (${inboundRuneFee
+      .totalPriceIn(Asset.USD(), pools)
+      .toCurrencyFormat(2)})`
+  }, [inboundAssetFee, inboundRuneFee, pools, liquidityType])
 
   const memberPoolData = useMemo(() => {
     if (lpType === PoolShareType.RUNE_ASYM) return poolMemberData.runeAsym

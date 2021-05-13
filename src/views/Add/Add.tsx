@@ -375,8 +375,6 @@ const AddLiquidityPanel = ({
           assetAmount: poolAssetAmount,
         })
 
-        console.log('tx res', txRes)
-
         const runeTxHash = txRes?.runeTx
         const assetTxHash = txRes?.assetTx
 
