@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Asset, Amount, AssetAmount, NetworkFee } from 'multichain-sdk'
+import { Asset, Amount, AssetAmount, NetworkFee, Pool } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
@@ -84,12 +84,32 @@ export const useNetworkFee = ({
     [totalFee, pools],
   )
 
-  console.log(totalFee.toFixed())
-
   return {
     totalFee,
     inboundFee,
     outboundFee,
     totalFeeInUSD,
   }
+}
+
+export const getSumAmountInUSD = (
+  assetAmount1: AssetAmount | null,
+  assetAmount2: AssetAmount | null,
+  pools: Pool[],
+) => {
+  const assetAmount1InUSD = assetAmount1?.totalPriceIn(Asset.USD(), pools)
+  const assetAmount2InUSD = assetAmount2?.totalPriceIn(Asset.USD(), pools)
+
+  if (assetAmount1 === null && assetAmount2InUSD)
+    return assetAmount2InUSD.toCurrencyFormat()
+  if (assetAmount2 === null && assetAmount1InUSD)
+    return assetAmount1InUSD.toCurrencyFormat()
+
+  if (assetAmount1InUSD && assetAmount2InUSD) {
+    const sum = assetAmount1InUSD.raw().plus(assetAmount2InUSD.raw())
+
+    return Amount.fromAssetAmount(sum, 8).toFixed(2)
+  }
+
+  return Amount.fromAssetAmount(0, 8).toFixed()
 }

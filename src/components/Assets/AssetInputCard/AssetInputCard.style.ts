@@ -29,8 +29,8 @@ export const AssetInputContent = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
-
-  width: 250px;
+  flex: 1;
+  padding-right: 10px;
 `
 
 export const AssetInput = styled(UnstyledAssetInput)`
@@ -47,7 +47,7 @@ export const AssetInfo = styled.div`
   justify-content: flex-end;
   height: 100%;
 
-  padding-bottom: 10px;
+  padding-bottom: 4px;
 `
 
 export const BalanceLabel = styled(Label).attrs({
@@ -75,5 +75,5 @@ export const MaxBtn = styled(Button).attrs({
 
 export const Balance = styled.div`
   width: 100%;
-  padding-left: 44px;
+  padding-right: 14px;
 `

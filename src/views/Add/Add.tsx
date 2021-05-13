@@ -37,7 +37,7 @@ import { TxTrackerType } from 'redux/midgard/types'
 
 import { useBalance } from 'hooks/useBalance'
 import { useMimir } from 'hooks/useMimir'
-import { useNetworkFee } from 'hooks/useNetworkFee'
+import { useNetworkFee, getSumAmountInUSD } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
@@ -139,19 +139,13 @@ const AddLiquidityPanel = ({
 
   const [isApproved, setApproved] = useState<boolean | null>(null)
 
-  const { inboundFee } = useNetworkFee({
+  const { inboundFee: inboundAssetFee } = useNetworkFee({
     inputAsset: pool.asset,
   })
 
-  const feeLabel = useMemo(() => {
-    if (liquidityType === LiquidityTypeOption.RUNE) {
-      return '0.02 RUNE'
-    }
-    if (liquidityType === LiquidityTypeOption.ASSET) {
-      return `${inboundFee.toCurrencyFormat()}`
-    }
-    return `${inboundFee.toCurrencyFormat()} + 0.02 RUNE`
-  }, [inboundFee, liquidityType])
+  const { inboundFee: inboundRuneFee } = useNetworkFee({
+    inputAsset: Asset.RUNE(),
+  })
 
   useEffect(() => {
     getAllMemberDetails()
@@ -490,6 +484,49 @@ const AddLiquidityPanel = ({
     }
   }, [wallet])
 
+  const totalFeeInUSD = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
+      const totalFee = getSumAmountInUSD(inboundRuneFee, inboundAssetFee, pools)
+      return `$${totalFee}`
+    }
+
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return inboundAssetFee.totalPriceIn(Asset.USD(), pools).toCurrencyFormat()
+    }
+
+    // Rune asym
+    return inboundRuneFee.totalPriceIn(Asset.USD(), pools).toCurrencyFormat()
+  }, [liquidityType, inboundRuneFee, inboundAssetFee, pools])
+
+  const renderFee = useMemo(() => {
+    const hasRuneFee = liquidityType !== LiquidityTypeOption.ASSET
+    const hasAssetFee = liquidityType !== LiquidityTypeOption.RUNE
+
+    return (
+      <>
+        {hasRuneFee && (
+          <Information
+            title="RUNE Fee"
+            description={inboundRuneFee.toCurrencyFormat()}
+            tooltip="Gas fee used for submitting RUNE transaction"
+          />
+        )}
+        {hasAssetFee && (
+          <Information
+            title={`${poolAsset.ticker} Fee`}
+            description={inboundAssetFee.toCurrencyFormat()}
+            tooltip={`Gas fee used for submitting ${poolAsset.ticker} transaction`}
+          />
+        )}
+        <Information
+          title="Total Fee"
+          description={totalFeeInUSD}
+          tooltip={TX_FEE_TOOLTIP_LABEL}
+        />
+      </>
+    )
+  }, [liquidityType, inboundAssetFee, inboundRuneFee, poolAsset, totalFeeInUSD])
+
   const renderConfirmModalContent = useMemo(() => {
     const title =
       liquidityType === LiquidityTypeOption.SYMMETRICAL
@@ -527,11 +564,7 @@ const AddLiquidityPanel = ({
           description={poolShareEst}
           tooltip={ESTIMATED_POOL_SHARE_LABEL}
         />
-        <Information
-          title="Transaction Fee"
-          description={feeLabel}
-          tooltip={TX_FEE_TOOLTIP_LABEL}
-        />
+        {renderFee}
         <Information
           title="Estimated Time"
           description={estimatedTime}
@@ -545,11 +578,13 @@ const AddLiquidityPanel = ({
     poolAsset,
     addLiquiditySlip,
     poolShareEst,
-    feeLabel,
     liquidityType,
+    renderFee,
   ])
 
   const renderApproveModal = useMemo(() => {
+    const usdFee = inboundAssetFee.totalPriceIn(Asset.USD(), pools)
+
     return (
       <Styled.ConfirmModalContent>
         <Information
@@ -557,13 +592,13 @@ const AddLiquidityPanel = ({
           description={`${poolAsset.ticker.toUpperCase()}`}
         />
         <Information
-          title="Transaction Fee"
-          description={feeLabel}
-          tooltip={TX_FEE_TOOLTIP_LABEL}
+          title={`${poolAsset} Fee`}
+          description={`${inboundAssetFee.toCurrencyFormat()} (${usdFee.toCurrencyFormat()})`}
+          tooltip={`Gas fee used for submitting ${poolAsset} transaction`}
         />
       </Styled.ConfirmModalContent>
     )
-  }, [poolAsset, feeLabel])
+  }, [poolAsset, inboundAssetFee, pools])
 
   const isAddLiquidityValid = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
@@ -646,11 +681,7 @@ const AddLiquidityPanel = ({
           description={poolShareEst}
           tooltip={ESTIMATED_POOL_SHARE_LABEL}
         />
-        <Information
-          title="Transaction Fee"
-          description={feeLabel}
-          tooltip={TX_FEE_TOOLTIP_LABEL}
-        />
+        {renderFee}
       </Styled.DetailContent>
 
       {isApproved !== null && wallet && (

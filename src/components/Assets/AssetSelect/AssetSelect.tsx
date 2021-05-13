@@ -6,30 +6,11 @@ import { Asset, Wallet } from 'multichain-sdk'
 import { AssetMenu } from '../AssetMenu'
 import {
   AssetSelectWrapper,
-  AssetDropdownButton,
   AssetSelectMenuWrapper,
-  DropdownIconHolder,
-  DropdownIcon,
   AssetData,
   Selector,
   Modal,
 } from './AssetSelect.style'
-
-type DropdownCarretProps = {
-  open: boolean
-  onClick?: () => void
-}
-
-const DropdownCarret: React.FC<DropdownCarretProps> = (
-  props: DropdownCarretProps,
-): JSX.Element => {
-  const { open, onClick = () => {} } = props
-  return (
-    <DropdownIconHolder>
-      <DropdownIcon open={open} onClick={onClick} />
-    </DropdownIconHolder>
-  )
-}
 
 export type Props = {
   assets: Asset[]
@@ -122,14 +103,6 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
     wallet,
   ])
 
-  const renderDropDownButton = () => {
-    return (
-      <AssetDropdownButton disabled={emptyAssets || disabled}>
-        {!emptyAssets ? <DropdownCarret open={modalShown} /> : null}
-      </AssetDropdownButton>
-    )
-  }
-
   return (
     <AssetSelectWrapper minWidth={minWidth} {...others}>
       {!!children && children}
@@ -139,7 +112,6 @@ export const AssetSelect: React.FC<Props> = (props): JSX.Element => {
       {!disabled && (
         <Selector disabled={emptyAssets} onClick={handleDropdownButtonClicked}>
           <AssetData asset={asset} showLabel={showLabel} size={size} />
-          {renderDropDownButton()}
         </Selector>
       )}
       <Modal
