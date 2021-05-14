@@ -10,7 +10,7 @@ export const toolsData = [
     description:
       'Analyse historical pool earnings, as well as simulate future earnings.',
     info: 'runedata.info',
-    link: 'http://www.runedata.info',
+    link: 'http://runedata.info',
   },
   {
     title: 'RUNEBALANCE.COM',
