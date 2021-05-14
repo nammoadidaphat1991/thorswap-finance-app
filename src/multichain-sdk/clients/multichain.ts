@@ -265,7 +265,7 @@ export class MultiChain implements IMultiChain {
         balance: [],
       },
       ETH: {
-        address: this.eth.getClient().getAddress(),
+        address: this.eth.getClient().getAddress().toLowerCase(),
         balance: [],
       },
       LTC: {
@@ -340,7 +340,9 @@ export class MultiChain implements IMultiChain {
 
     try {
       const balance = (await chainClient?.loadBalance()) ?? []
-      const address = removeAddressPrefix(chainClient.getClient().getAddress())
+      const address = removeAddressPrefix(
+        chainClient.getClient().getAddress().toLowerCase(),
+      )
 
       if (this.wallet && chain in this.wallet) {
         this.wallet = {
