@@ -2,13 +2,7 @@ import { useCallback } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 
-import {
-  Asset,
-  Amount,
-  AssetAmount,
-  getAssetBalance,
-  NetworkFee,
-} from 'multichain-sdk'
+import { Asset, Amount, getAssetBalance, NetworkFee } from 'multichain-sdk'
 
 import { SupportedChain } from 'multichain-sdk/clients/types'
 
@@ -41,9 +35,6 @@ export const useBalance = () => {
         return Amount.fromAssetAmount(10 ** 3, 8)
       }
 
-      // threshold amount to retain in the balance for gas purpose
-      const thresholdAmount = AssetAmount.getThresholdAmount(asset).amount
-
       // calculate inbound fee
       const gasRate = getGasRateByFeeOption({
         inboundData,
@@ -58,10 +49,15 @@ export const useBalance = () => {
 
       const balance = getAssetBalance(asset, wallet).amount
 
-      // max spendable amount = balance amount - threshold amount - 2 x gas fee(if send asset equals to gas asset)
-      const maxSpendableAmount = balance
-        .sub(thresholdAmount)
-        .sub(inboundFee.mul(2).amount)
+      /**
+       * if asset is used for gas, subtract the inbound gas fee from input amount
+       * else allow full amount
+       * Calc: max spendable amount = balance amount - 2 x gas fee(if send asset equals to gas asset)
+       */
+
+      const maxSpendableAmount = asset.isGasAsset()
+        ? balance.sub(inboundFee.mul(2).amount)
+        : balance
 
       if (maxSpendableAmount.gt(0)) {
         return maxSpendableAmount
