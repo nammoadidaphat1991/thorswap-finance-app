@@ -273,11 +273,14 @@ export class EthChain implements IEthChain {
         if (!routerAddress) {
           return await Promise.reject(new Error('address must be provided'))
         }
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const signer = provider.getSigner()
+
         const contract = new ethers.Contract(
           routerAddress,
           abi,
-          this.client.getProvider(),
-        ).connect(ethWallet)
+          provider,
+        ).connect(signer)
         return contract[func](...params)
       } catch (error) {
         return Promise.reject(error)
