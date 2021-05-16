@@ -56,7 +56,7 @@ export const useBalance = () => {
        */
 
       const maxSpendableAmount = asset.isGasAsset()
-        ? balance.sub(inboundFee.mul(2).amount)
+        ? balance.sub(inboundFee.mul(1.5).amount)
         : balance
 
       if (maxSpendableAmount.gt(0)) {

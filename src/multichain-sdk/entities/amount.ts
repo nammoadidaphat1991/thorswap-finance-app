@@ -31,7 +31,6 @@ export interface IAmount {
 
   add(amount: Amount): Amount
   sub(amount: Amount): Amount
-  times(value: Amount): Amount
   mul(value: BigNumber.Value | Amount): Amount
   div(value: BigNumber.Value | Amount): Amount
   gte(amount: Amount | BigNumber.Value): boolean
@@ -98,6 +97,7 @@ export class Amount implements IAmount {
   ) {
     this.decimal = decimal
     const decimalAmount = 10 ** decimal
+
     if (type === AmountType.BASE_AMOUNT) {
       this.baseAmount = new BigNumber(amount)
       this.assetAmount = this.baseAmount.dividedBy(decimalAmount)
@@ -107,7 +107,9 @@ export class Amount implements IAmount {
     }
 
     // remove decimal points for baseAmount
-    this.baseAmount = new BigNumber(this.baseAmount.toFixed(0))
+    this.baseAmount = new BigNumber(
+      this.baseAmount.integerValue(BigNumber.ROUND_DOWN),
+    )
   }
 
   get _0_AMOUNT() {
@@ -126,14 +128,6 @@ export class Amount implements IAmount {
     return new Amount(
       this.assetAmount.minus(amount.assetAmount),
       AmountType.ASSET_AMOUNT,
-      this.decimal,
-    )
-  }
-
-  times(value: Amount): Amount {
-    return new Amount(
-      this.baseAmount.multipliedBy(value.baseAmount),
-      AmountType.BASE_AMOUNT,
       this.decimal,
     )
   }

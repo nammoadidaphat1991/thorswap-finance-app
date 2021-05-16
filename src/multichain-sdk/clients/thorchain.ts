@@ -184,7 +184,7 @@ export class ThorChain implements IThorChain {
     try {
       const { assetAmount, recipient, memo } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       const res = await this.client.transfer({
         asset: asset.getAssetObj(),
@@ -203,7 +203,7 @@ export class ThorChain implements IThorChain {
     try {
       const { assetAmount, memo } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       if (!memo) throw new Error(INVALID_MEMO_ERROR)
 

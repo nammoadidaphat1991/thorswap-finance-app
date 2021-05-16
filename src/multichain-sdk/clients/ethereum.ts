@@ -379,7 +379,7 @@ export class EthChain implements IEthChain {
         feeOptionKey = 'fast',
       } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       // estimate gas limit
       const defaultGasLimit: ethers.BigNumber = asset.isETH()
@@ -426,12 +426,11 @@ export class EthChain implements IEthChain {
     } = params
 
     const { asset } = assetAmount
-    const decimal = await this.getERC20AssetDecimal(asset)
 
-    const amount = Amount.fromAssetAmount(
-      assetAmount.amount.assetAmount,
-      decimal,
-    ).baseAmount.toFixed(0, BigNumber.ROUND_DOWN)
+    // deposit base amount
+    const amount = assetAmount.amount.baseAmount
+      .integerValue(BigNumber.ROUND_DOWN)
+      .toFixed()
 
     const checkSummedAddress = this.getCheckSumAddress(asset)
 
@@ -475,7 +474,7 @@ export class EthChain implements IEthChain {
    * @returns approved status
    */
   isApproved = async ({ spender, sender }: ApproveParams): Promise<boolean> => {
-    return this.client.isApproved(spender, sender, baseAmount(1))
+    return this.client.isApproved(spender, sender, baseAmount(1, ETH_DECIMAL))
   }
 
   /**

@@ -155,7 +155,7 @@ export class BtcChain implements IBtcChain {
         feeOptionKey = 'fast',
       } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       const feeRateValue =
         feeRate || (await this.client.getFeeRates())[feeOptionKey]

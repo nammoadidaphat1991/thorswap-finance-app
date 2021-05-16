@@ -485,7 +485,7 @@ export class MultiChain implements IMultiChain {
     if (chain === 'ETH' && tx) {
       const { assetAmount, recipient } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       const assetObj = {
         chain: asset.chain,

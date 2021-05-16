@@ -155,7 +155,7 @@ export class LtcChain implements ILtcChain {
         feeOptionKey = 'average',
       } = tx
       const { asset } = assetAmount
-      const amount = baseAmount(assetAmount.amount.baseAmount)
+      const amount = baseAmount(assetAmount.amount.baseAmount, asset.decimal)
 
       const feeRateValue =
         feeRate || (await this.client.getFeeRates())[feeOptionKey]
