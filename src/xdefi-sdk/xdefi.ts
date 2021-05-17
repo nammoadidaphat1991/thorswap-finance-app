@@ -33,6 +33,7 @@ export interface IXdefiClient {
 
   isWalletDetected(): boolean
   getAddress(chain: SupportedChain): Promise<string>
+  setAccountChangeListener(listener: () => void): void
 
   reloadProviders(): void
   loadProvider(chain: SupportedChain): void
@@ -116,6 +117,15 @@ export class XdefiClient implements IXdefiClient {
       if (chain === LTCChain) this.ltc = window.xfi.litecoin
 
       this.thor = window.xfi.thorchain
+    }
+  }
+
+  // set listener for account change event
+  setAccountChangeListener = (listener: () => void): void => {
+    if (typeof window === 'object' && window?.xfi) {
+      window.ethereum.on('accountsChanged', () => {
+        listener()
+      })
     }
   }
 
