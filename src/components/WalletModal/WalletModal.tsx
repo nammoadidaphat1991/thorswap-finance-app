@@ -1,19 +1,20 @@
 import React, { useCallback, useState, useMemo } from 'react'
 
 import {
-  FolderOpenOutlined,
   PlusOutlined,
   ImportOutlined,
   ArrowLeftOutlined,
   CloseOutlined,
 } from '@ant-design/icons'
 import { Keystore as KeystoreType } from '@xchainjs/xchain-crypto'
+import { WalletStatus } from 'metamask-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
 
+import { metamask } from 'services/metamask'
 import { xdefi } from 'services/xdefi'
 
-import { XdefiLogoIcon } from '../Icons'
+import { FolderIcon, MetaMaskLogoIcon, XdefiLogoIcon } from '../Icons'
 import { Overlay, Label } from '../UIElements'
 import ConnectKeystoreView from './ConnectKeystore'
 import CreateKeystoreView from './CreateKeystore'
@@ -24,6 +25,7 @@ enum WalletMode {
   'Keystore' = 'Keystore',
   'Create' = 'Create',
   'Phrase' = 'Phrase',
+  'MetaMask' = 'MetaMask',
   'XDefi' = 'XDefi',
   'Select' = 'Select',
 }
@@ -39,6 +41,7 @@ const WalletModal = () => {
     walletLoading,
   } = useWallet()
 
+  const metamaskStatus = useMemo(() => metamask.isWalletDetected(), [])
   const xdefiInstalled = useMemo(() => xdefi.isWalletDetected(), [])
 
   const handleConnect = useCallback(
@@ -49,6 +52,14 @@ const WalletModal = () => {
     },
     [unlockWallet, setIsConnectModalOpen],
   )
+
+  const handleConnectMetaMask = useCallback(async () => {
+    if (metamaskStatus === WalletStatus.NoWeb3Provider) {
+      window.open('https://metamask.io')
+    } else if (metamaskStatus === WalletStatus.XdefiDetected) {
+    } else {
+    }
+  }, [metamaskStatus])
 
   const handleConnectXDefi = useCallback(async () => {
     if (!xdefiInstalled) {
@@ -66,6 +77,18 @@ const WalletModal = () => {
   const renderMainPanel = useMemo(() => {
     return (
       <Styled.MainPanel>
+        <Styled.ConnectOption onClick={handleConnectMetaMask}>
+          {metamaskStatus === WalletStatus.MetaMaskDetected && (
+            <Label>Connect MetaMask Wallet</Label>
+          )}
+          {metamaskStatus === WalletStatus.XdefiDetected && (
+            <Label>Uninstall Xdefi Wallet First</Label>
+          )}
+          {metamaskStatus === WalletStatus.NoWeb3Provider && (
+            <Label>Install MetaMask Wallet</Label>
+          )}
+          <MetaMaskLogoIcon />
+        </Styled.ConnectOption>
         <Styled.ConnectOption onClick={handleConnectXDefi}>
           {xdefiInstalled && <Label>Connect Xdefi Wallet</Label>}
           {!xdefiInstalled && <Label>Install Xdefi Wallet</Label>}
@@ -75,7 +98,7 @@ const WalletModal = () => {
           onClick={() => setWalletMode(WalletMode.Keystore)}
         >
           <Label>Connect Keystore</Label>
-          <FolderOpenOutlined />
+          <FolderIcon />
         </Styled.ConnectOption>
         <Styled.ConnectOption onClick={() => setWalletMode(WalletMode.Create)}>
           <Label>Create Keystore</Label>
@@ -87,7 +110,12 @@ const WalletModal = () => {
         </Styled.ConnectOption>
       </Styled.MainPanel>
     )
-  }, [handleConnectXDefi, xdefiInstalled])
+  }, [
+    metamaskStatus,
+    xdefiInstalled,
+    handleConnectMetaMask,
+    handleConnectXDefi,
+  ])
 
   return (
     <Overlay
