@@ -12,7 +12,7 @@ import { useMimir } from 'hooks/useMimir'
 import * as Styled from './StatisticsView.style'
 
 const StatisticsView: React.FC = (): JSX.Element => {
-  const { stats, networkData } = useMidgard()
+  const { stats, networkData, lastBlock } = useMidgard()
   const { maxLiquidityRune } = useMimir()
   const { runeToCurrency } = useGlobalState()
 
@@ -35,10 +35,6 @@ const StatisticsView: React.FC = (): JSX.Element => {
   const networkStatsData = React.useMemo(() => {
     return [
       {
-        title: 'Rune Price',
-        value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(4)}`,
-      },
-      {
         title: 'Bonding APY',
         value: bondingAPYLabel,
       },
@@ -47,6 +43,12 @@ const StatisticsView: React.FC = (): JSX.Element => {
         value: runeToCurrency(
           Amount.fromMidgard(networkData?.totalReserve),
         ).toCurrencyFormat(0),
+      },
+      {
+        title: 'Block Reward',
+        value: runeToCurrency(
+          Amount.fromMidgard(networkData?.blockRewards?.blockReward),
+        ).toCurrencyFormat(2),
       },
       {
         title: 'Active Node Count',
@@ -59,11 +61,21 @@ const StatisticsView: React.FC = (): JSX.Element => {
         ),
       },
       {
+        title: 'Pool Activation Countdown',
+        value: Amount.fromNormalAmount(
+          networkData?.poolActivationCountdown,
+        ).toFixed(0),
+      },
+      {
+        title: 'Current Block Height',
+        value: Amount.fromNormalAmount(lastBlock?.[0]?.thorchain).toFixed(0),
+      },
+      {
         title: 'Next Churn Height',
         value: Amount.fromNormalAmount(networkData?.nextChurnHeight).toFixed(0),
       },
     ]
-  }, [stats, networkData, bondingAPYLabel, runeToCurrency])
+  }, [lastBlock, networkData, bondingAPYLabel, runeToCurrency])
 
   const volumeStatsData = React.useMemo(() => {
     return [
@@ -97,7 +109,7 @@ const StatisticsView: React.FC = (): JSX.Element => {
       {
         title: 'Total Liquidity',
         value: runeToCurrency(
-          Amount.fromMidgard(stats?.runeDepth).mul(0),
+          Amount.fromMidgard(stats?.runeDepth).mul(2),
         ).toCurrencyFormat(0),
       },
       {
@@ -205,10 +217,10 @@ const StatisticsView: React.FC = (): JSX.Element => {
       </Styled.Section>
       <Styled.Section>
         <Styled.SectionTitle weight="bold" color="primary" size="large">
-          Users, Transactions
+          Network
         </Styled.SectionTitle>
         <Row gutter={[16, 16]}>
-          {userStatsData.map((statProps, index) => {
+          {networkStatsData.map((statProps, index) => {
             return (
               <Col
                 key={index}
@@ -226,10 +238,10 @@ const StatisticsView: React.FC = (): JSX.Element => {
       </Styled.Section>
       <Styled.Section>
         <Styled.SectionTitle weight="bold" color="primary" size="large">
-          Network
+          Users, Transactions
         </Styled.SectionTitle>
         <Row gutter={[16, 16]}>
-          {networkStatsData.map((statProps, index) => {
+          {userStatsData.map((statProps, index) => {
             return (
               <Col
                 key={index}

@@ -45,6 +45,7 @@ const initialState: State = {
   inboundData: [],
   pendingLP: {},
   pendingLPLoading: false,
+  lastBlock: [],
 }
 
 const slice = createSlice({
@@ -236,6 +237,9 @@ const slice = createSlice({
       })
       .addCase(midgardActions.getNetworkData.fulfilled, (state, action) => {
         state.networkData = action.payload
+      })
+      .addCase(midgardActions.getLastblock.fulfilled, (state, action) => {
+        state.lastBlock = action.payload
       })
       .addCase(midgardActions.getConstants.fulfilled, (state, action) => {
         state.constants = action.payload

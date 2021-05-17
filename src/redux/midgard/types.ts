@@ -16,6 +16,7 @@ import {
   MemberPool,
   InboundAddressesItem,
   TVLHistory,
+  LastblockItem,
 } from 'midgard-sdk'
 import { Pool } from 'multichain-sdk'
 
@@ -147,4 +148,5 @@ export interface State {
   inboundData: InboundAddressesItem[]
   pendingLP: PendingLP
   pendingLPLoading: boolean
+  lastBlock: LastblockItem[]
 }

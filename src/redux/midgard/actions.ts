@@ -28,6 +28,11 @@ export const getNetworkData = createAsyncThunk(
   midgardApi.getNetworkData,
 )
 
+export const getLastblock = createAsyncThunk(
+  'midgard/getLastblock',
+  midgardApi.getLastblock,
+)
+
 export const getStats = createAsyncThunk(
   'midgard/getStats',
   midgardApi.getStats,
@@ -41,11 +46,6 @@ export const getConstants = createAsyncThunk(
 export const getQueue = createAsyncThunk(
   'midgard/getQueue',
   midgardApi.getQueue,
-)
-
-export const getLastblock = createAsyncThunk(
-  'midgard/getLastblock',
-  midgardApi.getLastblock,
 )
 
 export const getActions = createAsyncThunk(

@@ -21,6 +21,7 @@ export const useGlobalState = () => {
     dispatch(actions.getPools())
     dispatch(actions.getStats())
     dispatch(actions.getNetworkData())
+    dispatch(actions.getLastblock())
     dispatch(actions.getMimir())
     dispatch(actions.getQueue())
     getTxData({
