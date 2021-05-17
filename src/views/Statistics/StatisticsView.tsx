@@ -7,8 +7,13 @@ import { Percent, Amount } from 'multichain-sdk'
 import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
+import { useMimir } from 'hooks/useMimir'
+
+import * as Styled from './StatisticsView.style'
+
 const StatisticsView: React.FC = (): JSX.Element => {
   const { stats, networkData } = useMidgard()
+  const { maxLiquidityRune } = useMimir()
   const { runeToCurrency } = useGlobalState()
 
   const bondingAPYLabel = new Percent(networkData?.bondingAPY ?? 0).toFixed(2)
@@ -27,33 +32,96 @@ const StatisticsView: React.FC = (): JSX.Element => {
   const totalVolume = swapVolume.add(addLiquidityVolume).add(withdrawVolume)
   const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
 
-  const statsData = React.useMemo(() => {
+  const networkStatsData = React.useMemo(() => {
     return [
       {
         title: 'Rune Price',
         value: `$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(4)}`,
       },
       {
-        title: 'Total Volume',
-        value: runeToCurrency(totalVolume).toCurrencyFormat(0),
-      },
-      {
-        title: 'Total Liquidity',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.runeDepth).mul(2),
-        ).toCurrencyFormat(0),
-      },
-      {
-        title: 'Total Tx',
-        value: totalTx.toFixed(),
-      },
-      {
         title: 'Bonding APY',
         value: bondingAPYLabel,
       },
       {
+        title: 'Total Reserve',
+        value: runeToCurrency(
+          Amount.fromMidgard(networkData?.totalReserve),
+        ).toCurrencyFormat(0),
+      },
+      {
+        title: 'Active Node Count',
+        value: Amount.fromNormalAmount(networkData?.activeNodeCount).toFixed(0),
+      },
+      {
+        title: 'Standby Node Count',
+        value: Amount.fromNormalAmount(networkData?.standbyNodeCount).toFixed(
+          0,
+        ),
+      },
+      {
+        title: 'Next Churn Height',
+        value: Amount.fromNormalAmount(networkData?.nextChurnHeight).toFixed(0),
+      },
+    ]
+  }, [stats, networkData, bondingAPYLabel, runeToCurrency])
+
+  const volumeStatsData = React.useMemo(() => {
+    return [
+      {
+        title: 'Total Volume',
+        value: runeToCurrency(totalVolume).toCurrencyFormat(0),
+      },
+      {
+        title: 'Swap Volume',
+        value: runeToCurrency(
+          Amount.fromMidgard(stats?.swapVolume),
+        ).toCurrencyFormat(0),
+      },
+      {
+        title: 'Add Liquidity Volume',
+        value: runeToCurrency(
+          Amount.fromMidgard(stats?.addLiquidityVolume),
+        ).toCurrencyFormat(0),
+      },
+      {
+        title: 'Withdraw Volume',
+        value: runeToCurrency(
+          Amount.fromMidgard(stats?.withdrawVolume),
+        ).toCurrencyFormat(0),
+      },
+    ]
+  }, [stats, totalVolume, runeToCurrency])
+
+  const liquidityStatsData = React.useMemo(() => {
+    return [
+      {
+        title: 'Total Liquidity',
+        value: runeToCurrency(
+          Amount.fromMidgard(stats?.runeDepth).mul(0),
+        ).toCurrencyFormat(0),
+      },
+      {
+        title: 'Total RUNE Pooled',
+        value: `${Amount.fromMidgard(networkData?.totalPooledRune).toFixed(
+          0,
+        )} RUNE`,
+      },
+      {
+        title: 'Max RUNE Liquidity',
+        value: `${maxLiquidityRune?.toFixed(0) ?? 'N/A'} RUNE`,
+      },
+      {
         title: 'Liquidity APY',
         value: liquidityAPYLabel,
+      },
+    ]
+  }, [stats, networkData, maxLiquidityRune, liquidityAPYLabel, runeToCurrency])
+
+  const userStatsData = React.useMemo(() => {
+    return [
+      {
+        title: 'Total Tx',
+        value: totalTx.toFixed(),
       },
       {
         title: 'Swap Count',
@@ -72,30 +140,12 @@ const StatisticsView: React.FC = (): JSX.Element => {
         value: Amount.fromNormalAmount(stats?.swapCount30d).toFixed(0),
       },
       {
-        title: 'Swap Volume',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.swapVolume),
-        ).toCurrencyFormat(0),
-      },
-      {
         title: 'Add Liquidity Count',
         value: Amount.fromNormalAmount(stats?.addLiquidityCount).toFixed(0),
       },
       {
-        title: 'Add Liquidity Volume',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.addLiquidityVolume),
-        ).toCurrencyFormat(0),
-      },
-      {
         title: 'Withdraw Count',
         value: Amount.fromNormalAmount(stats?.withdrawCount).toFixed(0),
-      },
-      {
-        title: 'Withdraw Volume',
-        value: runeToCurrency(
-          Amount.fromMidgard(stats?.withdrawVolume),
-        ).toCurrencyFormat(0),
       },
       {
         title: 'Monthly Active Users',
@@ -105,61 +155,97 @@ const StatisticsView: React.FC = (): JSX.Element => {
         title: 'Daily Active Users',
         value: Amount.fromNormalAmount(stats?.dailyActiveUsers).toFixed(0),
       },
-      {
-        title: 'Total Pooled RUNE',
-        value: runeToCurrency(
-          Amount.fromMidgard(networkData?.totalPooledRune),
-        ).toCurrencyFormat(2),
-      },
-      {
-        title: 'Total Reserve',
-        value: runeToCurrency(
-          Amount.fromMidgard(networkData?.totalReserve),
-        ).toCurrencyFormat(2),
-      },
-      {
-        title: 'Active Node Count',
-        value: Amount.fromNormalAmount(networkData?.activeNodeCount).toFixed(0),
-      },
-      {
-        title: 'Standby Node Count',
-        value: Amount.fromNormalAmount(networkData?.standbyNodeCount).toFixed(
-          0,
-        ),
-      },
-      {
-        title: 'Next Churn Height',
-        value: Amount.fromNormalAmount(networkData?.nextChurnHeight).toFixed(0),
-      },
     ]
-  }, [
-    stats,
-    networkData,
-    bondingAPYLabel,
-    liquidityAPYLabel,
-    totalVolume,
-    totalTx,
-    runeToCurrency,
-  ])
+  }, [stats, totalTx])
 
   return (
-    <Row gutter={[16, 16]}>
+    <Styled.Container>
       <Helmet title="Stats" content="Stats" />
-      {statsData.map((statProps, index) => {
-        return (
-          <Col
-            key={index}
-            xs={{ span: 24 }}
-            sm={{ span: 12 }}
-            md={{ span: 8 }}
-            lg={{ span: 8 }}
-            xl={{ span: 4 }}
-          >
-            <StatsCard {...statProps} />
-          </Col>
-        )
-      })}
-    </Row>
+      <Styled.Section>
+        <Styled.SectionTitle weight="bold" color="primary" size="large">
+          Volume
+        </Styled.SectionTitle>
+        <Row gutter={[16, 16]}>
+          {volumeStatsData.map((statProps, index) => {
+            return (
+              <Col
+                key={index}
+                xs={{ span: 24 }}
+                sm={{ span: 12 }}
+                md={{ span: 8 }}
+                lg={{ span: 8 }}
+                xl={{ span: 4 }}
+              >
+                <StatsCard {...statProps} />
+              </Col>
+            )
+          })}
+        </Row>
+      </Styled.Section>
+      <Styled.Section>
+        <Styled.SectionTitle weight="bold" color="primary" size="large">
+          Liquidity
+        </Styled.SectionTitle>
+        <Row gutter={[16, 16]}>
+          {liquidityStatsData.map((statProps, index) => {
+            return (
+              <Col
+                key={index}
+                xs={{ span: 24 }}
+                sm={{ span: 12 }}
+                md={{ span: 8 }}
+                lg={{ span: 8 }}
+                xl={{ span: 4 }}
+              >
+                <StatsCard {...statProps} />
+              </Col>
+            )
+          })}
+        </Row>
+      </Styled.Section>
+      <Styled.Section>
+        <Styled.SectionTitle weight="bold" color="primary" size="large">
+          Users, Transactions
+        </Styled.SectionTitle>
+        <Row gutter={[16, 16]}>
+          {userStatsData.map((statProps, index) => {
+            return (
+              <Col
+                key={index}
+                xs={{ span: 24 }}
+                sm={{ span: 12 }}
+                md={{ span: 8 }}
+                lg={{ span: 8 }}
+                xl={{ span: 4 }}
+              >
+                <StatsCard {...statProps} />
+              </Col>
+            )
+          })}
+        </Row>
+      </Styled.Section>
+      <Styled.Section>
+        <Styled.SectionTitle weight="bold" color="primary" size="large">
+          Network
+        </Styled.SectionTitle>
+        <Row gutter={[16, 16]}>
+          {networkStatsData.map((statProps, index) => {
+            return (
+              <Col
+                key={index}
+                xs={{ span: 24 }}
+                sm={{ span: 12 }}
+                md={{ span: 8 }}
+                lg={{ span: 8 }}
+                xl={{ span: 4 }}
+              >
+                <StatsCard {...statProps} />
+              </Col>
+            )
+          })}
+        </Row>
+      </Styled.Section>
+    </Styled.Container>
   )
 }
 
