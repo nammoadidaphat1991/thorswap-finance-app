@@ -51,6 +51,10 @@ export const Description = styled(Label)`
   color: ${palette('text', 0)};
   /* color: ${palette('primary', 0)}; */
   font-family: 'Exo 2';
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `

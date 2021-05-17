@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { Row, Col } from 'antd'
 import { Percent, Amount } from 'multichain-sdk'
@@ -37,12 +37,6 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const totalVolume = swapVolume.add(addLiquidityVolume).add(withdrawVolume)
   // const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
 
-  const fundsCapStatusLabel = useMemo(() => {
-    if (isFundsCapReached) return `Reached Limit (${capPercent})`
-
-    return `Available (${capPercent})`
-  }, [isFundsCapReached, capPercent])
-
   const statsData: InfoCardProps[] = React.useMemo(() => {
     return [
       {
@@ -71,7 +65,7 @@ export const GlobalStats: React.FC = (): JSX.Element => {
       },
       {
         title: 'Funds Cap',
-        value: fundsCapStatusLabel,
+        value: capPercent || '-',
         tooltip: !isFundsCapReached
           ? 'You can provide the liquidity until Funds Cap reaches the limit.'
           : 'Funds Cap reached the limit, Please wait for the next raise moment.',
@@ -98,7 +92,7 @@ export const GlobalStats: React.FC = (): JSX.Element => {
     totalVolume,
     maxLiquidityRune,
     totalPooledRune,
-    fundsCapStatusLabel,
+    capPercent,
     runeToCurrency,
     isFundsCapReached,
   ])
