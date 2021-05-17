@@ -71,7 +71,10 @@ export const RunePrice = styled.div`
   border: 1px solid ${palette('primary', 0)};
   border-radius: 16px;
 
-  display: flex;
+  display: none;
+  ${media.sm`
+      display: flex;
+  `}
 
   margin-left: 0px;
   ${media.sm`
@@ -92,4 +95,6 @@ export const ToolWrapper = styled.div`
   `}
 `
 
-export const LogoWrapper = styled.div``
+export const LogoWrapper = styled.div`
+  padding-top: 4px;
+`

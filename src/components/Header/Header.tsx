@@ -12,8 +12,6 @@ import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 import { useWallet } from 'redux/wallet/hooks'
 
-import useNetwork from 'hooks/useNetwork'
-
 import { HOME_ROUTE } from 'settings/constants'
 import { currencyIndexAssets } from 'settings/constants/currency'
 
@@ -22,7 +20,7 @@ import { NetworkStatus } from '../NetworkStatus'
 import { Refresh } from '../Refresh'
 import { ThemeSwitch } from '../ThemeSwitch'
 import { TxManager } from '../TxManager'
-import { Label, Question } from '../UIElements'
+import { Label } from '../UIElements'
 import { WalletDrawer } from '../WalletDrawer'
 import * as Styled from './Header.style'
 
@@ -30,7 +28,6 @@ export const Header = () => {
   const { themeType, baseCurrencyAsset, setBaseCurrency } = useApp()
   const { wallet, walletLoading, setIsConnectModalOpen } = useWallet()
   const { refreshPage } = useGlobalState()
-  const { isValidFundCaps, globalRunePooledStatus } = useNetwork()
   const { stats } = useMidgard()
 
   const [drawerVisible, setDrawerVisible] = useState(false)
@@ -78,34 +75,19 @@ export const Header = () => {
             <Logo mini type="thorswap" color={themeType} />
           </Link>
         </Styled.LogoWrapper>
-        <Styled.HeaderAction>
-          <NetworkStatus />
+        {/* <Styled.HeaderAction>
           <Styled.RunePrice>
             <Label weight="bold">{priceLabel}</Label>
           </Styled.RunePrice>
-        </Styled.HeaderAction>
+          <NetworkStatus />
+        </Styled.HeaderAction> */}
       </Styled.HeaderLogo>
 
-      <Styled.HeaderCenterWrapper>
-        <Label color={isValidFundCaps ? 'primary' : 'warning'} weight="bold">
-          {globalRunePooledStatus} {!isValidFundCaps ? '#RAISETHECAPS' : '🚀'}
-        </Label>
-        {isValidFundCaps && (
-          <Question
-            tooltip="You can provide the liquidity until Funds Cap reaches the limit."
-            placement="bottom"
-          />
-        )}
-        {!isValidFundCaps && (
-          <Question
-            tooltip="Funds Cap reached the limit, Please wait for the next raise moment."
-            placement="bottom"
-            color="warning"
-          />
-        )}
-      </Styled.HeaderCenterWrapper>
-
       <Styled.HeaderAction>
+        <Styled.RunePrice>
+          <Label weight="bold">{priceLabel}</Label>
+        </Styled.RunePrice>
+        <NetworkStatus />
         <Styled.ToolWrapper>
           <CurrencySelector
             selected={baseCurrencyAsset}
