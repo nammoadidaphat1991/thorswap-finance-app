@@ -14,7 +14,6 @@ export const Navbar = () => {
 
   useOnClickOutside(navRef, () => {
     if (navRef && isOpen === true) {
-      console.log('clicked', isOpen)
       setOpen(false)
     }
   })

@@ -21,6 +21,8 @@ export const TX_ROUTE = '/tx'
 
 export const POOL_DETAIL_ROUTE = '/pool'
 
+export const POOL_OVERVIEW_ROUTE = '/pools'
+
 export const getPoolDetailRoute = (pool: Pool) => {
   return `${POOL_DETAIL_ROUTE}/${pool.asset.toString()}`
 }

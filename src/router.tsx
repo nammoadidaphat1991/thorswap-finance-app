@@ -8,6 +8,7 @@ import { history } from 'helpers/history'
 
 import {
   HOME_ROUTE,
+  POOL_OVERVIEW_ROUTE,
   SEND_ROUTE,
   UPGRADE_RUNE_ROUTE,
   SWAP_ROUTE,
@@ -37,6 +38,11 @@ const routes: Routes = [
     exact: true,
     path: HOME_ROUTE,
     component: lazy(() => import('views/Home')),
+  },
+  {
+    exact: true,
+    path: POOL_OVERVIEW_ROUTE,
+    component: lazy(() => import('views/Pools')),
   },
   {
     exact: true,
@@ -141,7 +147,7 @@ const PublicRoutes = () => (
               exact={route.exact}
               render={(props) => (
                 <Layout transparent={!background}>
-                  <SubHeader hasBack={route.path !== HOME_ROUTE} />
+                  <SubHeader />
                   <Component {...props} />
                 </Layout>
               )}

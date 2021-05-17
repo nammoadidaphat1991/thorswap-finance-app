@@ -70,7 +70,7 @@ export const GlobalStats: React.FC = (): JSX.Element => {
         )} / ${maxLiquidityRune.toAbbreviate(2)}`,
       },
       {
-        title: 'Funds Cap Status',
+        title: 'Funds Cap',
         value: fundsCapStatusLabel,
         tooltip: !isFundsCapReached
           ? 'You can provide the liquidity until Funds Cap reaches the limit.'

@@ -4,9 +4,9 @@ import { BackLink } from '../BackLink'
 import * as Styled from './SubHeader.style'
 
 export type SubHeaderProps = {
-  hasBack: boolean
+  hasBack?: boolean
 }
 
-export const SubHeader = ({ hasBack }: SubHeaderProps) => {
+export const SubHeader = ({ hasBack = false }: SubHeaderProps) => {
   return <Styled.Container>{hasBack && <BackLink />}</Styled.Container>
 }

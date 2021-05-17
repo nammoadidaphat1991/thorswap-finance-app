@@ -1,22 +1,33 @@
+import { Asset } from 'multichain-sdk'
+
 import {
   STATS_ROUTE,
-  SWAP_ROUTE,
   LIQUIDITY_ROUTE,
   PENDING_LIQUIDITY_ROUTE,
+  getSwapRoute,
+  getAddLiquidityRoute,
 } from 'settings/constants'
 
 export const navMenuList = [
   {
     link: '/',
-    label: 'POOLS',
+    label: 'DASHBOARD',
   },
   {
-    link: SWAP_ROUTE,
+    link: getSwapRoute(Asset.BTC(), Asset.RUNE()),
     label: 'SWAP',
+  },
+  {
+    link: '/pools',
+    label: 'POOLS',
   },
   {
     link: LIQUIDITY_ROUTE,
     label: 'LIQUIDITY',
+  },
+  {
+    link: getAddLiquidityRoute(Asset.BTC()),
+    label: 'DEPOSIT',
   },
   {
     link: PENDING_LIQUIDITY_ROUTE,
