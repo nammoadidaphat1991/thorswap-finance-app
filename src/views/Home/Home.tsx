@@ -169,7 +169,7 @@ const Home = () => {
       },
       {
         key: 'Volume24h',
-        title: 'Volume 24h',
+        title: '24H Volume',
         responsive: ['md'] as Breakpoint[],
         render: (pool: Pool) =>
           runeToCurrency(

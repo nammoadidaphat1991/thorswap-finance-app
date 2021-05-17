@@ -64,9 +64,7 @@ export const Header = () => {
 
   const priceLabel = useMemo(() => {
     if (isDesktopView) {
-      return `RUNE = $${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(
-        2,
-      )}`
+      return `1ᚱ = $${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`
     }
 
     return `1ᚱ=$${Amount.fromNormalAmount(stats?.runePriceUSD).toFixed(2)}`
@@ -77,7 +75,7 @@ export const Header = () => {
       <Styled.HeaderLogo>
         <Styled.LogoWrapper>
           <Link to={HOME_ROUTE}>
-            <Logo mini={!isDesktopView} type="thorswap" color={themeType} />
+            <Logo mini type="thorswap" color={themeType} />
           </Link>
         </Styled.LogoWrapper>
         <Styled.HeaderAction>

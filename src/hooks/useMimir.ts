@@ -28,8 +28,16 @@ export const useMimir = () => {
     return maxLiquidityRune.mul(0.9).lte(totalPooledRune)
   }, [totalPooledRune, maxLiquidityRune, maxLiquidityRuneMimir])
 
+  const capPercent = useMemo(() => {
+    if (!maxLiquidityRuneMimir) return null
+
+    return `${totalPooledRune.div(maxLiquidityRune).mul(100).toFixed(1)}%`
+  }, [totalPooledRune, maxLiquidityRune, maxLiquidityRuneMimir])
+
   return {
+    totalPooledRune,
     maxLiquidityRune,
     isFundsCapReached,
+    capPercent,
   }
 }

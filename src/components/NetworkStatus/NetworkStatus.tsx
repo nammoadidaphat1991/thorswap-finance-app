@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { DownOutlined } from '@ant-design/icons'
 import { Dropdown, Row } from 'antd'
 
+import { useMimir } from 'hooks/useMimir'
 import useNetwork from 'hooks/useNetwork'
 
 import { midgardApi } from 'services/midgard'
@@ -25,12 +26,31 @@ type MenuItem = {
 
 export const NetworkStatus = (): JSX.Element => {
   const { statusColor, outboundQueue, outboundQueueLevel } = useNetwork()
+  const { isFundsCapReached, capPercent } = useMimir()
 
   // Midgard IP on devnet OR on test|chaos|mainnet
   const midgardUrl = getHostnameFromUrl(midgardApi.getBaseUrl()) || ''
 
+  const liquidityCapLabel = useMemo(() => {
+    if (!capPercent) {
+      return 'Funds Cap available'
+    }
+
+    if (isFundsCapReached) {
+      return `Funds Cap reached limit (${capPercent})`
+    }
+
+    return `Funds Cap available (${capPercent})`
+  }, [isFundsCapReached, capPercent])
+
   const menuItems: MenuItem[] = useMemo(
     () => [
+      {
+        key: 'fundscap',
+        label: 'Liquidity Cap',
+        url: liquidityCapLabel,
+        status: isFundsCapReached ? 'yellow' : 'green',
+      },
       {
         key: 'outbound',
         label: 'Outbound',
@@ -50,7 +70,14 @@ export const NetworkStatus = (): JSX.Element => {
         status: 'green',
       },
     ],
-    [midgardUrl, statusColor, outboundQueue, outboundQueueLevel],
+    [
+      midgardUrl,
+      statusColor,
+      outboundQueue,
+      outboundQueueLevel,
+      liquidityCapLabel,
+      isFundsCapReached,
+    ],
   )
 
   const menu = useMemo(

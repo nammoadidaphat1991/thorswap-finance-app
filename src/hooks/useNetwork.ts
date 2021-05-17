@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Amount } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -39,12 +41,20 @@ const useNetwork = () => {
 
   const statusColors: {
     [key: string]: StatusColor
-  } = {
-    GOOD: 'green',
-    SLOW: 'yellow',
-    BUSY: 'red',
-  }
-  const statusColor: StatusColor = statusColors[outboundQueueLevel]
+  } = useMemo(
+    () => ({
+      GOOD: 'green',
+      SLOW: 'yellow',
+      BUSY: 'red',
+    }),
+    [],
+  )
+
+  const statusColor: StatusColor = useMemo(() => {
+    if (isFundsCapReached) return 'yellow'
+
+    return statusColors[outboundQueueLevel]
+  }, [statusColors, isFundsCapReached, outboundQueueLevel])
 
   const totalPooledRune: Amount = Amount.fromMidgard(
     networkData?.totalPooledRune ?? 0,
@@ -65,6 +75,8 @@ const useNetwork = () => {
     isOutboundDelayed,
     isOutboundBusy,
     statusColor,
+    totalPooledRune,
+    maxLiquidityRune,
     getOutboundBusyTooltip,
   }
 }

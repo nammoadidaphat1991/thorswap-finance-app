@@ -26,7 +26,7 @@ export const WalletButton: React.FC<Props> = (props: Props): JSX.Element => {
 
     if (connected) {
       if (isDesktopView) {
-        return 'View Wallet'
+        return 'Wallet'
       }
 
       return 'Wallet'
