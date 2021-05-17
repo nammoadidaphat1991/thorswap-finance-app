@@ -70,10 +70,10 @@ export const getAddress = (): string | null => {
 }
 
 export const setReadStatus = (read: boolean) => {
-  sessionStorage.setItem(THORSWAP_ANNOUNCEMENT, read.toString())
+  localStorage.setItem(THORSWAP_ANNOUNCEMENT, read.toString())
 }
 
 export const getReadStatus = (): boolean => {
-  const read = sessionStorage.getItem(THORSWAP_ANNOUNCEMENT) === 'true'
+  const read = localStorage.getItem(THORSWAP_ANNOUNCEMENT) === 'true'
   return read
 }
