@@ -3,7 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { IconButton } from '../UIElements'
-import { A } from './Link.style'
+import { A, NavLabel } from './Link.style'
 
 export const ExternalLink = ({
   link,
@@ -39,5 +39,21 @@ export const ButtonLink = ({
 }) => (
   <Link to={to}>
     <IconButton>{children}</IconButton>
+  </Link>
+)
+
+export const NavLink = ({
+  to,
+  active = false,
+  children,
+}: {
+  to: string
+  active?: boolean
+  children: React.ReactChild
+}) => (
+  <Link to={to}>
+    <NavLabel size="big" weight={active ? 'bold' : '500'}>
+      {children}
+    </NavLabel>
   </Link>
 )

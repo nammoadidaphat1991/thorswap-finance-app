@@ -16,6 +16,7 @@ import { HOME_ROUTE } from 'settings/constants'
 import { currencyIndexAssets } from 'settings/constants/currency'
 
 import { Logo } from '../Logo'
+import { Navbar } from '../Navbar'
 import { NetworkStatus } from '../NetworkStatus'
 import { Refresh } from '../Refresh'
 import { ThemeSwitch } from '../ThemeSwitch'
@@ -69,25 +70,20 @@ export const Header = () => {
 
   return (
     <Styled.HeaderContainer>
-      <Styled.HeaderLogo>
+      <Styled.HeaderLeft>
         <Styled.LogoWrapper>
           <Link to={HOME_ROUTE}>
             <Logo mini type="thorswap" color={themeType} />
           </Link>
         </Styled.LogoWrapper>
-        {/* <Styled.HeaderAction>
-          <Styled.RunePrice>
-            <Label weight="bold">{priceLabel}</Label>
-          </Styled.RunePrice>
-          <NetworkStatus />
-        </Styled.HeaderAction> */}
-      </Styled.HeaderLogo>
+        <Navbar />
+      </Styled.HeaderLeft>
 
       <Styled.HeaderAction>
         <Styled.RunePrice>
           <Label weight="bold">{priceLabel}</Label>
         </Styled.RunePrice>
-        <NetworkStatus />
+        {isDesktopView && <NetworkStatus />}
         <Styled.ToolWrapper>
           <CurrencySelector
             selected={baseCurrencyAsset}
@@ -95,7 +91,7 @@ export const Header = () => {
             onSelect={handleSelectCurrency}
           />
         </Styled.ToolWrapper>
-        <ThemeSwitch />
+        {isDesktopView && <ThemeSwitch />}
         <Styled.WalletBtn
           onClick={handleClickWalletBtn}
           connected={isConnected}

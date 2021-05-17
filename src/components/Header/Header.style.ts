@@ -28,7 +28,7 @@ export const HeaderContainer = styled.div`
   z-index: 999;
 `
 
-export const HeaderLogo = styled.div`
+export const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   margin: 0 10px;

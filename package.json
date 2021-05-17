@@ -32,6 +32,7 @@
     "@binance-chain/javascript-sdk": "^4.1.1",
     "@craco/craco": "^6.1.2",
     "@devexperts/remote-data-ts": "^2.0.5",
+    "@headlessui/react": "^1.2.0",
     "@polkadot/api": "^4.2.1",
     "@polkadot/util": "^6.0.5",
     "@psf/bitcoincashjs-lib": "^4.0.2",

@@ -36,14 +36,16 @@ export const GlobalChart = () => {
   const [liquidityChartIndex, setLiquidityChartIndex] = useState('Liquidity')
   const volumeChartIndexes = useMemo(
     () =>
-      isDesktopView ? ['Total', 'Swap', 'Add', 'Withdraw'] : ['Total', 'Swap'],
+      isDesktopView
+        ? ['Total', 'Swap', 'Add', 'Withdraw']
+        : ['Total', 'Swap', 'Add', 'Withdraw'],
     [isDesktopView],
   )
   const liquidityChartIndexes = useMemo(
     () =>
       isDesktopView
         ? ['Liquidity', 'LP Earning', 'Bonding Earning', '$RUNE Price']
-        : ['Liquidity'],
+        : ['Liquidity', 'LP Earning', '$RUNE Price'],
     [isDesktopView],
   )
 

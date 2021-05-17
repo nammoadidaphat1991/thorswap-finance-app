@@ -17,14 +17,11 @@ export const DropdownLink = styled.a`
     margin-left: 0px;
   }
 
-  display: none;
-  ${media.sm`
-    display: flex;
+  display: flex;
 
-    svg {
-      margin-left: 8px;
-    }
-  `}
+  svg {
+    margin-left: 8px;
+  }
 `
 
 export const Button = styled(IconButton)`
