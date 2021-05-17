@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { Row, Col } from 'antd'
 import { Percent, Amount } from 'multichain-sdk'
@@ -6,10 +6,19 @@ import { Percent, Amount } from 'multichain-sdk'
 import { useGlobalState } from 'redux/hooks'
 import { useMidgard } from 'redux/midgard/hooks'
 
-import { StatsCard } from '../UIElements/StatsCard'
+import { useMimir } from 'hooks/useMimir'
+
+import { InfoCard } from '../InfoCard'
+import { InfoCardProps } from '../InfoCard/InfoCard'
 
 export const GlobalStats: React.FC = (): JSX.Element => {
   const { stats, networkData, volume24h } = useMidgard()
+  const {
+    totalPooledRune,
+    maxLiquidityRune,
+    capPercent,
+    isFundsCapReached,
+  } = useMimir()
   const { runeToCurrency } = useGlobalState()
 
   const bondingAPYLabel = new Percent(networkData?.bondingAPY ?? 0).toFixed(2)
@@ -28,7 +37,13 @@ export const GlobalStats: React.FC = (): JSX.Element => {
   const totalVolume = swapVolume.add(addLiquidityVolume).add(withdrawVolume)
   // const totalTx = swapCount.add(addLiquidityCount).add(withdrawCount)
 
-  const statsData = React.useMemo(() => {
+  const fundsCapStatusLabel = useMemo(() => {
+    if (isFundsCapReached) return `Reached Limit (${capPercent})`
+
+    return `Available (${capPercent})`
+  }, [isFundsCapReached, capPercent])
+
+  const statsData: InfoCardProps[] = React.useMemo(() => {
     return [
       {
         title: 'Total Liquidity',
@@ -49,6 +64,20 @@ export const GlobalStats: React.FC = (): JSX.Element => {
           : '-',
       },
       {
+        title: 'Total Rune Pooled',
+        value: `${totalPooledRune.toAbbreviate(
+          2,
+        )} / ${maxLiquidityRune.toAbbreviate(2)}`,
+      },
+      {
+        title: 'Funds Cap Status',
+        value: fundsCapStatusLabel,
+        tooltip: !isFundsCapReached
+          ? 'You can provide the liquidity until Funds Cap reaches the limit.'
+          : 'Funds Cap reached the limit, Please wait for the next raise moment.',
+        status: !isFundsCapReached ? 'primary' : 'warning',
+      },
+      {
         title: 'Bonding APY',
         value: bondingAPYLabel,
       },
@@ -67,7 +96,11 @@ export const GlobalStats: React.FC = (): JSX.Element => {
     bondingAPYLabel,
     liquidityAPYLabel,
     totalVolume,
+    maxLiquidityRune,
+    totalPooledRune,
+    fundsCapStatusLabel,
     runeToCurrency,
+    isFundsCapReached,
   ])
 
   return (
@@ -79,10 +112,11 @@ export const GlobalStats: React.FC = (): JSX.Element => {
             xs={{ span: 12 }}
             sm={{ span: 12 }}
             md={{ span: 8 }}
-            lg={{ span: 8 }}
-            xl={{ span: 4 }}
+            lg={{ span: 6 }}
+            xl={{ span: 6 }}
+            xxl={{ span: 3 }}
           >
-            <StatsCard {...statProps} />
+            <InfoCard {...statProps} />
           </Col>
         )
       })}

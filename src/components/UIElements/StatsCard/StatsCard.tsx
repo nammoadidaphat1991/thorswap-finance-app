@@ -26,7 +26,9 @@ export const StatsCard = styled(Statistic)`
   }
 
   .ant-statistic-title {
-    color: ${palette('text', 1)};
+    color: ${palette('primary', 0)};
+
+    /* color: ${palette('text', 1)}; */
     font-size: 14px;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -39,6 +41,7 @@ export const StatsCard = styled(Statistic)`
 
     span {
       color: ${palette('text', 0)};
+      /* color: ${palette('primary', 0)}; */
       font-family: 'Exo 2';
       font-size: 16px;
       font-weight: bold;
