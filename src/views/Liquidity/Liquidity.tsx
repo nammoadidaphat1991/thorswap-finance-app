@@ -21,6 +21,7 @@ const LiquidityView = () => {
     getAllMemberDetails,
   } = useMidgard()
   const { wallet } = useWallet()
+
   useEffect(() => {
     getAllMemberDetails()
   }, [getAllMemberDetails])

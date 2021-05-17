@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Grid, Row, Col } from 'antd'
 import { Amount, Asset } from 'multichain-sdk'
@@ -20,17 +20,12 @@ export const GlobalChart = () => {
   const { runeToCurrency } = useGlobalState()
 
   const {
-    getGlobalHistory,
     isGlobalHistoryLoading,
     earningsHistory,
     swapHistory,
     liquidityHistory,
     tvlHistory,
   } = useMidgard()
-
-  useEffect(() => {
-    getGlobalHistory()
-  }, [getGlobalHistory])
 
   const [volumeChartIndex, setVolumeChartIndex] = useState('Total')
   const [liquidityChartIndex, setLiquidityChartIndex] = useState('Liquidity')
