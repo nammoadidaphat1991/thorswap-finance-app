@@ -14,9 +14,15 @@ import { useWallet } from 'redux/wallet/hooks'
 import { metamask } from 'services/metamask'
 import { xdefi } from 'services/xdefi'
 
-import { FolderIcon, MetaMaskLogoIcon, XdefiLogoIcon } from '../Icons'
+import {
+  FolderIcon,
+  LedgerIcon,
+  MetaMaskLogoIcon,
+  XdefiLogoIcon,
+} from '../Icons'
 import { Overlay, Label } from '../UIElements'
 import ConnectKeystoreView from './ConnectKeystore'
+import ConnectLedgerView from './ConnectLedger'
 import CreateKeystoreView from './CreateKeystore'
 import PhraseView from './Phrase'
 import * as Styled from './WalletModal.style'
@@ -25,6 +31,7 @@ enum WalletMode {
   'Keystore' = 'Keystore',
   'Create' = 'Create',
   'Phrase' = 'Phrase',
+  'Ledger' = 'Ledger',
   'MetaMask' = 'MetaMask',
   'XDefi' = 'XDefi',
   'Select' = 'Select',
@@ -52,6 +59,8 @@ const WalletModal = () => {
     },
     [unlockWallet, setIsConnectModalOpen],
   )
+
+  const handleConnectLedger = useCallback(() => {}, [])
 
   const handleConnectMetaMask = useCallback(async () => {
     if (metamaskStatus === WalletStatus.NoWeb3Provider) {
@@ -93,6 +102,10 @@ const WalletModal = () => {
           {xdefiInstalled && <Label>Connect Xdefi Wallet</Label>}
           {!xdefiInstalled && <Label>Install Xdefi Wallet</Label>}
           <XdefiLogoIcon className="xdefi-logo" />
+        </Styled.ConnectOption>
+        <Styled.ConnectOption onClick={() => setWalletMode(WalletMode.Ledger)}>
+          <Label>Connect Ledger</Label>
+          <LedgerIcon />
         </Styled.ConnectOption>
         <Styled.ConnectOption
           onClick={() => setWalletMode(WalletMode.Keystore)}
@@ -140,6 +153,12 @@ const WalletModal = () => {
           <ConnectKeystoreView
             onConnect={handleConnect}
             onCreate={() => setWalletMode(WalletMode.Create)}
+            loading={walletLoading}
+          />
+        )}
+        {walletMode === WalletMode.Ledger && (
+          <ConnectLedgerView
+            onConnect={handleConnectLedger}
             loading={walletLoading}
           />
         )}
