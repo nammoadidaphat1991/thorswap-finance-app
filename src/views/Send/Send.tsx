@@ -18,14 +18,12 @@ import {
   SettingsOverlay,
 } from 'components'
 import {
-  getWalletAssets,
+  Account,
   Amount,
   Asset,
-  getAssetBalance,
   AssetAmount,
   Memo,
-  getWalletAddressByChain,
-  Wallet,
+  WalletAccount,
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -47,7 +45,7 @@ enum SendMode {
 
 const SendView = () => {
   const { asset } = useParams<{ asset: string }>()
-  const { wallet, keystore, walletType } = useWallet()
+  const { account, keystore, accountType } = useWallet()
 
   const [sendAsset, setSendAsset] = useState<Asset>()
 
@@ -68,7 +66,7 @@ const SendView = () => {
     return null
   }
 
-  if (!wallet || (!keystore && walletType === 'keystore')) {
+  if (!account || (!keystore && accountType === 'keystore')) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>
@@ -76,10 +74,16 @@ const SendView = () => {
     )
   }
 
-  return <Send sendAsset={sendAsset} wallet={wallet} />
+  return <Send sendAsset={sendAsset} wallet={account} />
 }
 
-const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
+const Send = ({
+  sendAsset,
+  wallet,
+}: {
+  sendAsset: Asset
+  wallet: WalletAccount
+}) => {
   const history = useHistory()
   const { pools } = useMidgard()
   const { getMaxBalance } = useBalance()
@@ -118,10 +122,10 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
 
   const [outputAsset, setOutputAsset] = useState<Asset>(sendAsset)
 
-  const walletAssets = useMemo(() => getWalletAssets(wallet), [wallet])
+  const walletAssets = useMemo(() => Account.getWalletAssets(wallet), [wallet])
   const assetBalance: Amount = useMemo(() => {
     if (wallet) {
-      return getAssetBalance(sendAsset, wallet).amount
+      return Account.getAssetBalance(wallet, sendAsset).amount
     }
     return Amount.fromAssetAmount(0, 8)
   }, [sendAsset, wallet])
@@ -274,7 +278,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
 
   const handleSelectSwapMemo = useCallback(() => {
     if (outputAsset) {
-      const address = getWalletAddressByChain(wallet, outputAsset.chain) || ''
+      const address = Account.getChainAddress(wallet, outputAsset.chain) || ''
       setMemo(Memo.swapMemo(outputAsset, address))
     }
   }, [outputAsset, wallet])

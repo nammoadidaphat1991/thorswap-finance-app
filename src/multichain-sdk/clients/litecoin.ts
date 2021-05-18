@@ -13,6 +13,7 @@ import {
 
 import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
+import { Wallet, WalletOption } from './account'
 import { IClient } from './client'
 import { TxParams } from './types'
 
@@ -21,24 +22,19 @@ export interface ILtcChain extends IClient {
 }
 
 export class LtcChain implements ILtcChain {
-  private balances: AssetAmount[] = []
-
   private client: LtcClient
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public wallet: Wallet | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = LTCChain
     this.client = new LtcClient({
       network,
-      phrase,
     })
+
+    this.wallet = null
   }
 
   /**
@@ -48,11 +44,34 @@ export class LtcChain implements ILtcChain {
     return this.client
   }
 
-  get balance() {
-    return this.balances
+  /**
+   * Wallet Management
+   */
+  connectKeystore = (phrase: string) => {
+    this.client = new LtcClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+
+    const address = this.client.getAddress()
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: LTCChain,
+      type: WalletOption.KEYSTORE,
+    })
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  disconnectKeystore = () => {
+    this.client.purgeClient()
+
+    if (this.wallet?.type === WalletOption.KEYSTORE) {
+      this.wallet = null
+    }
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -82,13 +101,20 @@ export class LtcChain implements ILtcChain {
     }
 
     this.client.transfer = transfer
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: LTCChain,
+      type: WalletOption.XDEFI,
+    })
   }
 
-  loadBalance = async (): Promise<AssetAmount[]> => {
+  loadBalance = async (): Promise<Wallet | null> => {
     try {
       const balances: Balance[] = await this.client.getBalance()
 
-      this.balances = balances.map((data: Balance) => {
+      const walletBalances = balances.map((data: Balance) => {
         const { asset, amount } = data
 
         const assetObj = new Asset(asset.chain, asset.symbol)
@@ -101,7 +127,9 @@ export class LtcChain implements ILtcChain {
         return new AssetAmount(assetObj, amountObj)
       })
 
-      return this.balances
+      this.wallet?.setBalance(walletBalances)
+
+      return this.wallet
     } catch (error) {
       return Promise.reject(error)
     }
@@ -111,7 +139,7 @@ export class LtcChain implements ILtcChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(assetAmount.asset),
       )
 
@@ -127,7 +155,7 @@ export class LtcChain implements ILtcChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(asset),
       )
 

@@ -139,7 +139,7 @@ const WithdrawPanel = ({
 }) => {
   const [lpType, setLPType] = useState(shareTypes[0])
 
-  const { wallet } = useWallet()
+  const { account } = useWallet()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const poolAsset = useMemo(() => pool.asset, [pool])
@@ -265,7 +265,7 @@ const WithdrawPanel = ({
 
   const handleConfirmWithdraw = useCallback(async () => {
     setVisibleConfirmModal(false)
-    if (wallet) {
+    if (account) {
       const poolAssetString = pool.asset.toString()
       let trackId = ''
       try {
@@ -476,7 +476,7 @@ const WithdrawPanel = ({
   }, [
     liquidityType,
     lpType,
-    wallet,
+    account,
     pool,
     percent,
     runeAmount,
@@ -491,7 +491,7 @@ const WithdrawPanel = ({
   }, [])
 
   const handleWithdrawLiquidity = useCallback(() => {
-    if (wallet) {
+    if (account) {
       setVisibleConfirmModal(true)
     } else {
       Notification({
@@ -500,7 +500,7 @@ const WithdrawPanel = ({
         description: 'Please connect wallet',
       })
     }
-  }, [wallet])
+  }, [account])
 
   const renderConfirmModalContent = useMemo(() => {
     return (
@@ -550,7 +550,7 @@ const WithdrawPanel = ({
     return []
   }, [lpType])
 
-  if (!wallet) {
+  if (!account) {
     return (
       <PanelView meta={title} poolAsset={poolAsset} type="withdraw">
         <Label>Please connect wallet.</Label>
@@ -620,7 +620,7 @@ const WithdrawPanel = ({
           tooltip={TX_FEE_TOOLTIP_LABEL}
         />
       </Styled.DetailContent>
-      {wallet && (
+      {account && (
         <Styled.ConfirmButtonContainer>
           <FancyButton onClick={handleWithdrawLiquidity}>Withdraw</FancyButton>
         </Styled.ConfirmButtonContainer>

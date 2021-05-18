@@ -17,10 +17,10 @@ export const useWallet = () => {
 
   const unlockWallet = useCallback(
     async (keystore: Keystore, phrase: string) => {
-      // set multichain phrase
-      multichain.setPhrase(phrase)
-
       dispatch(actions.connectKeystore(keystore))
+
+      multichain.connectKeystore(phrase)
+
       dispatch(walletActions.loadAllWallets())
     },
     [dispatch],
@@ -28,9 +28,9 @@ export const useWallet = () => {
 
   const connectXdefiWallet = useCallback(async () => {
     try {
-      await multichain.connectXDefiWallet()
-
       dispatch(actions.connectXdefi())
+
+      await multichain.connectXDefiWallet()
       dispatch(walletActions.loadAllWallets())
     } catch (error) {
       console.error(error)

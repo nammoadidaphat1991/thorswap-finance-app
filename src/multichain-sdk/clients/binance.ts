@@ -17,6 +17,7 @@ import {
 
 import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
+import { Wallet, WalletOption } from './account'
 import { IClient } from './client'
 import { TxParams, MultiSendParams } from './types'
 
@@ -26,24 +27,19 @@ export interface IBnbChain extends IClient {
 }
 
 export class BnbChain implements IBnbChain {
-  private balances: AssetAmount[] = []
-
   private client: BncClient
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public wallet: Wallet | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = BNBChain
     this.client = new BncClient({
       network,
-      phrase,
     })
+
+    this.wallet = null
   }
 
   /**
@@ -53,11 +49,34 @@ export class BnbChain implements IBnbChain {
     return this.client
   }
 
-  get balance() {
-    return this.balances
+  /**
+   * Wallet Management
+   */
+  connectKeystore = (phrase: string) => {
+    this.client = new BncClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+
+    const address = this.client.getAddress()
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: BNBChain,
+      type: WalletOption.KEYSTORE,
+    })
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  disconnectKeystore = () => {
+    this.client.purgeClient()
+
+    if (this.wallet?.type === WalletOption.KEYSTORE) {
+      this.wallet = null
+    }
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -87,13 +106,20 @@ export class BnbChain implements IBnbChain {
     }
 
     this.client.transfer = transfer
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: BNBChain,
+      type: WalletOption.XDEFI,
+    })
   }
 
-  loadBalance = async (): Promise<AssetAmount[]> => {
+  loadBalance = async (): Promise<Wallet | null> => {
     try {
       const balances: Balance[] = await this.client.getBalance()
 
-      this.balances = balances.map((data: Balance) => {
+      const walletBalances = balances.map((data: Balance) => {
         const { asset, amount } = data
 
         const assetObj = new Asset(asset.chain, asset.symbol)
@@ -106,7 +132,9 @@ export class BnbChain implements IBnbChain {
         return new AssetAmount(assetObj, amountObj)
       })
 
-      return this.balances
+      this.wallet?.setBalance(walletBalances)
+
+      return this.wallet
     } catch (error) {
       return Promise.reject(error)
     }
@@ -116,7 +144,7 @@ export class BnbChain implements IBnbChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(assetAmount.asset),
       )
 
@@ -132,7 +160,7 @@ export class BnbChain implements IBnbChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(asset),
       )
 

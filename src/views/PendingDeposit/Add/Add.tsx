@@ -13,7 +13,7 @@ import {
 import {
   Amount,
   Asset,
-  getAssetBalance,
+  Account,
   Pool,
   Price,
   Liquidity,
@@ -53,7 +53,7 @@ export const AddLiquidityPanel = ({
   pools: Pool[]
   data: LiquidityProvider
 }) => {
-  const { wallet, getMaxBalance } = useBalance()
+  const { account, getMaxBalance } = useBalance()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const { isFundsCapReached } = useMimir()
@@ -137,13 +137,13 @@ export const AddLiquidityPanel = ({
   )
 
   const poolAssetBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(poolAsset, wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, poolAsset).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [poolAsset, wallet])
+  }, [poolAsset, account])
 
   const maxPoolAssetBalance: Amount = useMemo(
     () => (isAssetPending ? pendingAmount : getMaxBalance(poolAsset)),
@@ -151,13 +151,13 @@ export const AddLiquidityPanel = ({
   )
 
   const runeBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(Asset.RUNE(), wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, Asset.RUNE()).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [wallet])
+  }, [account])
 
   const maxRuneBalance: Amount = useMemo(
     () => (!isAssetPending ? pendingAmount : getMaxBalance(Asset.RUNE())),
@@ -208,7 +208,7 @@ export const AddLiquidityPanel = ({
 
   const handleConfirmAdd = useCallback(async () => {
     setVisibleConfirmModal(false)
-    if (wallet) {
+    if (account) {
       if (isAssetPending) {
         const runeAssetAmount = new AssetAmount(Asset.RUNE(), runeAmount)
         const poolAssetAmount = undefined
@@ -329,7 +329,7 @@ export const AddLiquidityPanel = ({
     }
   }, [
     isAssetPending,
-    wallet,
+    account,
     pool,
     poolAsset,
     runeAmount,
@@ -344,7 +344,7 @@ export const AddLiquidityPanel = ({
   }, [])
 
   const handleAddLiquidity = useCallback(() => {
-    if (!wallet) {
+    if (!account) {
       Notification({
         type: 'info',
         message: 'Wallet Not Found',
@@ -364,7 +364,7 @@ export const AddLiquidityPanel = ({
     }
 
     setVisibleConfirmModal(true)
-  }, [wallet, isFundsCapReached])
+  }, [account, isFundsCapReached])
 
   const renderConfirmModalContent = useMemo(() => {
     const title = isAssetPending
@@ -429,7 +429,7 @@ export const AddLiquidityPanel = ({
         balance={poolAssetBalance}
         usdPrice={poolAssetPriceInUSD}
         inputProps={{ disabled: isAssetPending }}
-        wallet={wallet || undefined}
+        wallet={account || undefined}
         selectDisabled
       />
       <Styled.ToolContainer>
@@ -448,7 +448,7 @@ export const AddLiquidityPanel = ({
         selectDisabled
         balance={runeBalance}
         onChange={handleChangePendingAmount}
-        wallet={wallet || undefined}
+        wallet={account || undefined}
         inputProps={{ disabled: !isAssetPending }}
       />
 

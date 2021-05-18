@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 
-import { Asset, Amount, getAssetBalance, NetworkFee } from 'multichain-sdk'
+import { Asset, Amount, NetworkFee, Account } from 'multichain-sdk'
 
 import { SupportedChain } from 'multichain-sdk/clients/types'
 
@@ -14,7 +14,7 @@ import { getGasRateByFeeOption } from 'helpers/networkFee'
 export const useBalance = () => {
   const dispatch = useDispatch()
   const { feeOptionType } = useSelector((state: RootState) => state.app)
-  const { wallet } = useSelector((state: RootState) => state.wallet)
+  const { account } = useSelector((state: RootState) => state.wallet)
   const { inboundData } = useSelector((state: RootState) => state.midgard)
 
   const reloadBalanceByChain = useCallback(
@@ -30,7 +30,7 @@ export const useBalance = () => {
 
   const getMaxBalance = useCallback(
     (asset: Asset): Amount => {
-      if (!wallet) {
+      if (!account) {
         // allow max amount for emulation if wallet is not connected
         return Amount.fromAssetAmount(10 ** 3, 8)
       }
@@ -47,7 +47,7 @@ export const useBalance = () => {
         direction: 'inbound',
       })
 
-      const balance = getAssetBalance(asset, wallet).amount
+      const balance = Account.getAssetBalance(account, asset).amount
 
       /**
        * if asset is used for gas, subtract the inbound gas fee from input amount
@@ -65,13 +65,13 @@ export const useBalance = () => {
 
       return Amount.fromAssetAmount(0, asset.decimal)
     },
-    [wallet, feeOptionType, inboundData],
+    [account, feeOptionType, inboundData],
   )
 
   return {
     getMaxBalance,
     reloadAllBalance,
     reloadBalanceByChain,
-    wallet,
+    account,
   }
 }

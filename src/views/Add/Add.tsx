@@ -17,10 +17,8 @@ import {
 } from 'components'
 import { MemberPool } from 'midgard-sdk'
 import {
-  getInputAssetsForAdd,
   Amount,
   Asset,
-  getAssetBalance,
   Pool,
   Price,
   Liquidity,
@@ -29,6 +27,7 @@ import {
   Percent,
   getEstimatedTxTime,
   SupportedChain,
+  Account,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -107,16 +106,16 @@ const AddLiquidityPanel = ({
 }) => {
   const history = useHistory()
   const { expertMode } = useApp()
-  const { wallet, getMaxBalance } = useBalance()
+  const { account, getMaxBalance } = useBalance()
   const { getAllMemberDetails, memberDetails } = useMidgard()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
   const { isFundsCapReached } = useMimir()
 
-  const inputAssets = useMemo(() => getInputAssetsForAdd({ wallet, pools }), [
-    wallet,
-    pools,
-  ])
+  const inputAssets = useMemo(
+    () => Account.getInputAssetsForAdd({ account, pools }),
+    [account, pools],
+  )
 
   const [liquidityType, setLiquidityType] = useState(
     LiquidityTypeOption.SYMMETRICAL,
@@ -181,10 +180,10 @@ const AddLiquidityPanel = ({
       setApproved(approved)
     }
 
-    if (wallet) {
+    if (account) {
       checkApproved()
     }
-  }, [poolAsset, wallet])
+  }, [poolAsset, account])
 
   const poolAssetPriceInUSD = useMemo(
     () =>
@@ -207,13 +206,13 @@ const AddLiquidityPanel = ({
   )
 
   const poolAssetBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(poolAsset, wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, poolAsset).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [poolAsset, wallet])
+  }, [poolAsset, account])
 
   const maxPoolAssetBalance: Amount = useMemo(() => getMaxBalance(poolAsset), [
     poolAsset,
@@ -221,13 +220,13 @@ const AddLiquidityPanel = ({
   ])
 
   const runeBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(Asset.RUNE(), wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, Asset.RUNE()).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [wallet])
+  }, [account])
 
   const maxRuneBalance: Amount = useMemo(() => getMaxBalance(Asset.RUNE()), [
     getMaxBalance,
@@ -338,7 +337,7 @@ const AddLiquidityPanel = ({
 
   const handleConfirmAdd = useCallback(async () => {
     setVisibleConfirmModal(false)
-    if (wallet) {
+    if (account) {
       const runeAssetAmount =
         liquidityType !== LiquidityTypeOption.ASSET
           ? new AssetAmount(Asset.RUNE(), runeAmount)
@@ -413,7 +412,7 @@ const AddLiquidityPanel = ({
       }
     }
   }, [
-    wallet,
+    account,
     pool,
     poolAsset,
     runeAmount,
@@ -431,7 +430,7 @@ const AddLiquidityPanel = ({
   const handleConfirmApprove = useCallback(async () => {
     setVisibleApproveModal(false)
 
-    if (wallet) {
+    if (account) {
       const txHash = await multichain.approveAsset(poolAsset)
 
       if (txHash) {
@@ -451,10 +450,10 @@ const AddLiquidityPanel = ({
         })
       }
     }
-  }, [poolAsset, wallet])
+  }, [poolAsset, account])
 
   const handleAddLiquidity = useCallback(() => {
-    if (!wallet) {
+    if (!account) {
       Notification({
         type: 'info',
         message: 'Wallet Not Found',
@@ -474,10 +473,10 @@ const AddLiquidityPanel = ({
     }
 
     setVisibleConfirmModal(true)
-  }, [wallet, isFundsCapReached])
+  }, [account, isFundsCapReached])
 
   const handleApprove = useCallback(() => {
-    if (wallet) {
+    if (account) {
       setVisibleApproveModal(true)
     } else {
       Notification({
@@ -486,7 +485,7 @@ const AddLiquidityPanel = ({
         description: 'Please connect wallet',
       })
     }
-  }, [wallet])
+  }, [account])
 
   const totalFeeInUSD = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.SYMMETRICAL) {
@@ -655,7 +654,7 @@ const AddLiquidityPanel = ({
             : undefined
         }
         usdPrice={poolAssetPriceInUSD}
-        wallet={wallet || undefined}
+        wallet={account || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.RUNE }}
       />
       <Styled.ToolContainer>
@@ -679,7 +678,7 @@ const AddLiquidityPanel = ({
             ? handleSelectMax
             : undefined
         }
-        wallet={wallet || undefined}
+        wallet={account || undefined}
         inputProps={{ disabled: liquidityType === LiquidityTypeOption.ASSET }}
       />
 
@@ -697,7 +696,7 @@ const AddLiquidityPanel = ({
         {renderFee}
       </Styled.DetailContent>
 
-      {isApproved !== null && wallet && (
+      {isApproved !== null && account && (
         <Styled.ConfirmButtonContainer>
           {isApproveRequired && (
             <Styled.ApproveBtn onClick={handleApprove}>
@@ -712,7 +711,7 @@ const AddLiquidityPanel = ({
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
-      {!wallet && (
+      {!account && (
         <Styled.ConfirmButtonContainer>
           <FancyButton
             onClick={handleAddLiquidity}

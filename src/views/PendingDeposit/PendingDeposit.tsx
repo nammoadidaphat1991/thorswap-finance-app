@@ -32,7 +32,7 @@ type Option = {
 }
 
 const PendingDepositView = () => {
-  const { wallet } = useWallet()
+  const { account } = useWallet()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
   const [option, setOption] = useState<Option>()
 
@@ -65,7 +65,7 @@ const PendingDepositView = () => {
   }, [])
 
   const handleWithdrawLiquidity = useCallback(() => {
-    if (wallet) {
+    if (account) {
       setVisibleConfirmModal(true)
     } else {
       Notification({
@@ -74,7 +74,7 @@ const PendingDepositView = () => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet])
+  }, [account])
 
   const handleWithdraw = useCallback(
     (data: LiquidityProvider) => {
@@ -88,7 +88,7 @@ const PendingDepositView = () => {
   )
 
   const renderPendingDeposit = useMemo(() => {
-    if (!wallet) return null
+    if (!account) return null
 
     if (!hasPendingDeposit) {
       return (
@@ -144,11 +144,11 @@ const PendingDepositView = () => {
     pendingLP,
     pendingLPLoading,
     hasPendingDeposit,
-    wallet,
+    account,
   ])
 
   const renderDeposit = useMemo(() => {
-    if (!option || !wallet || !poolAsset || !pool) return null
+    if (!option || !account || !poolAsset || !pool) return null
 
     const { data } = option
 
@@ -160,7 +160,7 @@ const PendingDepositView = () => {
         data={data}
       />
     )
-  }, [option, pools, pool, poolAsset, wallet])
+  }, [option, pools, pool, poolAsset, account])
 
   const pendingAsset = useMemo(() => {
     if (!option) return null
@@ -186,7 +186,7 @@ const PendingDepositView = () => {
     if (!poolAsset || !assetAmount || !pool) return null
 
     setVisibleConfirmModal(false)
-    if (wallet && pendingAsset) {
+    if (account && pendingAsset) {
       const poolAssetString = poolAsset.toString()
       let trackId = ''
       try {
@@ -238,7 +238,7 @@ const PendingDepositView = () => {
       }
     }
   }, [
-    wallet,
+    account,
     pool,
     poolAsset,
     pendingAsset,
@@ -274,7 +274,7 @@ const PendingDepositView = () => {
 
   return (
     <PanelView meta="Pending Deposit" poolAsset={Asset.BTC()} type="pending">
-      {!wallet && <Label>Please connect wallet.</Label>}
+      {!account && <Label>Please connect wallet.</Label>}
       {renderPendingDeposit}
       {option?.type === 'add' && renderDeposit}
       <ConfirmModal

@@ -15,17 +15,15 @@ import {
   PriceRate,
 } from 'components'
 import {
-  getInputAssets,
   Amount,
   Asset,
   AssetAmount,
-  getWalletAddressByChain,
   Swap,
   Percent,
   Price,
-  getAssetBalance,
   getEstimatedTxTime,
   SupportedChain,
+  Account,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -77,11 +75,11 @@ const SwapView = () => {
 
 const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const history = useHistory()
-  const { wallet, getMaxBalance } = useBalance()
+  const { account, getMaxBalance } = useBalance()
   const { pools: allPools, poolLoading } = useMidgard()
   const { slippageTolerance } = useApp()
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
-  const { isApproved, assetApproveStatus } = useApprove(inputAsset, !!wallet)
+  const { isApproved, assetApproveStatus } = useApprove(inputAsset, !!account)
 
   const { inboundFee, outboundFee, totalFeeInUSD } = useNetworkFee({
     inputAsset,
@@ -99,10 +97,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     return assets
   }, [pools])
 
-  const inputAssets = useMemo(() => getInputAssets({ wallet, pools }), [
-    wallet,
-    pools,
-  ])
+  const inputAssets = useMemo(
+    () => Account.getInputAssets({ account, pools }),
+    [account, pools],
+  )
 
   const [inputAmount, setInputAmount] = useState<Amount>(
     Amount.fromAssetAmount(0, 8),
@@ -204,11 +202,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   )
 
   useEffect(() => {
-    if (wallet) {
-      const address = getWalletAddressByChain(wallet, outputAsset.chain)
+    if (account) {
+      const address = Account.getChainAddress(account, outputAsset.chain)
       setRecipient(address || '')
     }
-  }, [wallet, outputAsset])
+  }, [account, outputAsset])
 
   const maxInputBalance: Amount = useMemo(() => getMaxBalance(inputAsset), [
     inputAsset,
@@ -216,13 +214,13 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   ])
 
   const inputAssetBalance: Amount = useMemo(() => {
-    if (!wallet) {
+    if (!account) {
       // allow max amount for emulation if wallet is not connected
       return Amount.fromAssetAmount(10 ** 3, 8)
     }
 
-    return getAssetBalance(inputAsset, wallet)
-  }, [inputAsset, wallet])
+    return Account.getAssetBalance(account, inputAsset)
+  }, [inputAsset, account])
 
   const handleSelectInputAsset = useCallback(
     (input: Asset) => {
@@ -271,7 +269,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const handleConfirm = useCallback(async () => {
     setVisibleConfirmModal(false)
 
-    if (wallet && swap) {
+    if (account && swap) {
       // register to tx tracker
       const trackId = submitTransaction({
         type: TxTrackerType.Swap,
@@ -326,7 +324,14 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         console.log(error)
       }
     }
-  }, [wallet, swap, recipient, submitTransaction, pollTransaction, setTxFailed])
+  }, [
+    account,
+    swap,
+    recipient,
+    submitTransaction,
+    pollTransaction,
+    setTxFailed,
+  ])
 
   const handleCancel = useCallback(() => {
     setVisibleConfirmModal(false)
@@ -335,7 +340,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   const handleConfirmApprove = useCallback(async () => {
     setVisibleApproveModal(false)
 
-    if (wallet) {
+    if (account) {
       // register to tx tracker
       const trackId = submitTransaction({
         type: TxTrackerType.Approve,
@@ -378,10 +383,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         console.log(error)
       }
     }
-  }, [inputAsset, wallet, setTxFailed, submitTransaction, pollTransaction])
+  }, [inputAsset, account, setTxFailed, submitTransaction, pollTransaction])
 
   const handleSwap = useCallback(() => {
-    if (wallet && swap) {
+    if (account && swap) {
       if (swap.hasInSufficientFee) {
         Notification({
           type: 'info',
@@ -399,10 +404,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [account, swap])
 
   const handleApprove = useCallback(() => {
-    if (wallet && swap) {
+    if (account && swap) {
       setVisibleApproveModal(true)
     } else {
       Notification({
@@ -411,7 +416,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [account, swap])
 
   const isValidSwap = useMemo(() => swap?.isValid() ?? { valid: false }, [swap])
   const isValidSlip = useMemo(() => swap?.isSlipValid() ?? true, [swap])
@@ -533,7 +538,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         onSelect={handleSelectInputAsset}
         onMax={handleSelectMax}
         usdPrice={inputAssetPriceInUSD}
-        wallet={wallet || undefined}
+        wallet={account || undefined}
       />
       <Styled.ToolContainer>
         <Styled.SliderWrapper>
@@ -553,7 +558,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         onSelect={handleSelectOutputAsset}
         inputProps={{ disabled: true }}
         usdPrice={outputAssetPriceInUSD}
-        wallet={wallet || undefined}
+        wallet={account || undefined}
       />
 
       <Styled.SwapInfo>
@@ -594,7 +599,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
       </Styled.SwapInfo>
 
-      {isApproved !== null && wallet && (
+      {isApproved !== null && account && (
         <Styled.ConfirmButtonContainer>
           {!isApproved && (
             <Styled.ApproveBtn
@@ -621,7 +626,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
-      {!wallet && (
+      {!account && (
         <Styled.ConfirmButtonContainer>
           <FancyButton onClick={handleSwap} error={!isValidSwap.valid}>
             {btnLabel}

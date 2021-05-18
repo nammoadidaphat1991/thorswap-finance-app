@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { delay } from '@xchainjs/xchain-util'
-import { Asset, Wallet } from 'multichain-sdk'
+import { Asset, WalletAccount } from 'multichain-sdk'
 
 import { AssetMenu } from '../AssetMenu'
 import {
@@ -24,7 +24,7 @@ export type Props = {
   size?: 'small' | 'normal' | 'big'
   disabled?: boolean
   selectorTitle?: string
-  wallet?: Wallet
+  wallet?: WalletAccount
 }
 
 export const AssetSelect: React.FC<Props> = (props): JSX.Element => {

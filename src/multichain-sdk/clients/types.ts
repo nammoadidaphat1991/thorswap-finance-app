@@ -58,15 +58,6 @@ export const supportedChains = [
 ] as const
 export type SupportedChain = typeof supportedChains[number]
 
-export type ChainWallet = {
-  address: string
-  balance: AssetAmount[]
-}
-
-export type Wallet = Record<SupportedChain, ChainWallet>
-
-export type WalletType = 'phrase' | 'xdefi'
-
 export type ApproveParams = {
   spender: string
   sender: string

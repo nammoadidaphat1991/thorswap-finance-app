@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react'
 
-import { Asset, Wallet, getAssetBalance } from 'multichain-sdk'
+import { Asset, WalletAccount, Account } from 'multichain-sdk'
 
 import { FilterList } from 'components/UIElements/FilterList'
 
@@ -18,7 +18,7 @@ export type Props = {
   withSearch?: boolean
   searchPlaceholder?: string
   onSelect: (value: string) => void
-  wallet?: Wallet
+  wallet?: WalletAccount
 }
 
 export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
@@ -39,7 +39,7 @@ export const AssetMenu: React.FC<Props> = (props): JSX.Element => {
 
   const cellRenderer = useCallback(
     (a: Asset) => {
-      const balance = wallet && getAssetBalance(a, wallet).amount
+      const balance = wallet && Account.getAssetBalance(wallet, a).amount
       const node = <AssetData asset={a} amount={balance} />
       const key = a.toString()
       return { key, node }

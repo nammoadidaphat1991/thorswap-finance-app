@@ -23,10 +23,10 @@ import { State } from './types'
 const initialWalletType = getXdefiConnected() ? 'xdefi' : null
 
 const initialState: State = {
-  walletType: initialWalletType,
+  accountType: initialWalletType,
   keystore: getKeystore(),
-  wallet: null,
-  walletLoading: false,
+  account: null,
+  accountLoading: false,
   chainWalletLoading: {
     [BTCChain]: false,
     [BNBChain]: false,
@@ -43,10 +43,9 @@ const slice = createSlice({
   initialState,
   reducers: {
     disconnect(state) {
-      state.walletType = null
       state.keystore = null
-      state.wallet = null
-      state.walletLoading = false
+      state.account = null
+      state.accountLoading = false
 
       saveXdefiConnected(false)
     },
@@ -54,11 +53,11 @@ const slice = createSlice({
       const keystore = action.payload
 
       state.keystore = keystore
-      state.walletType = 'keystore'
+      state.accountType = 'keystore'
       saveKeystore(keystore)
     },
     connectXdefi(state) {
-      state.walletType = 'xdefi'
+      state.accountType = 'xdefi'
       saveXdefiConnected(true)
     },
     setIsConnectModalOpen(state, action: PayloadAction<boolean>) {
@@ -68,14 +67,14 @@ const slice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(walletActions.loadAllWallets.pending, (state) => {
-        state.walletLoading = true
+        state.accountLoading = true
       })
       .addCase(walletActions.loadAllWallets.fulfilled, (state, action) => {
-        state.wallet = action.payload
-        state.walletLoading = false
+        state.account = action.payload
+        state.accountLoading = false
       })
       .addCase(walletActions.loadAllWallets.rejected, (state) => {
-        state.walletLoading = false
+        state.accountLoading = false
       })
       .addCase(walletActions.getWalletByChain.pending, (state, action) => {
         const { arg: chain } = action.meta
@@ -87,10 +86,12 @@ const slice = createSlice({
       })
       .addCase(walletActions.getWalletByChain.fulfilled, (state, action) => {
         const { chain, data } = action.payload
-        if (state.wallet && chain in state.wallet) {
-          state.wallet = {
-            ...state.wallet,
-            [chain]: data,
+        if (state.account && chain in state.account) {
+          if (!data) {
+            state.account = {
+              ...state.account,
+              [chain]: null,
+            }
           }
         }
 

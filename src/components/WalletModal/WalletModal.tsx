@@ -38,7 +38,7 @@ const WalletModal = () => {
     connectXdefiWallet,
     setIsConnectModalOpen,
     isConnectModalOpen,
-    walletLoading,
+    accountLoading,
   } = useWallet()
 
   const metamaskStatus = useMemo(() => metamask.isWalletDetected(), [])
@@ -140,7 +140,7 @@ const WalletModal = () => {
           <ConnectKeystoreView
             onConnect={handleConnect}
             onCreate={() => setWalletMode(WalletMode.Create)}
-            loading={walletLoading}
+            loading={accountLoading}
           />
         )}
         {walletMode === WalletMode.Create && (

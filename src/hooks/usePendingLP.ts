@@ -3,7 +3,7 @@ import { useEffect, useCallback, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { THORChain } from '@xchainjs/xchain-util'
-import { getWalletAddressByChain } from 'multichain-sdk'
+import { Account } from 'multichain-sdk'
 
 import { getLiquidityProviderData } from 'redux/midgard/actions'
 import { RootState } from 'redux/store'
@@ -11,17 +11,17 @@ import { RootState } from 'redux/store'
 export const usePendingLP = () => {
   const dispatch = useDispatch()
 
-  const { wallet } = useSelector((state: RootState) => state.wallet)
+  const { account } = useSelector((state: RootState) => state.wallet)
   const { pools, pendingLP, pendingLPLoading } = useSelector(
     (state: RootState) => state.midgard,
   )
 
   const getPendingDeposit = useCallback(() => {
-    if (wallet) {
+    if (account) {
       // const activePools = pools.filter(
       //   (pool) => pool.detail.status === 'available',
       // )
-      const thorAddress = getWalletAddressByChain(wallet, THORChain)
+      const thorAddress = Account.getChainAddress(account, THORChain)
 
       if (thorAddress) {
         pools.forEach((pool) => {
@@ -34,7 +34,7 @@ export const usePendingLP = () => {
         })
       }
     }
-  }, [dispatch, wallet, pools])
+  }, [dispatch, account, pools])
 
   useEffect(() => getPendingDeposit(), [getPendingDeposit])
 

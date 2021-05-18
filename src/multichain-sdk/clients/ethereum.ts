@@ -37,6 +37,7 @@ import { erc20ABI } from '../constants/erc20.abi'
 import { ETHAssets } from '../constants/erc20Assets'
 import { TCRopstenAbi } from '../constants/thorchain-ropsten.abi'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
+import { Wallet, WalletOption } from './account'
 import { IClient } from './client'
 import { TxParams, ApproveParams, DepositParams } from './types'
 
@@ -61,22 +62,20 @@ export class EthChain implements IEthChain {
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public wallet: Wallet | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = ETHChain
 
     this.client = new EthClient({
       network,
-      phrase,
+      phrase: '',
       etherscanApiKey: ETHERSCAN_API_KEY,
       ethplorerApiKey: ETHPLORER_API_KEY,
       infuraCreds: { projectId: INFURA_PROJECT_ID },
     })
+
+    this.wallet = null
   }
 
   /**
@@ -86,11 +85,37 @@ export class EthChain implements IEthChain {
     return this.client
   }
 
-  get balance() {
-    return this.balances
+  /**
+   * Wallet Management
+   */
+  connectKeystore = (phrase: string) => {
+    this.client = new EthClient({
+      network: this.client.getNetwork(),
+      phrase,
+      etherscanApiKey: ETHERSCAN_API_KEY,
+      ethplorerApiKey: ETHPLORER_API_KEY,
+      infuraCreds: { projectId: INFURA_PROJECT_ID },
+    })
+
+    const address = this.client.getAddress()
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: ETHChain,
+      type: WalletOption.KEYSTORE,
+    })
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  disconnectKeystore = () => {
+    this.client.purgeClient()
+
+    if (this.wallet?.type === WalletOption.KEYSTORE) {
+      this.wallet = null
+    }
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -286,9 +311,16 @@ export class EthChain implements IEthChain {
         return Promise.reject(error)
       }
     }
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: ETHChain,
+      type: WalletOption.XDEFI,
+    })
   }
 
-  loadBalance = async (): Promise<AssetAmount[]> => {
+  loadBalance = async (): Promise<Wallet | null> => {
     try {
       const address = this.client.getAddress()
       const ethBalance = await this.client.getProvider().getBalance(address)
@@ -300,7 +332,7 @@ export class EthChain implements IEthChain {
 
       balances = balances.filter((balance: Balance) => balance.amount.gt(0))
 
-      this.balances = await Promise.all(
+      const walletBalances = await Promise.all(
         balances.map(async (data: Balance) => {
           const { asset, amount } = data
 
@@ -325,7 +357,9 @@ export class EthChain implements IEthChain {
         }),
       )
 
-      return this.balances
+      this.wallet?.setBalance(walletBalances)
+
+      return this.wallet
     } catch (error) {
       return Promise.reject(error)
     }
@@ -335,7 +369,7 @@ export class EthChain implements IEthChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(assetAmount.asset),
       )
 
@@ -351,7 +385,7 @@ export class EthChain implements IEthChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(asset),
       )
 

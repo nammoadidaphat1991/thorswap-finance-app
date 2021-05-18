@@ -5,11 +5,10 @@ import { useHistory } from 'react-router'
 import { SendOutlined, SwapOutlined } from '@ant-design/icons'
 import {
   Wallet,
+  WalletAccount,
   SupportedChain,
-  ChainWallet,
   AssetAmount,
   Asset,
-  getTotalUSDPriceInBalance,
   formatBigNumber,
   isOldRune,
 } from 'multichain-sdk'
@@ -22,7 +21,7 @@ import { ChainHeader } from '../ChainHeader'
 import * as Styled from './BalanceView.style'
 
 export type BalanceViewProps = {
-  wallet: Wallet
+  account: WalletAccount
   chainWalletLoading: { [key in SupportedChain]: boolean }
   onReloadChain?: (chain: SupportedChain) => void
   onSendAsset?: (asset: Asset) => void
@@ -30,7 +29,7 @@ export type BalanceViewProps = {
 
 export const BalanceView = (props: BalanceViewProps) => {
   const {
-    wallet,
+    account,
     onReloadChain = () => {},
     onSendAsset = () => {},
     chainWalletLoading,
@@ -117,9 +116,9 @@ export const BalanceView = (props: BalanceViewProps) => {
   )
 
   const renderChainBalance = useCallback(
-    (chain: SupportedChain, chainBalance: ChainWallet) => {
+    (chain: SupportedChain, chainBalance: Wallet) => {
       const { address, balance } = chainBalance
-      const usdPrice = getTotalUSDPriceInBalance(balance, pools)
+      const usdPrice = chainBalance.getTotalBalanceInUSD(pools)
       const totalPrice = formatBigNumber(usdPrice, 2)
 
       return (
@@ -140,10 +139,12 @@ export const BalanceView = (props: BalanceViewProps) => {
 
   return (
     <Styled.Container>
-      {Object.keys(wallet).map((chain) => {
-        const chainBalance = wallet[chain as SupportedChain]
+      {Object.keys(account).map((chain) => {
+        const chainWallet = account[chain as SupportedChain]
 
-        return renderChainBalance(chain as SupportedChain, chainBalance)
+        if (!chainWallet) return null
+
+        return renderChainBalance(chain as SupportedChain, chainWallet)
       })}
     </Styled.Container>
   )

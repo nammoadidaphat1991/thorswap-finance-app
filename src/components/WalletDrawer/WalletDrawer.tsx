@@ -33,26 +33,26 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
   const {
     loadAllWallets,
     getWalletByChain,
-    walletLoading,
-    wallet,
+    accountLoading,
+    account,
     chainWalletLoading,
-    walletType,
+    accountType,
     disconnectWallet,
   } = useWallet()
 
   const handleRefresh = useCallback(() => {
-    if (wallet) {
+    if (account) {
       dispatch(loadAllWallets())
     }
-  }, [wallet, loadAllWallets, dispatch])
+  }, [account, loadAllWallets, dispatch])
 
   const handleReloadChain = useCallback(
     (chain: SupportedChain) => {
-      if (wallet) {
+      if (account) {
         dispatch(getWalletByChain(chain))
       }
     },
-    [wallet, dispatch, getWalletByChain],
+    [account, dispatch, getWalletByChain],
   )
 
   const handleSendAsset = useCallback(
@@ -72,14 +72,14 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
       width={350}
     >
       <Styled.ActionHeader>
-        {(wallet || walletLoading) && (
+        {(account || accountLoading) && (
           <Styled.Refresh onClick={handleRefresh}>
-            <SyncOutlined spin={walletLoading} />
+            <SyncOutlined spin={accountLoading} />
           </Styled.Refresh>
         )}
-        {wallet && (
+        {account && (
           <Styled.HeaderAction>
-            {walletType === 'keystore' && (
+            {accountType === 'keystore' && (
               <CoreButton onClick={() => setShowPhraseModal(true)}>
                 <EyeOutlined />
                 <Label size="big" color="primary">
@@ -96,18 +96,18 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
         )}
       </Styled.ActionHeader>
 
-      {!wallet && !walletLoading && (
+      {!account && !accountLoading && (
         <Styled.WarningLabel>Please connect wallet.</Styled.WarningLabel>
       )}
-      {wallet && (
+      {account && (
         <BalanceView
-          wallet={wallet}
+          account={account}
           chainWalletLoading={chainWalletLoading}
           onReloadChain={handleReloadChain}
           onSendAsset={handleSendAsset}
         />
       )}
-      {wallet && (
+      {account && (
         <PhraseModal
           visible={showPhraseModal}
           onCancel={() => setShowPhraseModal(false)}

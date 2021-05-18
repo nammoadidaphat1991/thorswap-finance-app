@@ -28,7 +28,7 @@ import {
 import { XdefiClient } from '../../xdefi-sdk/xdefi'
 import { Swap, Memo, Asset, AssetAmount } from '../entities'
 import { getFeeRate } from '../utils/fee'
-import { removeAddressPrefix } from '../utils/wallet'
+import { Account, Wallet, WalletAccount } from './account'
 import { BnbChain } from './binance'
 import { BtcChain } from './bitcoin'
 import { BchChain } from './bitcoinCash'
@@ -40,13 +40,10 @@ import {
   TxParams,
   AddLiquidityParams,
   WithdrawParams,
-  Wallet,
-  ChainWallet,
   supportedChains,
   SupportedChain,
   AddLiquidityTxns,
   UpgradeParams,
-  WalletType,
 } from './types'
 
 // specifying non-eth client is needed for getFees method
@@ -60,8 +57,6 @@ export interface IMultiChain {
   midgard: MidgardV2
   network: string
 
-  wallets: Wallet | null
-
   thor: ThorChain
   btc: BtcChain
   bnb: BnbChain
@@ -71,16 +66,14 @@ export interface IMultiChain {
 
   feeOption: FeeOptionKey
 
-  resetClients(): void
-  getWalletType(): WalletType
-  setWalletType(type: WalletType): void
-
   getPhrase(): string
-  setPhrase(phrase: string): void
+
+  resetClients(): void
+
   validateKeystore(keystore: Keystore, password: string): Promise<boolean>
 
   connectXDefiWallet(): Promise<void>
-  useXdefiWallet(): Promise<void>
+  connectXdefiWallet(): Promise<void>
 
   getMidgard(): MidgardV2
 
@@ -88,8 +81,8 @@ export interface IMultiChain {
 
   getInboundDataByChain(chain: Chain): Promise<InboundAddressesItem>
 
-  getWalletByChain(chain: Chain): Promise<ChainWallet>
-  loadAllWallets(): Promise<Wallet | null>
+  getWalletByChain(chain: Chain): Promise<Wallet | null>
+  loadAllWallets(): Promise<WalletAccount>
   getWalletAddressByChain(chain: Chain): string | null
 
   validateAddress({
@@ -122,13 +115,11 @@ export interface IMultiChain {
 }
 
 export class MultiChain implements IMultiChain {
-  private phrase: string
+  private account: Account
+
+  private phrase = ''
 
   private xdefiClient: XdefiClient | null = null
-
-  private wallet: Wallet | null = null
-
-  private walletType: WalletType = 'phrase'
 
   public readonly chains = supportedChains
 
@@ -150,34 +141,34 @@ export class MultiChain implements IMultiChain {
 
   public feeOption: FeeOptionKey = 'fast'
 
-  constructor({
-    network = 'testnet',
-    phrase = '',
-  }: {
-    network?: Network
-    phrase?: string
-  }) {
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.network = network
-    this.phrase = phrase
+
+    this.account = new Account()
 
     // create midgard client
     this.midgard = new MidgardV2(MultiChain.getMidgardNetwork(network))
 
     // create chain clients
-    this.thor = new ThorChain({ network, phrase })
-    this.bnb = new BnbChain({ network, phrase })
-    this.btc = new BtcChain({ network, phrase })
-    this.eth = new EthChain({ network, phrase })
-    this.ltc = new LtcChain({ network, phrase })
-    this.bch = new BchChain({ network, phrase })
+    this.thor = new ThorChain({ network })
+    this.bnb = new BnbChain({ network })
+    this.btc = new BtcChain({ network })
+    this.eth = new EthChain({ network })
+    this.ltc = new LtcChain({ network })
+    this.bch = new BchChain({ network })
   }
 
-  getWalletType = (): WalletType => {
-    return this.walletType
+  getPhrase = () => {
+    return this.phrase
   }
 
-  setWalletType = (type: WalletType): void => {
-    this.walletType = type
+  initWallet = () => {
+    this.account.setWallet(THORChain, this.thor.wallet)
+    this.account.setWallet(BTCChain, this.thor.wallet)
+    this.account.setWallet(BNBChain, this.thor.wallet)
+    this.account.setWallet(BCHChain, this.thor.wallet)
+    this.account.setWallet(ETHChain, this.thor.wallet)
+    this.account.setWallet(LTCChain, this.thor.wallet)
   }
 
   connectXDefiWallet = async (): Promise<void> => {
@@ -186,97 +177,63 @@ export class MultiChain implements IMultiChain {
     if (!this.xdefiClient.isWalletDetected()) {
       throw Error('xdefi wallet not detected')
     }
-    // set mock phrase for eth client
-    const mockPhrase =
-      'image rally need wedding health address purse army antenna leopard sea gain'
-    this.resetClients(mockPhrase)
 
-    this.setWalletType('xdefi')
+    await this.connectXdefiWallet()
 
-    await this.useXdefiWallet()
-
-    this.initWallet()
+    // load balance
   }
 
   // patch client methods to use xdefi request and address
-  useXdefiWallet = async () => {
+  connectXdefiWallet = async () => {
     if (!this.xdefiClient) throw Error('xdefi client not found')
 
-    await this.thor.useXdefiWallet(this.xdefiClient)
-    await this.btc.useXdefiWallet(this.xdefiClient)
-    await this.bch.useXdefiWallet(this.xdefiClient)
-    await this.ltc.useXdefiWallet(this.xdefiClient)
-    await this.bnb.useXdefiWallet(this.xdefiClient)
-    await this.eth.useXdefiWallet(this.xdefiClient)
+    await this.thor.connectXdefiWallet(this.xdefiClient)
+    await this.btc.connectXdefiWallet(this.xdefiClient)
+    await this.bch.connectXdefiWallet(this.xdefiClient)
+    await this.ltc.connectXdefiWallet(this.xdefiClient)
+    await this.bnb.connectXdefiWallet(this.xdefiClient)
+    await this.eth.connectXdefiWallet(this.xdefiClient)
   }
 
-  resetClients = (mockPhrase = '') => {
-    this.phrase = ''
-    this.wallet = null
-
+  resetClients = () => {
     // reset all clients
-    this.thor = new ThorChain({ network: this.network, phrase: '' })
-    this.bnb = new BnbChain({ network: this.network, phrase: '' })
-    this.btc = new BtcChain({ network: this.network, phrase: '' })
-    this.eth = new EthChain({ network: this.network, phrase: mockPhrase })
-    this.ltc = new LtcChain({ network: this.network, phrase: '' })
-    this.bch = new BchChain({ network: this.network, phrase: '' })
+    this.thor = new ThorChain({ network: this.network })
+    this.bnb = new BnbChain({ network: this.network })
+    this.btc = new BtcChain({ network: this.network })
+    this.eth = new EthChain({ network: this.network })
+    this.ltc = new LtcChain({ network: this.network })
+    this.bch = new BchChain({ network: this.network })
   }
 
-  setPhrase = (phrase: string) => {
-    this.setWalletType('phrase')
+  disconnectKeystore = () => {
+    this.thor.disconnectKeystore()
+    this.bnb.disconnectKeystore()
+    this.btc.disconnectKeystore()
+    this.ltc.disconnectKeystore()
+    this.bch.disconnectKeystore()
+    this.eth.disconnectKeystore()
+  }
 
+  connectKeystore = (phrase: string) => {
+    // save phrase
     this.phrase = phrase
 
-    this.bnb.getClient().setPhrase(phrase)
-    this.btc.getClient().setPhrase(phrase)
-    this.ltc.getClient().setPhrase(phrase)
-    this.bch.getClient().setPhrase(phrase)
-
-    this.thor = new ThorChain({ network: this.network, phrase })
-    this.eth = new EthChain({ network: this.network, phrase })
+    // connect keystore for all chain clients
+    this.thor.connectKeystore(phrase)
+    this.bnb.connectKeystore(phrase)
+    this.btc.connectKeystore(phrase)
+    this.ltc.connectKeystore(phrase)
+    this.bch.connectKeystore(phrase)
+    this.eth.connectKeystore(phrase)
 
     this.initWallet()
   }
 
-  getPhrase = () => {
-    return this.phrase
-  }
-
-  // used to validate keystore and password with phrase
+  // used for validating the keystore and password with phrase
   validateKeystore = async (keystore: Keystore, password: string) => {
     const phrase = await decryptFromKeystore(keystore, password)
 
     return phrase === this.phrase
-  }
-
-  initWallet = () => {
-    this.wallet = {
-      THOR: {
-        address: this.thor.getClient().getAddress(),
-        balance: [],
-      },
-      BNB: {
-        address: this.bnb.getClient().getAddress(),
-        balance: [],
-      },
-      BTC: {
-        address: this.btc.getClient().getAddress(),
-        balance: [],
-      },
-      ETH: {
-        address: this.eth.getClient().getAddress().toLowerCase(),
-        balance: [],
-      },
-      LTC: {
-        address: this.ltc.getClient().getAddress(),
-        balance: [],
-      },
-      BCH: {
-        address: removeAddressPrefix(this.bch.getClient().getAddress()),
-        balance: [],
-      },
-    }
   }
 
   /**
@@ -287,10 +244,6 @@ export class MultiChain implements IMultiChain {
   public static getMidgardNetwork(network: Network): MidgardNetwork {
     if (network === 'testnet') return 'testnet'
     return 'chaosnet'
-  }
-
-  get wallets(): Wallet | null {
-    return this.wallet
   }
 
   /**
@@ -333,71 +286,40 @@ export class MultiChain implements IMultiChain {
     return null
   }
 
-  getWalletByChain = async (chain: Chain): Promise<ChainWallet> => {
+  getWalletByChain = async (chain: Chain): Promise<Wallet | null> => {
     const chainClient = this.getChainClient(chain)
 
     if (!chainClient) throw new Error('invalid chain')
 
     try {
-      const balance = (await chainClient?.loadBalance()) ?? []
-      const address = removeAddressPrefix(
-        chainClient.getClient().getAddress().toLowerCase(),
-      )
+      const wallet = await chainClient?.loadBalance()
+      this.account.setWallet(chain as SupportedChain, wallet)
 
-      if (this.wallet && chain in this.wallet) {
-        this.wallet = {
-          ...this.wallet,
-          [chain]: {
-            address,
-            balance,
-          },
-        }
-      }
-
-      return {
-        address,
-        balance,
-      }
+      return wallet
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  loadAllWallets = async (): Promise<Wallet | null> => {
-    if (this.phrase || this.walletType === 'xdefi') {
-      try {
-        await Promise.all(
-          this.chains.map((chain: SupportedChain) => {
-            return new Promise((resolve) => {
-              this.getWalletByChain(chain)
-                .then((data) => resolve(data))
-                .catch((err) => {
-                  console.log(err)
-                  resolve([])
-                })
-            })
-          }),
-        )
+  loadAllWallets = async (): Promise<WalletAccount> => {
+    try {
+      await this.getWalletByChain(THORChain)
+      await this.getWalletByChain(BNBChain)
+      await this.getWalletByChain(BTCChain)
+      await this.getWalletByChain(ETHChain)
+      await this.getWalletByChain(LTCChain)
+      await this.getWalletByChain(BCHChain)
 
-        console.log('wallet', this.wallet)
-        return this.wallet
-      } catch (error) {
-        return Promise.reject(error)
-      }
+      return this.account.wallets
+    } catch (error) {
+      return Promise.reject(error)
     }
-    return Promise.reject(Error('load wallet error'))
   }
 
   getWalletAddressByChain = (chain: Chain): string | null => {
-    if (this.wallet && chain in this.wallet) {
-      const addr = this.wallet?.[chain as SupportedChain]?.address ?? null
+    const wallet = this.account.getChainWallet(chain as SupportedChain)
 
-      if (addr) {
-        return removeAddressPrefix(addr)
-      }
-    }
-
-    return null
+    return wallet?.address ?? null
   }
 
   validateAddress = ({
@@ -617,7 +539,7 @@ export class MultiChain implements IMultiChain {
      */
 
     try {
-      if (!this.wallet) {
+      if (!this.account.hasWallet(swap.inputAsset.chain)) {
         return await Promise.reject(new Error('Wallet not detected'))
       }
 

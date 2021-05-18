@@ -14,10 +14,9 @@ import {
 import {
   Amount,
   Asset,
-  getAssetBalance,
+  WalletAccount,
   AssetAmount,
-  Wallet,
-  getRuneToUpgrade,
+  Account,
 } from 'multichain-sdk'
 
 import { TxTrackerType } from 'redux/midgard/types'
@@ -33,9 +32,9 @@ import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants'
 import * as Styled from './Upgrade.style'
 
 const UpgradeView = () => {
-  const { wallet, keystore, walletType } = useWallet()
+  const { account, keystore, accountType } = useWallet()
 
-  if (!wallet || (!keystore && walletType === 'keystore')) {
+  if (!account || (!keystore && accountType === 'keystore')) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>
@@ -43,7 +42,7 @@ const UpgradeView = () => {
     )
   }
 
-  const runeToUpgrade = getRuneToUpgrade(wallet)
+  const runeToUpgrade = Account.getRuneToUpgrade(account)
 
   if (!runeToUpgrade.length) {
     return (
@@ -53,7 +52,7 @@ const UpgradeView = () => {
     )
   }
 
-  return <UpgradePanel runeToUpgrade={runeToUpgrade} wallet={wallet} />
+  return <UpgradePanel runeToUpgrade={runeToUpgrade} wallet={account} />
 }
 
 const UpgradePanel = ({
@@ -61,7 +60,7 @@ const UpgradePanel = ({
   wallet,
 }: {
   runeToUpgrade: Asset[]
-  wallet: Wallet
+  wallet: WalletAccount
 }) => {
   const { submitTransaction, pollTransaction, setTxFailed } = useTxTracker()
 
@@ -76,7 +75,7 @@ const UpgradePanel = ({
 
   const assetBalance: Amount = useMemo(() => {
     if (wallet) {
-      return getAssetBalance(selectedAsset, wallet).amount
+      return Account.getAssetBalance(wallet, selectedAsset).amount
     }
     return Amount.fromAssetAmount(0, 8)
   }, [selectedAsset, wallet])

@@ -1,7 +1,4 @@
-export enum WalletType {
-  'KEYSTORE' = 'KEYSTORE',
-  'XDEFI' = 'XDEFI',
-  'METAMASK' = 'METAMASK',
-  'TRUSTWALLET' = 'TRUSTWALLET',
-  'LEDGER' = 'LEDGER',
-}
+import { SupportedChain } from '../types'
+import { Wallet } from './wallet'
+
+export type WalletAccount = Record<SupportedChain, Wallet | null>

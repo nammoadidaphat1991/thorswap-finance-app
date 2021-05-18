@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useHistory } from 'react-router'
 
-import { getRuneToUpgrade } from 'multichain-sdk'
+import { Account } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
 import { useWallet } from 'redux/wallet/hooks'
@@ -30,12 +30,12 @@ export const Layout = (props: Props) => {
   const { children, transparent = false } = props
 
   const history = useHistory()
-  const { wallet } = useWallet()
+  const { account } = useWallet()
   const { showAnnouncement, setReadStatus } = useApp()
 
   const oldRune: string | null = useMemo(() => {
-    if (wallet) {
-      const runesToUpgrade = getRuneToUpgrade(wallet)
+    if (account) {
+      const runesToUpgrade = Account.getRuneToUpgrade(account)
 
       if (runesToUpgrade.length > 0) {
         const oldRuneChain = `${runesToUpgrade?.[0]?.chain ?? ''} ${
@@ -46,7 +46,7 @@ export const Layout = (props: Props) => {
     }
 
     return null
-  }, [wallet])
+  }, [account])
   const handleUpgrade = useCallback(() => {
     history.push(UPGRADE_RUNE_ROUTE)
   }, [history])

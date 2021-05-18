@@ -22,6 +22,7 @@ import {
   RUNE_THRESHOLD_AMOUNT,
 } from '../constants'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
+import { Wallet, WalletOption } from './account'
 import { IClient } from './client'
 import { TxParams } from './types'
 
@@ -36,24 +37,19 @@ export interface IThorChain extends IClient {
 }
 
 export class ThorChain implements IThorChain {
-  private balances: AssetAmount[] = []
-
   private client: ThorClient
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public wallet: Wallet | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = THORChain
     this.client = new ThorClient({
       network,
-      phrase,
     })
+
+    this.wallet = null
   }
 
   /**
@@ -63,11 +59,34 @@ export class ThorChain implements IThorChain {
     return this.client
   }
 
-  get balance() {
-    return this.balances
+  /**
+   * Wallet Management
+   */
+  connectKeystore = (phrase: string) => {
+    this.client = new ThorClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+
+    const address = this.client.getAddress()
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: THORChain,
+      type: WalletOption.KEYSTORE,
+    })
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  disconnectKeystore = () => {
+    this.client.purgeClient()
+
+    if (this.wallet?.type === WalletOption.KEYSTORE) {
+      this.wallet = null
+    }
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -75,7 +94,13 @@ export class ThorChain implements IThorChain {
      * 2. patch getAddress method
      * 3. patch transfer method
      * 4. patch deposit method
+     * 5. add wallet
      */
+
+    this.client = new ThorClient({
+      network: this.client.getNetwork(),
+    })
+
     xdefiClient.loadProvider(THORChain)
 
     const address = await xdefiClient.getAddress(THORChain)
@@ -114,13 +139,20 @@ export class ThorChain implements IThorChain {
       return txHash
     }
     this.client.deposit = deposit
+
+    // add wallet
+    this.wallet = new Wallet({
+      address,
+      chain: THORChain,
+      type: WalletOption.XDEFI,
+    })
   }
 
-  loadBalance = async (): Promise<AssetAmount[]> => {
+  loadBalance = async (): Promise<Wallet | null> => {
     try {
       const balances: Balance[] = await this.client.getBalance()
 
-      this.balances = balances.map((data: Balance) => {
+      const walletBalances = balances.map((data: Balance) => {
         const { asset, amount } = data
 
         const assetObj = new Asset(asset.chain, asset.symbol)
@@ -133,7 +165,9 @@ export class ThorChain implements IThorChain {
         return new AssetAmount(assetObj, amountObj)
       })
 
-      return this.balances
+      this.wallet?.setBalance(walletBalances)
+
+      return this.wallet
     } catch (error) {
       return Promise.reject(error)
     }
@@ -143,12 +177,9 @@ export class ThorChain implements IThorChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(assetAmount.asset),
       )
-
-      console.log('assetbalance', assetBalance?.amount.toFixed())
-      console.log('assetbalance', assetAmount?.amount.toFixed())
 
       if (!assetBalance) return false
 
@@ -162,7 +193,7 @@ export class ThorChain implements IThorChain {
     try {
       await this.loadBalance()
 
-      const assetBalance = this.balances.find((data: AssetAmount) =>
+      const assetBalance = this.wallet?.balance.find((data: AssetAmount) =>
         data.asset.eq(asset),
       )
 

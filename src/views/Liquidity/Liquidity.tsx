@@ -20,7 +20,7 @@ const LiquidityView = () => {
     chainMemberDetailsLoading,
     getAllMemberDetails,
   } = useMidgard()
-  const { wallet } = useWallet()
+  const { account } = useWallet()
 
   useEffect(() => {
     getAllMemberDetails()
@@ -28,8 +28,8 @@ const LiquidityView = () => {
 
   return (
     <PanelView meta="Liquidity" poolAsset={Asset.BTC()} type="liquidity">
-      {!wallet && <Label>Please connect wallet.</Label>}
-      {wallet && (
+      {!account && <Label>Please connect wallet.</Label>}
+      {account && (
         <>
           <Styled.ToolContainer>
             <Link to={getAddLiquidityRoute(Asset.BTC())}>

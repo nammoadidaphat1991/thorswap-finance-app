@@ -2,25 +2,26 @@ import { Chain } from '@xchainjs/xchain-util'
 import { BigNumber } from 'bignumber.js'
 
 import { AssetAmount, Asset, Pool, Amount } from '../../entities'
-import { WalletType } from './types'
 import { getAssetValueInUSD } from './utils'
+
+export enum WalletOption {
+  'KEYSTORE' = 'KEYSTORE',
+  'XDEFI' = 'XDEFI',
+  'METAMASK' = 'METAMASK',
+  'TRUSTWALLET' = 'TRUSTWALLET',
+  'LEDGER' = 'LEDGER',
+}
 
 /**
  * Wallet Class manages connected wallet for specific chain
  */
 export interface IWallet {
   chain: Chain
-  type: WalletType
-  connected: boolean
-  active: boolean
+  type: WalletOption
   address: string
   balance: AssetAmount[]
 
   setBalance(balance: AssetAmount[]): void
-  disconnect(): void
-
-  activate(): void
-  deactivate(): void
 
   eq(wallet: Wallet): boolean
 
@@ -36,35 +37,25 @@ export interface IWallet {
 }
 
 export class Wallet implements IWallet {
-  chain: Chain
+  readonly chain: Chain
 
-  type: WalletType
+  readonly type: WalletOption
 
-  connected: boolean
+  readonly address: string
 
-  active: boolean
-
-  address: string
-
-  balance: AssetAmount[]
+  readonly balance: AssetAmount[]
 
   constructor({
     chain,
     type,
-    connected,
     address,
-    active = false,
   }: {
     chain: Chain
-    type: WalletType
-    connected: boolean
+    type: WalletOption
     address: string
-    active?: boolean
   }) {
     this.chain = chain
     this.type = type
-    this.connected = connected
-    this.active = active
 
     // remove asset prefix(:) eg: bitcoincash:xxxxx -> xxxxx
     this.address = this.removeAddressPrefix(address)
@@ -73,19 +64,6 @@ export class Wallet implements IWallet {
 
   setBalance = (balance: AssetAmount[]) => {
     this.balance = balance
-  }
-
-  activate = () => {
-    this.active = true
-  }
-
-  deactivate = () => {
-    this.active = false
-  }
-
-  disconnect = () => {
-    this.connected = false
-    this.balance = []
   }
 
   eq = (wallet: Wallet): boolean => {

@@ -11,7 +11,7 @@ import {
   ActionTypeEnum,
   HistoryInterval,
 } from 'midgard-sdk'
-import { Asset, SupportedChain } from 'multichain-sdk'
+import { Asset, SupportedChain, Account } from 'multichain-sdk'
 
 import * as actions from 'redux/midgard/actions'
 import { actions as sliceActions } from 'redux/midgard/slice'
@@ -29,7 +29,7 @@ export const useMidgard = () => {
   const dispatch = useDispatch()
   const midgardState = useSelector((state: RootState) => state.midgard)
   const walletState = useSelector((state: RootState) => state.wallet)
-  const wallet = useMemo(() => walletState.wallet, [walletState])
+  const account = useMemo(() => walletState.account, [walletState])
 
   const isGlobalHistoryLoading = useMemo(
     () =>
@@ -111,10 +111,10 @@ export const useMidgard = () => {
    */
   const loadMemberDetailsByChain = useCallback(
     (chain: SupportedChain) => {
-      if (!wallet) return
+      if (!account) return
 
-      const assetChainAddress = wallet?.[chain]?.address
-      const thorchainAddress = wallet?.[THORChain]?.address
+      const assetChainAddress = Account.getChainAddress(account, chain)
+      const thorchainAddress = Account.getChainAddress(account, THORChain)
       if (assetChainAddress && thorchainAddress) {
         dispatch(
           actions.reloadPoolMemberDetailByChain({
@@ -125,15 +125,15 @@ export const useMidgard = () => {
         )
       }
     },
-    [dispatch, wallet],
+    [dispatch, account],
   )
 
   // get pool member details for a specific chain
   const getMemberDetailsByChain = useCallback(
     (chain: SupportedChain) => {
-      if (!wallet) return
+      if (!account) return
 
-      const chainWalletAddr = wallet?.[chain]?.address
+      const chainWalletAddr = Account.getChainAddress(account, chain)
 
       if (chainWalletAddr) {
         dispatch(
@@ -144,17 +144,17 @@ export const useMidgard = () => {
         )
       }
     },
-    [dispatch, wallet],
+    [dispatch, account],
   )
 
   // get pool member details for all chains
   const getAllMemberDetails = useCallback(() => {
-    if (!wallet) return
+    if (!account) return
 
-    Object.keys(wallet).forEach((chain) => {
+    Object.keys(account).forEach((chain) => {
       getMemberDetailsByChain(chain as SupportedChain)
     })
-  }, [getMemberDetailsByChain, wallet])
+  }, [getMemberDetailsByChain, account])
 
   const addNewTxTracker = useCallback(
     (txTracker: TxTracker) => {

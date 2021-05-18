@@ -27,7 +27,7 @@ import * as Styled from './Header.style'
 
 export const Header = () => {
   const { themeType, baseCurrencyAsset, setBaseCurrency } = useApp()
-  const { wallet, walletLoading, setIsConnectModalOpen } = useWallet()
+  const { account, accountLoading, setIsConnectModalOpen } = useWallet()
   const { refreshPage } = useGlobalState()
   const { stats } = useMidgard()
 
@@ -35,15 +35,15 @@ export const Header = () => {
 
   const isDesktopView = Grid.useBreakpoint()?.sm ?? false
 
-  const isConnected = !!wallet
+  const isConnected = !!account
 
   const handleClickWalletBtn = useCallback(() => {
-    if (!isConnected && !walletLoading) {
+    if (!isConnected && !accountLoading) {
       setIsConnectModalOpen(true)
     } else {
       setDrawerVisible(true)
     }
-  }, [isConnected, walletLoading, setIsConnectModalOpen])
+  }, [isConnected, accountLoading, setIsConnectModalOpen])
 
   const handleCloseDrawer = useCallback(() => {
     setDrawerVisible(false)
@@ -91,7 +91,7 @@ export const Header = () => {
         <Styled.WalletBtn
           onClick={handleClickWalletBtn}
           connected={isConnected}
-          loading={walletLoading}
+          loading={accountLoading}
         />
         <WalletDrawer visible={drawerVisible} onClose={handleCloseDrawer} />
         <Refresh onRefresh={refreshPage} />

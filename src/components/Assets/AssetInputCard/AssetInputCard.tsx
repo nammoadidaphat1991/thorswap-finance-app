@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Amount, Asset, Price, Wallet } from 'multichain-sdk'
+import { Amount, Asset, Price, WalletAccount } from 'multichain-sdk'
 
 import { InputAmountProps } from 'components/UIElements/InputAmount'
 
@@ -36,7 +36,7 @@ export type Props = {
   selectDisabled?: boolean
   minWidth?: number
   searchPlaceholder?: string
-  wallet?: Wallet
+  wallet?: WalletAccount
 }
 
 export const AssetInputCard: React.FC<Props> = (props: Props): JSX.Element => {

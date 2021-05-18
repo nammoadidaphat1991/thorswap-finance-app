@@ -13,14 +13,13 @@ import {
   Panel,
 } from 'components'
 import {
-  getNonPoolAssets,
   Amount,
   Asset,
-  getAssetBalance,
   Pool,
   Price,
   AssetAmount,
-  Wallet,
+  WalletAccount,
+  Account,
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -37,14 +36,14 @@ import * as Styled from './Create.style'
 
 const CreateLiquidityView = () => {
   const { pools, poolLoading } = useMidgard()
-  const { wallet } = useWallet()
+  const { account } = useWallet()
 
-  const availableAssets = useMemo(() => getNonPoolAssets({ wallet, pools }), [
-    wallet,
-    pools,
-  ])
+  const availableAssets = useMemo(
+    () => Account.getNonPoolAssets({ account, pools }),
+    [account, pools],
+  )
 
-  if (!wallet) {
+  if (!account) {
     return (
       <Panel>
         <Label>Please connect wallet.</Label>
@@ -56,7 +55,7 @@ const CreateLiquidityView = () => {
     return (
       <CreateLiquidityPanel
         pools={pools}
-        wallet={wallet}
+        account={account}
         inputAssets={availableAssets}
       />
     )
@@ -76,10 +75,10 @@ const CreateLiquidityView = () => {
 const CreateLiquidityPanel = ({
   pools,
   inputAssets,
-  wallet,
+  account,
 }: {
   pools: Pool[]
-  wallet: Wallet
+  account: WalletAccount
   inputAssets: Asset[]
 }) => {
   const { submitTransaction, pollTransaction } = useTxTracker()
@@ -108,10 +107,10 @@ const CreateLiquidityPanel = ({
       setApproved(approved)
     }
 
-    if (wallet) {
+    if (account) {
       checkApproved()
     }
-  }, [inputAsset, wallet])
+  }, [inputAsset, account])
 
   const inputAssetPriceInUSD = useMemo(
     () =>
@@ -134,22 +133,22 @@ const CreateLiquidityPanel = ({
   )
 
   const inputAssetBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(inputAsset, wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, inputAsset).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [inputAsset, wallet])
+  }, [inputAsset, account])
 
   const runeBalance: Amount = useMemo(() => {
-    if (wallet) {
-      return getAssetBalance(Asset.RUNE(), wallet).amount
+    if (account) {
+      return Account.getAssetBalance(account, Asset.RUNE()).amount
     }
 
     // allow max amount if wallet is not connected
     return Amount.fromAssetAmount(10 ** 3, 8)
-  }, [wallet])
+  }, [account])
 
   const handleSelectInputAsset = useCallback((inputAssetData: Asset) => {
     setInputAsset(inputAssetData)
@@ -195,7 +194,7 @@ const CreateLiquidityPanel = ({
 
   const handleConfirmAdd = useCallback(async () => {
     setVisibleConfirmModal(false)
-    if (wallet) {
+    if (account) {
       const runeAssetAmount = new AssetAmount(Asset.RUNE(), runeAmount)
       const inputAssetAmount = new AssetAmount(inputAsset, assetAmount)
 
@@ -251,7 +250,7 @@ const CreateLiquidityPanel = ({
       }
     }
   }, [
-    wallet,
+    account,
     inputAsset,
     runeAmount,
     assetAmount,
@@ -266,7 +265,7 @@ const CreateLiquidityPanel = ({
   const handleConfirmApprove = useCallback(async () => {
     setVisibleApproveModal(false)
 
-    if (wallet) {
+    if (account) {
       const txHash = await multichain.approveAsset(inputAsset)
 
       if (txHash) {
@@ -286,10 +285,10 @@ const CreateLiquidityPanel = ({
         })
       }
     }
-  }, [inputAsset, wallet])
+  }, [inputAsset, account])
 
   const handleCreatePool = useCallback(() => {
-    if (!wallet) {
+    if (!account) {
       Notification({
         type: 'info',
         message: 'Wallet Not Found',
@@ -309,10 +308,10 @@ const CreateLiquidityPanel = ({
     }
 
     setVisibleConfirmModal(true)
-  }, [wallet, isFundsCapReached])
+  }, [account, isFundsCapReached])
 
   const handleApprove = useCallback(() => {
-    if (wallet) {
+    if (account) {
       setVisibleApproveModal(true)
     } else {
       Notification({
@@ -321,7 +320,7 @@ const CreateLiquidityPanel = ({
         description: 'Please connect wallet',
       })
     }
-  }, [wallet])
+  }, [account])
 
   const renderConfirmModalContent = useMemo(() => {
     return (
@@ -409,7 +408,7 @@ const CreateLiquidityPanel = ({
         />
       </Styled.DetailContent>
 
-      {isApproved !== null && wallet && (
+      {isApproved !== null && account && (
         <Styled.ConfirmButtonContainer>
           {!isApproved && (
             <Styled.ApproveBtn onClick={handleApprove}>
@@ -421,7 +420,7 @@ const CreateLiquidityPanel = ({
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
-      {!wallet && (
+      {!account && (
         <Styled.ConfirmButtonContainer>
           <FancyButton onClick={handleCreatePool} error={!isAddLiquidityValid}>
             Create Pool
