@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router'
 import { SwapOutlined } from '@ant-design/icons'
 import {
   PanelView,
+  AddressSelectCard,
   AssetInputCard,
   Slider,
   ConfirmModal,
@@ -38,6 +39,8 @@ import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
+
+import { truncateAddress } from 'helpers/string'
 
 import { getSwapRoute } from 'settings/constants'
 import {
@@ -108,9 +111,19 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     Amount.fromAssetAmount(0, 8),
   )
   const [percent, setPercent] = useState(0)
+  const [chainRecipient, setChainRecipient] = useState('')
   const [recipient, setRecipient] = useState('')
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
   const [visibleApproveModal, setVisibleApproveModal] = useState(false)
+
+  const isValidAddress = useMemo(
+    () =>
+      multichain.validateAddress({
+        chain: outputAsset.chain,
+        address: recipient,
+      }),
+    [outputAsset, recipient],
+  )
 
   const swap: Swap | null = useMemo(() => {
     if (poolLoading) return null
@@ -207,6 +220,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     if (wallet) {
       const address = getWalletAddressByChain(wallet, outputAsset.chain)
       setRecipient(address || '')
+      setChainRecipient(address || '')
     }
   }, [wallet, outputAsset])
 
@@ -391,6 +405,15 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         return
       }
 
+      if (!isValidAddress) {
+        Notification({
+          type: 'error',
+          message: 'Invalid Recipient Address',
+          description: 'Recipient address should be a valid address.',
+        })
+        return
+      }
+
       setVisibleConfirmModal(true)
     } else {
       Notification({
@@ -399,7 +422,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [isValidAddress, wallet, swap])
 
   const handleApprove = useCallback(() => {
     if (wallet && swap) {
@@ -448,6 +471,12 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         />
         <br />
         <Information
+          title="Recipient Address"
+          description={truncateAddress(recipient)}
+          error={!isValidAddress}
+        />
+        <br />
+        <Information
           title="Slip"
           description={slipPercent.toFixed(3)}
           error={!isValidSlip}
@@ -487,6 +516,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     outputAmount,
     inputAsset,
     outputAsset,
+    recipient,
     slipPercent,
     isValidSlip,
     minReceive,
@@ -494,6 +524,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     outboundFee,
     totalFeeInUSD,
     estimatedTime,
+    isValidAddress,
   ])
 
   const renderApproveModal = useMemo(() => {
@@ -555,7 +586,17 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         usdPrice={outputAssetPriceInUSD}
         wallet={wallet || undefined}
       />
-
+      {wallet && (
+        <Styled.RecipientAddrWrapper>
+          <AddressSelectCard
+            title="Recipient Address"
+            address={recipient}
+            chain={outputAsset.chain}
+            chainAddr={chainRecipient}
+            onAddressChange={setRecipient}
+          />
+        </Styled.RecipientAddrWrapper>
+      )}
       <Styled.SwapInfo>
         <PriceRate
           price={swap?.price}
@@ -593,7 +634,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           tooltip="Sum of both transaction fee and network fee"
         />
       </Styled.SwapInfo>
-
       {isApproved !== null && wallet && (
         <Styled.ConfirmButtonContainer>
           {!isApproved && (
@@ -628,7 +668,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
-
       <ConfirmModal
         visible={visibleConfirmModal}
         onOk={handleConfirm}
