@@ -55,11 +55,21 @@ export const Tools = styled.div`
 export const ToolWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 2px;
 
   cursor: ponter;
 
   svg {
+    width: 14px;
+    height: 14px;
+  }
+`
+
+export const WalletType = styled(ToolWrapper)`
+  margin-top: -4px;
+  padding: 0px;
+
+  & > div {
     width: 14px;
     height: 14px;
   }

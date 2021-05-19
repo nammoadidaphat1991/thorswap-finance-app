@@ -104,7 +104,6 @@ export class EthChain implements IEthChain {
     this.walletType = null
   }
 
-  // TODO: connectMetamask
   connectMetaMask = async (metamaskClient: MetaMaskClient) => {
     if (!metamaskClient) throw Error('metamask client not found')
 

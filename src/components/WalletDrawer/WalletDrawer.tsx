@@ -3,10 +3,7 @@ import React, { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 
-import {
-  SyncOutlined,
-  // EyeOutlined
-} from '@ant-design/icons'
+import { SyncOutlined } from '@ant-design/icons'
 import { SupportedChain, Asset } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
@@ -15,8 +12,7 @@ import { getSendRoute } from 'settings/constants'
 
 import { BalanceView } from '../BalanceView'
 import { PhraseModal } from '../Modals'
-import { CoreButton } from '../UIElements/CoreButton'
-import { Label } from '../UIElements/Label'
+import { Button } from '../UIElements/Button'
 import { Drawer } from './WalletDrawer.style'
 import * as Styled from './WalletDrawer.style'
 
@@ -39,7 +35,7 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
     walletLoading,
     wallet,
     chainWalletLoading,
-    // walletType,
+    setIsConnectModalOpen,
     disconnectWallet,
   } = useWallet()
 
@@ -82,19 +78,18 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
         )}
         {wallet && (
           <Styled.HeaderAction>
-            {/* {walletType === 'keystore' && (
-              <CoreButton onClick={() => setShowPhraseModal(true)}>
-                <EyeOutlined />
-                <Label size="big" color="primary">
-                  Phrase
-                </Label>
-              </CoreButton>
-            )} */}
-            <CoreButton onClick={disconnectWallet}>
-              <Label size="big" color="warning">
-                Disconnect
-              </Label>
-            </CoreButton>
+            <Button onClick={() => setIsConnectModalOpen(true)} round>
+              Connect
+            </Button>
+            <Button
+              typevalue="outline"
+              color="warning"
+              onClick={disconnectWallet}
+              round
+              fixedWidth={false}
+            >
+              Disconnect
+            </Button>
           </Styled.HeaderAction>
         )}
       </Styled.ActionHeader>
@@ -108,6 +103,7 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
           chainWalletLoading={chainWalletLoading}
           onReloadChain={handleReloadChain}
           onSendAsset={handleSendAsset}
+          viewPhrase={() => setShowPhraseModal(true)}
         />
       )}
       {wallet && (
