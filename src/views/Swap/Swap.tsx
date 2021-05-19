@@ -28,6 +28,7 @@ import {
   getEstimatedTxTime,
   SupportedChain,
   hasWalletConnected,
+  hasConnectedWallet,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -592,7 +593,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         usdPrice={outputAssetPriceInUSD}
         wallet={wallet || undefined}
       />
-      {wallet && (
+      {hasConnectedWallet(wallet) && (
         <Styled.RecipientAddrWrapper>
           <AddressSelectCard
             title="Recipient Address"

@@ -47,7 +47,7 @@ export const AddressSelectCard: React.FC<Props> = (
   const { wallet } = useWallet()
   const [isEditable, setEditable] = useState(false)
   const truncatedAddr = useMemo(
-    () => (address ? truncateAddress(address) : 'N/A'),
+    () => (address ? truncateAddress(address) : ''),
     [address],
   )
   const accountUrl = useMemo(
@@ -82,6 +82,8 @@ export const AddressSelectCard: React.FC<Props> = (
   )
 
   const renderRecipientIcon = () => {
+    if (!address) return <></>
+
     const walletType = wallet?.[chain as SupportedChain]?.walletType
     if (address === chainAddr && walletType) {
       return (
@@ -132,8 +134,9 @@ export const AddressSelectCard: React.FC<Props> = (
       <Styled.CardContent>
         <Styled.AddressInput
           sizevalue="big"
-          isError={!isValidAddress}
+          isError={!!address && !isValidAddress}
           value={isEditable ? address : truncatedAddr}
+          placeholder="Recipient Address Here"
           onChange={handleAddressChange}
           disabled={!isEditable}
         />
