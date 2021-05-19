@@ -96,6 +96,8 @@ export class BnbChain implements IBnbChain {
     }
 
     this.client.transfer = transfer
+
+    this.walletType = WalletOption.XDEFI
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {
