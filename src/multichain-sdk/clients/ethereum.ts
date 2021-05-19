@@ -20,6 +20,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
+import { MetaMaskClient } from 'metamask-sdk'
 
 import { ETH_DECIMAL } from 'multichain-sdk/constants'
 
@@ -104,6 +105,206 @@ export class EthChain implements IEthChain {
   }
 
   // TODO: connectMetamask
+  connectMetaMask = async (metamaskClient: MetaMaskClient) => {
+    if (!metamaskClient) throw Error('metamask client not found')
+
+    /**
+     * 1. load chain provider
+     * 2. patch getAddress method
+     * 3. patch eth wallet object
+     * 4. patch approve method
+     * 5. patch transfer method
+     * 6. patch call method
+     */
+    metamaskClient.loadProvider()
+
+    const mockPhrase =
+      'image rally need wedding health address purse army antenna leopard sea gain'
+    const network = this.client.getNetwork()
+    this.client = new EthClient({
+      network,
+      phrase: mockPhrase,
+      etherscanApiKey: ETHERSCAN_API_KEY,
+      ethplorerApiKey: ETHPLORER_API_KEY,
+      infuraCreds: { projectId: INFURA_PROJECT_ID },
+    })
+
+    const address = await metamaskClient.getAddress()
+
+    this.client.getAddress = () => address
+
+    // patch eth wallet
+    const ethWallet = this.client.getWallet()
+    ethWallet.getAddress = async () => address
+    ethWallet.sendTransaction = (unsignedTx) => {
+      const txParam = unsignedTx
+      txParam.value = hexlify(BN.from(unsignedTx.value || 0))
+      return metamaskClient
+        .transferERC20(txParam)
+        .then((hash: string) => ({ hash }))
+    }
+    ethWallet.signTransaction = (unsignedTx) => {
+      const txParam = unsignedTx
+      txParam.value = hexlify(BN.from(txParam.value || 0))
+
+      return metamaskClient.signTransactionERC20(txParam)
+    }
+
+    this.client.getWallet = () => {
+      return ethWallet
+    }
+
+    // patch approve
+    this.client.approve = async (approveParams: ClientApproveParams) => {
+      const { spender, sender, amount, feeOptionKey } = approveParams
+
+      const gasPrice =
+        feeOptionKey &&
+        BN.from(
+          (
+            await this.client
+              .estimateGasPrices()
+              .then((prices) => prices[feeOptionKey])
+              .catch(() => {
+                const {
+                  gasPrices,
+                } = estimateDefaultFeesWithGasPricesAndLimits()
+                return gasPrices[feeOptionKey]
+              })
+          )
+            .amount()
+            .toFixed(),
+        )
+      const gasLimit = await this.client
+        .estimateApprove({ spender, sender, amount })
+        .catch(() => undefined)
+
+      const txAmount = amount
+        ? BN.from(amount.amount().toFixed())
+        : BN.from(2).pow(256).sub(1)
+      const contract = new ethers.Contract(sender, erc20ABI)
+      const unsignedTx = await contract.populateTransaction.approve(
+        spender,
+        txAmount,
+        {
+          from: address,
+          gasPrice,
+          gasLimit,
+        },
+      )
+      unsignedTx.from = address
+
+      const txHash = await metamaskClient.transferERC20(unsignedTx)
+
+      return txHash
+    }
+
+    this.client.transfer = async ({
+      asset,
+      memo,
+      amount,
+      recipient,
+      feeOptionKey,
+      gasPrice,
+      gasLimit,
+    }) => {
+      try {
+        const txAmount = BN.from(amount.amount().toFixed())
+
+        let assetAddress
+        if (asset && assetToString(asset) !== assetToString(AssetETH)) {
+          assetAddress = getTokenAddress(asset)
+        }
+
+        const isETHAddress = assetAddress === ETHAddress
+
+        // feeOptionKey
+        const defaultGasLimit: ethers.BigNumber = isETHAddress
+          ? SIMPLE_GAS_COST
+          : BASE_TOKEN_GAS_COST
+
+        let overrides: TxOverrides = {
+          gasLimit: gasLimit || defaultGasLimit,
+          gasPrice: gasPrice && BN.from(gasPrice.amount().toFixed()),
+        }
+
+        // override `overrides` if `feeOptionKey` is provided
+        if (feeOptionKey) {
+          const gasPriceValue = await this.client
+            .estimateGasPrices()
+            .then((prices) => prices[feeOptionKey])
+            .catch(
+              () =>
+                estimateDefaultFeesWithGasPricesAndLimits().gasPrices[
+                  feeOptionKey
+                ],
+            )
+          const gasLimitValue = await this.client
+            .estimateGasLimit({ asset, recipient, amount, memo })
+            .catch(() => defaultGasLimit)
+
+          overrides = {
+            gasLimit: gasLimitValue,
+            gasPrice: BN.from(gasPriceValue.amount().toFixed()),
+          }
+        }
+
+        let txResult
+        if (assetAddress && !isETHAddress) {
+          // Transfer ERC20
+          const contract = new ethers.Contract(assetAddress, erc20ABI)
+          const unsignedTx = await contract.populateTransaction.transfer(
+            recipient,
+            txAmount,
+            { ...overrides },
+          )
+          unsignedTx.from = address
+
+          txResult = await metamaskClient.transferERC20(unsignedTx)
+        } else {
+          // Transfer ETH
+          const transactionRequest = {
+            from: address,
+            to: recipient,
+            value: txAmount,
+            ...overrides,
+            data: memo ? toUtf8Bytes(memo) : undefined,
+          }
+          txResult = await metamaskClient.transferERC20(transactionRequest)
+        }
+
+        return txResult.hash || txResult
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    }
+
+    this.client.call = async (
+      routerAddress: string,
+      abi: ethers.ContractInterface,
+      func: string,
+      params: Array<any>,
+    ) => {
+      try {
+        if (!routerAddress) {
+          return await Promise.reject(new Error('address must be provided'))
+        }
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const signer = provider.getSigner()
+
+        const contract = new ethers.Contract(
+          routerAddress,
+          abi,
+          provider,
+        ).connect(signer)
+        return contract[func](...params)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    }
+
+    this.walletType = WalletOption.METAMASK
+  }
 
   connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
@@ -308,7 +509,8 @@ export class EthChain implements IEthChain {
   loadBalance = async (): Promise<AssetAmount[]> => {
     try {
       const address = this.client.getAddress()
-      const ethBalance = await this.client.getProvider().getBalance(address)
+      const provider = this.client.getProvider()
+      const ethBalance = await provider.getBalance(address)
 
       let balances: Balance[] = await this.client.getBalance(
         this.client.getAddress(),

@@ -37,7 +37,7 @@ export const Layout = (props: Props) => {
     if (wallet) {
       const runesToUpgrade = getRuneToUpgrade(wallet)
 
-      if (runesToUpgrade.length > 0) {
+      if (runesToUpgrade && runesToUpgrade.length > 0) {
         const oldRuneChain = `${runesToUpgrade?.[0]?.chain ?? ''} ${
           runesToUpgrade?.[1]?.chain ?? ''
         }`

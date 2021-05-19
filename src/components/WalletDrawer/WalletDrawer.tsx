@@ -3,7 +3,10 @@ import React, { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 
-import { SyncOutlined, EyeOutlined } from '@ant-design/icons'
+import {
+  SyncOutlined,
+  // EyeOutlined
+} from '@ant-design/icons'
 import { SupportedChain, Asset } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
@@ -36,7 +39,7 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
     walletLoading,
     wallet,
     chainWalletLoading,
-    walletType,
+    // walletType,
     disconnectWallet,
   } = useWallet()
 
@@ -79,14 +82,14 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
         )}
         {wallet && (
           <Styled.HeaderAction>
-            {walletType === 'keystore' && (
+            {/* {walletType === 'keystore' && (
               <CoreButton onClick={() => setShowPhraseModal(true)}>
                 <EyeOutlined />
                 <Label size="big" color="primary">
                   Phrase
                 </Label>
               </CoreButton>
-            )}
+            )} */}
             <CoreButton onClick={disconnectWallet}>
               <Label size="big" color="warning">
                 Disconnect

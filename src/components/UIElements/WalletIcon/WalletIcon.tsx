@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { WalletOption } from 'multichain-sdk'
+
 import {
   MetaMaskLogoIcon,
   LedgerIcon,
@@ -7,17 +9,21 @@ import {
   XdefiLogoIcon,
 } from 'components/Icons'
 
-import { Props } from './types'
 import { IconWrapper } from './WalletIcon.style'
 
-export const WalletIcon: React.FC<Props> = (props: Props): JSX.Element => {
+export type WalletIconProps = {
+  walletType: WalletOption
+  size?: number
+}
+
+export const WalletIcon: React.FC<WalletIconProps> = (props): JSX.Element => {
   const { walletType, size = 24, ...otherProps } = props
 
   const getWalletIcon = () => {
-    if (walletType === 'metamask') return <MetaMaskLogoIcon />
-    if (walletType === 'ledger') return <LedgerIcon />
-    if (walletType === 'keystore') return <FolderIcon />
-    if (walletType === 'xdefi') return <XdefiLogoIcon />
+    if (walletType === WalletOption.METAMASK) return <MetaMaskLogoIcon />
+    if (walletType === WalletOption.LEDGER) return <LedgerIcon />
+    if (walletType === WalletOption.KEYSTORE) return <FolderIcon />
+    if (walletType === WalletOption.XDEFI) return <XdefiLogoIcon />
 
     return <></>
   }
