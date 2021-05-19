@@ -502,6 +502,18 @@ const AddLiquidityPanel = ({
     return inboundRuneFee.totalPriceIn(Asset.USD(), pools).toCurrencyFormat()
   }, [liquidityType, inboundRuneFee, inboundAssetFee, pools])
 
+  const depositAssets: Asset[] = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.RUNE) {
+      return [Asset.RUNE()]
+    }
+
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return [poolAsset]
+    }
+
+    return [poolAsset, Asset.RUNE()]
+  }, [liquidityType, poolAsset])
+
   const renderFee = useMemo(() => {
     const hasRuneFee = liquidityType !== LiquidityTypeOption.ASSET
     const hasAssetFee = liquidityType !== LiquidityTypeOption.RUNE
@@ -727,6 +739,7 @@ const AddLiquidityPanel = ({
         visible={visibleConfirmModal}
         onOk={handleConfirmAdd}
         onCancel={handleCancel}
+        inputAssets={depositAssets}
       >
         {renderConfirmModalContent}
       </ConfirmModal>
@@ -734,6 +747,7 @@ const AddLiquidityPanel = ({
         visible={visibleApproveModal}
         onOk={handleConfirmApprove}
         onCancel={() => setVisibleApproveModal(false)}
+        inputAssets={[poolAsset]}
       >
         {renderApproveModal}
       </ConfirmModal>

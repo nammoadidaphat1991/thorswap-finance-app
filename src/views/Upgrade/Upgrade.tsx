@@ -18,6 +18,7 @@ import {
   AssetAmount,
   Wallet,
   getRuneToUpgrade,
+  hasWalletConnected,
 } from 'multichain-sdk'
 
 import { TxTrackerType } from 'redux/midgard/types'
@@ -33,9 +34,18 @@ import { TX_FEE_TOOLTIP_LABEL } from 'settings/constants'
 import * as Styled from './Upgrade.style'
 
 const UpgradeView = () => {
-  const { wallet, keystore, walletType } = useWallet()
+  const { wallet } = useWallet()
 
-  if (!wallet || (!keystore && walletType === 'keystore')) {
+  const runeToUpgrade = useMemo(() => getRuneToUpgrade(wallet), [wallet])
+
+  const walletConnected = useMemo(
+    () =>
+      runeToUpgrade &&
+      hasWalletConnected({ wallet, inputAssets: runeToUpgrade }),
+    [wallet, runeToUpgrade],
+  )
+
+  if (!wallet || !walletConnected) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>
@@ -43,9 +53,7 @@ const UpgradeView = () => {
     )
   }
 
-  const runeToUpgrade = getRuneToUpgrade(wallet)
-
-  if (!runeToUpgrade.length) {
+  if (!runeToUpgrade || runeToUpgrade.length === 0) {
     return (
       <Styled.Container>
         <Label>You don't have BEP2 or ERC20 RUNE to upgrade.</Label>
@@ -250,6 +258,7 @@ const UpgradePanel = ({
         visible={visibleConfirmModal}
         onOk={handleConfirmUpgrade}
         onCancel={handleCancelUpgrade}
+        inputAssets={[selectedAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>

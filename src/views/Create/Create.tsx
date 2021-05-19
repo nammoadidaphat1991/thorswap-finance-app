@@ -433,6 +433,7 @@ const CreateLiquidityPanel = ({
         visible={visibleConfirmModal}
         onOk={handleConfirmAdd}
         onCancel={handleCancel}
+        inputAssets={[inputAsset, Asset.RUNE()]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>
@@ -440,6 +441,7 @@ const CreateLiquidityPanel = ({
         visible={visibleApproveModal}
         onOk={handleConfirmApprove}
         onCancel={() => setVisibleApproveModal(false)}
+        inputAssets={[inputAsset]}
       >
         {renderApproveModal}
       </ConfirmModal>

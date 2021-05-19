@@ -10,21 +10,11 @@ import {
   BCHChain,
 } from '@xchainjs/xchain-util'
 
-import {
-  getKeystore,
-  saveKeystore,
-  saveXdefiConnected,
-  getXdefiConnected,
-} from 'helpers/storage'
-
 import * as walletActions from './actions'
 import { State } from './types'
 
-const initialWalletType = getXdefiConnected() ? 'xdefi' : null
-
 const initialState: State = {
-  walletType: initialWalletType,
-  keystore: getKeystore(),
+  keystore: null,
   wallet: null,
   walletLoading: false,
   chainWalletLoading: {
@@ -43,26 +33,12 @@ const slice = createSlice({
   initialState,
   reducers: {
     disconnect(state) {
-      state.walletType = null
       state.keystore = null
       state.wallet = null
       state.walletLoading = false
-
-      saveXdefiConnected(false)
     },
     connectKeystore(state, action: PayloadAction<Keystore>) {
-      const keystore = action.payload
-
-      state.keystore = keystore
-      state.walletType = 'keystore'
-      saveKeystore(keystore)
-    },
-    connectXdefi(state) {
-      state.walletType = 'xdefi'
-      saveXdefiConnected(true)
-    },
-    connectMetamask() {
-      // not sure
+      state.keystore = action.payload
     },
     setIsConnectModalOpen(state, action: PayloadAction<boolean>) {
       state.isConnectModalOpen = action.payload

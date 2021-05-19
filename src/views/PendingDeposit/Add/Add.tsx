@@ -206,6 +206,12 @@ export const AddLiquidityPanel = ({
     [isAssetPending, maxSymRuneAmount, maxSymAssetAmount],
   )
 
+  const inputAsset = useMemo(() => {
+    if (isAssetPending) return Asset.RUNE()
+
+    return poolAsset
+  }, [isAssetPending, poolAsset])
+
   const handleConfirmAdd = useCallback(async () => {
     setVisibleConfirmModal(false)
     if (wallet) {
@@ -480,6 +486,7 @@ export const AddLiquidityPanel = ({
         visible={visibleConfirmModal}
         onOk={handleConfirmAdd}
         onCancel={handleCancel}
+        inputAssets={[inputAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>

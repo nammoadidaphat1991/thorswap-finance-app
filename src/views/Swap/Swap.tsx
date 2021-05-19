@@ -27,6 +27,7 @@ import {
   getAssetBalance,
   getEstimatedTxTime,
   SupportedChain,
+  hasWalletConnected,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -90,6 +91,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     inputAsset,
     outputAsset,
   })
+
+  const walletConnected = useMemo(
+    () => hasWalletConnected({ wallet, inputAssets: [inputAsset] }),
+    [wallet, inputAsset],
+  )
 
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
@@ -395,7 +401,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   }, [inputAsset, wallet, setTxFailed, submitTransaction, pollTransaction])
 
   const handleSwap = useCallback(() => {
-    if (wallet && swap) {
+    if (walletConnected && swap) {
       if (swap.hasInSufficientFee) {
         Notification({
           type: 'info',
@@ -422,10 +428,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [isValidAddress, wallet, swap])
+  }, [isValidAddress, walletConnected, swap])
 
   const handleApprove = useCallback(() => {
-    if (wallet && swap) {
+    if (walletConnected && swap) {
       setVisibleApproveModal(true)
     } else {
       Notification({
@@ -434,16 +440,16 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [walletConnected, swap])
 
   const isValidSwap = useMemo(() => swap?.isValid() ?? { valid: false }, [swap])
   const isValidSlip = useMemo(() => swap?.isSlipValid() ?? true, [swap])
 
   const btnLabel = useMemo(() => {
-    if (isValidSwap.valid) return 'Swap'
+    if (isValidSwap.valid || inputAmount.eq(0)) return 'Swap'
 
     return isValidSwap?.msg ?? 'Swap'
-  }, [isValidSwap])
+  }, [isValidSwap, inputAmount])
 
   const estimatedTime = useMemo(
     () =>
@@ -672,6 +678,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         visible={visibleConfirmModal}
         onOk={handleConfirm}
         onCancel={handleCancel}
+        inputAssets={[inputAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>
@@ -679,6 +686,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         visible={visibleApproveModal}
         onOk={handleConfirmApprove}
         onCancel={() => setVisibleApproveModal(false)}
+        inputAssets={[inputAsset]}
       >
         {renderApproveModal}
       </ConfirmModal>

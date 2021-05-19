@@ -1,7 +1,7 @@
 import { Chain } from '@xchainjs/xchain-util'
 import { BigNumber } from 'bignumber.js'
 
-import { Wallet, SupportedChain } from '../clients/types'
+import { Wallet, SupportedChain, WalletOption } from '../clients/types'
 import { Asset, AssetAmount, Pool, Amount } from '../entities'
 
 export const getWalletAssets = (wallet: Wallet | null) => {
@@ -149,7 +149,8 @@ export const getAssetBalance = (asset: Asset, wallet: Wallet): AssetAmount => {
   return emptyAmount
 }
 
-export const getRuneToUpgrade = (wallet: Wallet): Asset[] => {
+export const getRuneToUpgrade = (wallet: Wallet | null): Asset[] | null => {
+  if (!wallet) return null
   const runeToUpgrade = []
 
   const bnbRuneBalance = wallet?.BNB?.balance?.find(
@@ -171,7 +172,11 @@ export const getRuneToUpgrade = (wallet: Wallet): Asset[] => {
 }
 
 export const hasOldRuneInWallet = (wallet: Wallet): boolean => {
-  return getRuneToUpgrade(wallet).length > 0
+  const runeToUpgrade = getRuneToUpgrade(wallet)
+
+  if (!runeToUpgrade) return false
+
+  return runeToUpgrade.length > 0
 }
 
 export const getTotalUSDPriceInBalance = (
@@ -189,4 +194,48 @@ export const getTotalUSDPriceInBalance = (
   })
 
   return total
+}
+
+// check if any input asset needs tx signing via keystore
+export const isKeystoreSignRequired = ({
+  wallet,
+  inputAssets,
+}: {
+  wallet: Wallet | null
+  inputAssets: Asset[]
+}): boolean => {
+  if (!wallet) return false
+
+  for (let i = 0; i < inputAssets.length; i++) {
+    const asset = inputAssets[i]
+
+    const chainWallet = wallet?.[asset.chain as SupportedChain]
+
+    if (chainWallet?.walletType === WalletOption.KEYSTORE) {
+      return true
+    }
+  }
+
+  return false
+}
+
+// check if any input asset needs tx signing via keystore
+export const hasWalletConnected = ({
+  wallet,
+  inputAssets,
+}: {
+  wallet: Wallet | null
+  inputAssets: Asset[]
+}): boolean => {
+  if (!wallet) return false
+
+  for (let i = 0; i < inputAssets.length; i++) {
+    const asset = inputAssets[i]
+
+    const chainWallet = wallet?.[asset.chain as SupportedChain]
+
+    if (!chainWallet) return false
+  }
+
+  return true
 }

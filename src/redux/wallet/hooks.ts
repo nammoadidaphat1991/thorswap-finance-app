@@ -30,7 +30,6 @@ export const useWallet = () => {
     try {
       await multichain.connectXDefiWallet()
 
-      dispatch(actions.connectXdefi())
       dispatch(walletActions.loadAllWallets())
     } catch (error) {
       console.error(error)
@@ -41,7 +40,6 @@ export const useWallet = () => {
     try {
       await multichain.connectMetamask()
 
-      dispatch(actions.connectMetamask())
       dispatch(walletActions.getWalletByChain('ETH'))
     } catch (error) {
       console.error(error)
