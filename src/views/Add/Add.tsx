@@ -551,7 +551,7 @@ const AddLiquidityPanel = ({
           )} ${poolAsset.ticker.toUpperCase()}, ${runeAmount.toSignificant(
             6,
           )} RUNE`
-        : LiquidityTypeOption.RUNE
+        : liquidityType === LiquidityTypeOption.RUNE
         ? `${runeAmount.toSignificant(6)} RUNE`
         : `${assetAmount.toSignificant(6)} ${poolAsset.ticker.toUpperCase()}`
 
