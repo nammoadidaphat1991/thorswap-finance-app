@@ -69,9 +69,14 @@ const WalletModal = () => {
     } else if (metamaskStatus === WalletStatus.XdefiDetected) {
       // TODO: Should disable xdefi wallet
     } else {
-      connectMetamask()
+      try {
+        await connectMetamask()
+      } catch (error) {
+        console.log(error)
+      }
+      setIsConnectModalOpen(false)
     }
-  }, [metamaskStatus, connectMetamask])
+  }, [metamaskStatus, connectMetamask, setIsConnectModalOpen])
 
   const handleConnectXDefi = useCallback(async () => {
     if (!xdefiInstalled) {

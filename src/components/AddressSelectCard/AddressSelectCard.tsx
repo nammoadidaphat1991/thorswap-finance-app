@@ -4,15 +4,9 @@ import { ExternalLink } from 'react-feather'
 
 import { CopyOutlined, EditOutlined, LockOutlined } from '@ant-design/icons'
 import { Chain } from '@xchainjs/xchain-util'
-import {
-  CoreButton,
-  Notification,
-  Label,
-  Tooltip,
-  WalletIcon,
-} from 'components'
 import copy from 'copy-to-clipboard'
 import { capitalize } from 'lodash'
+import { SupportedChain } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
 
@@ -21,14 +15,13 @@ import { multichain } from 'services/multichain'
 import { truncateAddress } from 'helpers/string'
 
 import {
-  CardWrapper,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  AddressInput,
-  ActionWrapper,
-  ToolWrapper,
-} from './AddressSelectCard.style'
+  CoreButton,
+  Notification,
+  Label,
+  Tooltip,
+  WalletIcon,
+} from '../UIElements'
+import * as Styled from './AddressSelectCard.style'
 
 export type Props = {
   title: string
@@ -51,7 +44,7 @@ export const AddressSelectCard: React.FC<Props> = (
     ...otherProps
   } = props
 
-  const { walletType } = useWallet()
+  const { wallet } = useWallet()
   const [isEditable, setEditable] = useState(false)
   const truncatedAddr = useMemo(
     () => (address ? truncateAddress(address) : 'N/A'),
@@ -89,7 +82,8 @@ export const AddressSelectCard: React.FC<Props> = (
   )
 
   const renderRecipientIcon = () => {
-    if (address === chainAddr) {
+    const walletType = wallet?.[chain as SupportedChain]?.walletType
+    if (address === chainAddr && walletType) {
       return (
         <Tooltip placement="top" tooltip={capitalize(walletType as string)}>
           <WalletIcon size={16} walletType={walletType} />
@@ -101,13 +95,13 @@ export const AddressSelectCard: React.FC<Props> = (
   }
 
   return (
-    <CardWrapper {...otherProps}>
-      <CardHeader>
-        <CardTitle>
+    <Styled.CardWrapper {...otherProps}>
+      <Styled.CardHeader>
+        <Styled.CardTitle>
           <span className="card-title">{title}</span>
           {renderRecipientIcon()}
-        </CardTitle>
-        <ActionWrapper>
+        </Styled.CardTitle>
+        <Styled.ActionWrapper>
           {isEditable ? (
             <Tooltip placement="top" tooltip="Lock">
               <CoreButton onClick={() => setEditable(false)}>
@@ -128,22 +122,22 @@ export const AddressSelectCard: React.FC<Props> = (
           </Tooltip>
           <Tooltip placement="top" tooltip="Go to account">
             <a href={accountUrl} target="_blank" rel="noopener noreferrer">
-              <ToolWrapper>
+              <Styled.ToolWrapper>
                 <ExternalLink />
-              </ToolWrapper>
+              </Styled.ToolWrapper>
             </a>
           </Tooltip>
-        </ActionWrapper>
-      </CardHeader>
-      <CardContent>
-        <AddressInput
+        </Styled.ActionWrapper>
+      </Styled.CardHeader>
+      <Styled.CardContent>
+        <Styled.AddressInput
           sizevalue="big"
           isError={!isValidAddress}
           value={isEditable ? address : truncatedAddr}
           onChange={handleAddressChange}
           disabled={!isEditable}
         />
-      </CardContent>
-    </CardWrapper>
+      </Styled.CardContent>
+    </Styled.CardWrapper>
   )
 }

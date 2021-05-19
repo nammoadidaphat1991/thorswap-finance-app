@@ -13,9 +13,18 @@ import {
 import * as walletActions from './actions'
 import { State } from './types'
 
+const initialWallet = {
+  [BTCChain]: null,
+  [BNBChain]: null,
+  [THORChain]: null,
+  [ETHChain]: null,
+  [LTCChain]: null,
+  [BCHChain]: null,
+}
+
 const initialState: State = {
   keystore: null,
-  wallet: null,
+  wallet: initialWallet,
   walletLoading: false,
   chainWalletLoading: {
     [BTCChain]: false,

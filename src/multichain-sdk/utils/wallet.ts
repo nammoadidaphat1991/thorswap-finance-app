@@ -239,3 +239,17 @@ export const hasWalletConnected = ({
 
   return true
 }
+
+export const hasConnectedWallet = (wallet: Wallet | null) => {
+  if (!wallet) return false
+
+  let connected = false
+
+  Object.keys(wallet).forEach((chain) => {
+    if (wallet?.[chain as SupportedChain]?.walletType) {
+      connected = true
+    }
+  })
+
+  return connected
+}

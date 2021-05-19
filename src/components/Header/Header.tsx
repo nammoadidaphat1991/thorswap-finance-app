@@ -3,7 +3,7 @@ import React, { useCallback, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Grid } from 'antd'
-import { Asset, Amount } from 'multichain-sdk'
+import { Asset, Amount, hasConnectedWallet } from 'multichain-sdk'
 
 import { CurrencySelector } from 'components/CurrencySelector'
 
@@ -35,7 +35,7 @@ export const Header = () => {
 
   const isDesktopView = Grid.useBreakpoint()?.sm ?? false
 
-  const isConnected = !!wallet
+  const isConnected = useMemo(() => hasConnectedWallet(wallet), [wallet])
 
   const handleClickWalletBtn = useCallback(() => {
     if (!isConnected && !walletLoading) {

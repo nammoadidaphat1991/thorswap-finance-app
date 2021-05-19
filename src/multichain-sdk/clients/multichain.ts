@@ -19,7 +19,7 @@ import {
   LTCChain,
   BCHChain,
 } from '@xchainjs/xchain-util'
-import { MetaMaskClient } from 'metamask-sdk'
+import { MetaMaskClient, WalletStatus } from 'metamask-sdk'
 import {
   MidgardV2,
   NetworkType as MidgardNetwork,
@@ -188,13 +188,13 @@ export class MultiChain implements IMultiChain {
   connectMetamask = async (): Promise<void> => {
     this.metamaskClient = new MetaMaskClient(this.network)
 
-    if (!this.metamaskClient.isWalletDetected()) {
+    if (
+      this.metamaskClient.isWalletDetected() !== WalletStatus.MetaMaskDetected
+    ) {
       throw Error('metamask wallet not detected')
     }
 
-    // TODO:
-    // await this.eth.connectMetamask(this.metamaskClient)
-
+    await this.eth.connectMetaMask(this.metamaskClient)
     const metamaskAddress = this.eth.getClient().getAddress().toLowerCase()
 
     if (!this.wallet) this.initWallets()
