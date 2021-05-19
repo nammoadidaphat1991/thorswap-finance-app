@@ -24,12 +24,12 @@ const LedgerView = ({ onConnect, loading = false }: Props) => {
 
   return (
     <Styled.Container>
-      <Helmet title="Connect Wallet" content="Connect Wallet" />
+      <Helmet title="Connect Ledger" content="Connect Ledger" />
       <Styled.Header>Connect Ledger</Styled.Header>
       <Form onFinish={onHandleConnect}>
         <Styled.Content>
           <Styled.FormLabel color="normal">
-            Please Select Chain To Connect
+            Please select chain to connect.
           </Styled.FormLabel>
           {supportedChains.map((chain) => {
             const chainAsset = chainToSigAsset(chain)
@@ -54,11 +54,12 @@ const LedgerView = ({ onConnect, loading = false }: Props) => {
             <Button
               htmlType="submit"
               round
-              disabled={!activeChain}
+              // disabled={!activeChain}
+              disabled
               loading={loading}
               fixedWidth={false}
             >
-              Connect
+              Connect Ledger
             </Button>
           </Styled.FooterContent>
         </Styled.Footer>

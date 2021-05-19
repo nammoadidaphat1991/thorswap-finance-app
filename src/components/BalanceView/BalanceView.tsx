@@ -26,11 +26,13 @@ export type BalanceViewProps = {
   chainWalletLoading: { [key in SupportedChain]: boolean }
   onReloadChain?: (chain: SupportedChain) => void
   onSendAsset?: (asset: Asset) => void
+  viewPhrase?: () => void
 }
 
 export const BalanceView = (props: BalanceViewProps) => {
   const {
     wallet,
+    viewPhrase = () => {},
     onReloadChain = () => {},
     onSendAsset = () => {},
     chainWalletLoading,
@@ -121,6 +123,7 @@ export const BalanceView = (props: BalanceViewProps) => {
       const { address, balance } = chainBalance
       const usdPrice = getTotalUSDPriceInBalance(balance, pools)
       const totalPrice = formatBigNumber(usdPrice, 2)
+      const { walletType } = chainBalance
 
       return (
         <Styled.ChainContainer>
@@ -130,12 +133,14 @@ export const BalanceView = (props: BalanceViewProps) => {
             totalPrice={totalPrice}
             onReload={() => onReloadChain(chain)}
             walletLoading={chainWalletLoading?.[chain]}
+            walletType={walletType}
+            viewPhrase={viewPhrase}
           />
           {renderBalance(balance)}
         </Styled.ChainContainer>
       )
     },
-    [renderBalance, onReloadChain, pools, chainWalletLoading],
+    [renderBalance, viewPhrase, onReloadChain, pools, chainWalletLoading],
   )
 
   return (

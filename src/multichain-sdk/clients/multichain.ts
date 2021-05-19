@@ -200,10 +200,13 @@ export class MultiChain implements IMultiChain {
     if (!this.wallet) this.initWallets()
 
     if (this.wallet) {
-      this.wallet[ETHChain] = {
-        address: metamaskAddress,
-        balance: [],
-        walletType: WalletOption.METAMASK,
+      this.wallet = {
+        ...this.wallet,
+        [ETHChain]: {
+          address: metamaskAddress,
+          balance: [],
+          walletType: WalletOption.METAMASK,
+        },
       }
     }
   }

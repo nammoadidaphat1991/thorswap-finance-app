@@ -7,7 +7,7 @@ import { CoreButton, Label } from '../UIElements'
 export const Drawer = styled(AntDrawer)`
   .ant-drawer-body {
     height: 100%;
-    padding: 24px 12px;
+    padding: 24px 0px;
     background-color: ${palette('background', 1)};
   }
 `
