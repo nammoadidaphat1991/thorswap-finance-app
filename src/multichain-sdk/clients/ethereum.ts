@@ -509,10 +509,7 @@ export class EthChain implements IEthChain {
   loadBalance = async (): Promise<AssetAmount[]> => {
     try {
       const address = this.client.getAddress()
-      const provider =
-        this.walletType === WalletOption.METAMASK
-          ? this.client
-          : this.client.getProvider()
+      const provider = this.client.getProvider()
       const ethBalance = await provider.getBalance(address)
 
       let balances: Balance[] = await this.client.getBalance(
