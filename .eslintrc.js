@@ -111,6 +111,11 @@ module.exports = {
           },
           {
             group: 'internal',
+            pattern: 'metamask-sdk/**',
+            position: 'after',
+          },
+          {
+            group: 'internal',
             pattern: 'views/**',
             position: 'after',
           },

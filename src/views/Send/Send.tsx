@@ -26,6 +26,7 @@ import {
   Memo,
   getWalletAddressByChain,
   Wallet,
+  hasWalletConnected,
 } from 'multichain-sdk'
 
 import { useMidgard } from 'redux/midgard/hooks'
@@ -47,7 +48,7 @@ enum SendMode {
 
 const SendView = () => {
   const { asset } = useParams<{ asset: string }>()
-  const { wallet, keystore, walletType } = useWallet()
+  const { wallet } = useWallet()
 
   const [sendAsset, setSendAsset] = useState<Asset>()
 
@@ -64,11 +65,16 @@ const SendView = () => {
     getSendAsset()
   }, [asset])
 
+  const walletConnected = useMemo(
+    () => sendAsset && hasWalletConnected({ wallet, inputAssets: [sendAsset] }),
+    [wallet, sendAsset],
+  )
+
   if (!sendAsset) {
     return null
   }
 
-  if (!wallet || (!keystore && walletType === 'keystore')) {
+  if (!wallet || !walletConnected) {
     return (
       <Styled.Container>
         <Label>Please connect a wallet.</Label>
@@ -423,6 +429,7 @@ const Send = ({ sendAsset, wallet }: { sendAsset: Asset; wallet: Wallet }) => {
         visible={visibleConfirmModal}
         onOk={handleConfirmSend}
         onCancel={handleCancelSend}
+        inputAssets={[sendAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>

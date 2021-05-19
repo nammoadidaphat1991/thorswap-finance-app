@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router'
 import { SwapOutlined } from '@ant-design/icons'
 import {
   PanelView,
+  AddressSelectCard,
   AssetInputCard,
   Slider,
   ConfirmModal,
@@ -26,6 +27,8 @@ import {
   getAssetBalance,
   getEstimatedTxTime,
   SupportedChain,
+  hasWalletConnected,
+  hasConnectedWallet,
 } from 'multichain-sdk'
 
 import { useApp } from 'redux/app/hooks'
@@ -38,6 +41,8 @@ import { useNetworkFee } from 'hooks/useNetworkFee'
 import { useTxTracker } from 'hooks/useTxTracker'
 
 import { multichain } from 'services/multichain'
+
+import { truncateAddress } from 'helpers/string'
 
 import { getSwapRoute } from 'settings/constants'
 import {
@@ -88,6 +93,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     outputAsset,
   })
 
+  const walletConnected = useMemo(
+    () => hasWalletConnected({ wallet, inputAssets: [inputAsset] }),
+    [wallet, inputAsset],
+  )
+
   const pools = useMemo(
     () => allPools.filter((data) => data.detail.status === 'available'),
     [allPools],
@@ -108,9 +118,19 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     Amount.fromAssetAmount(0, 8),
   )
   const [percent, setPercent] = useState(0)
+  const [chainRecipient, setChainRecipient] = useState('')
   const [recipient, setRecipient] = useState('')
   const [visibleConfirmModal, setVisibleConfirmModal] = useState(false)
   const [visibleApproveModal, setVisibleApproveModal] = useState(false)
+
+  const isValidAddress = useMemo(
+    () =>
+      multichain.validateAddress({
+        chain: outputAsset.chain,
+        address: recipient,
+      }),
+    [outputAsset, recipient],
+  )
 
   const swap: Swap | null = useMemo(() => {
     if (poolLoading) return null
@@ -207,6 +227,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     if (wallet) {
       const address = getWalletAddressByChain(wallet, outputAsset.chain)
       setRecipient(address || '')
+      setChainRecipient(address || '')
     }
   }, [wallet, outputAsset])
 
@@ -381,12 +402,21 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
   }, [inputAsset, wallet, setTxFailed, submitTransaction, pollTransaction])
 
   const handleSwap = useCallback(() => {
-    if (wallet && swap) {
+    if (walletConnected && swap) {
       if (swap.hasInSufficientFee) {
         Notification({
           type: 'info',
           message: 'Swap Insufficient Fee',
           description: 'Input amount is not enough to cover the fee',
+        })
+        return
+      }
+
+      if (!isValidAddress) {
+        Notification({
+          type: 'error',
+          message: 'Invalid Recipient Address',
+          description: 'Recipient address should be a valid address.',
         })
         return
       }
@@ -399,10 +429,10 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [isValidAddress, walletConnected, swap])
 
   const handleApprove = useCallback(() => {
-    if (wallet && swap) {
+    if (walletConnected && swap) {
       setVisibleApproveModal(true)
     } else {
       Notification({
@@ -411,16 +441,16 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         description: 'Please connect wallet',
       })
     }
-  }, [wallet, swap])
+  }, [walletConnected, swap])
 
   const isValidSwap = useMemo(() => swap?.isValid() ?? { valid: false }, [swap])
   const isValidSlip = useMemo(() => swap?.isSlipValid() ?? true, [swap])
 
   const btnLabel = useMemo(() => {
-    if (isValidSwap.valid) return 'Swap'
+    if (isValidSwap.valid || inputAmount.eq(0)) return 'Swap'
 
     return isValidSwap?.msg ?? 'Swap'
-  }, [isValidSwap])
+  }, [isValidSwap, inputAmount])
 
   const estimatedTime = useMemo(
     () =>
@@ -445,6 +475,12 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           description={`${outputAmount.toSignificant(
             6,
           )} ${outputAsset.ticker.toUpperCase()}`}
+        />
+        <br />
+        <Information
+          title="Recipient Address"
+          description={truncateAddress(recipient)}
+          error={!isValidAddress}
         />
         <br />
         <Information
@@ -487,6 +523,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     outputAmount,
     inputAsset,
     outputAsset,
+    recipient,
     slipPercent,
     isValidSlip,
     minReceive,
@@ -494,6 +531,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
     outboundFee,
     totalFeeInUSD,
     estimatedTime,
+    isValidAddress,
   ])
 
   const renderApproveModal = useMemo(() => {
@@ -555,7 +593,17 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         usdPrice={outputAssetPriceInUSD}
         wallet={wallet || undefined}
       />
-
+      {hasConnectedWallet(wallet) && (
+        <Styled.RecipientAddrWrapper>
+          <AddressSelectCard
+            title="Recipient Address"
+            address={recipient}
+            chain={outputAsset.chain}
+            chainAddr={chainRecipient}
+            onAddressChange={setRecipient}
+          />
+        </Styled.RecipientAddrWrapper>
+      )}
       <Styled.SwapInfo>
         <PriceRate
           price={swap?.price}
@@ -593,7 +641,6 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           tooltip="Sum of both transaction fee and network fee"
         />
       </Styled.SwapInfo>
-
       {isApproved !== null && wallet && (
         <Styled.ConfirmButtonContainer>
           {!isApproved && (
@@ -628,11 +675,11 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
           </FancyButton>
         </Styled.ConfirmButtonContainer>
       )}
-
       <ConfirmModal
         visible={visibleConfirmModal}
         onOk={handleConfirm}
         onCancel={handleCancel}
+        inputAssets={[inputAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>
@@ -640,6 +687,7 @@ const SwapPage = ({ inputAsset, outputAsset }: Pair) => {
         visible={visibleApproveModal}
         onOk={handleConfirmApprove}
         onCancel={() => setVisibleApproveModal(false)}
+        inputAssets={[inputAsset]}
       >
         {renderApproveModal}
       </ConfirmModal>

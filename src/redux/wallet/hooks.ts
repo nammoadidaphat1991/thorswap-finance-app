@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { Keystore } from '@xchainjs/xchain-crypto'
+import { SupportedChain } from 'multichain-sdk'
 
 import { RootState } from 'redux/store'
 import * as walletActions from 'redux/wallet/actions'
@@ -15,10 +16,19 @@ export const useWallet = () => {
 
   const walletState = useSelector((state: RootState) => state.wallet)
 
+  const { walletLoading, chainWalletLoading } = walletState
+  const walletLoadingByChain = Object.keys(chainWalletLoading).map(
+    (chain) => chainWalletLoading[chain as SupportedChain],
+  )
+  const isWalletLoading = walletLoadingByChain.reduce(
+    (status, next) => status || next,
+    walletLoading,
+  )
+
   const unlockWallet = useCallback(
     async (keystore: Keystore, phrase: string) => {
       // set multichain phrase
-      multichain.setPhrase(phrase)
+      multichain.connectKeystore(phrase)
 
       dispatch(actions.connectKeystore(keystore))
       dispatch(walletActions.loadAllWallets())
@@ -30,8 +40,17 @@ export const useWallet = () => {
     try {
       await multichain.connectXDefiWallet()
 
-      dispatch(actions.connectXdefi())
       dispatch(walletActions.loadAllWallets())
+    } catch (error) {
+      console.error(error)
+    }
+  }, [dispatch])
+
+  const connectMetamask = useCallback(async () => {
+    try {
+      await multichain.connectMetamask()
+
+      dispatch(walletActions.getWalletByChain('ETH'))
     } catch (error) {
       console.error(error)
     }
@@ -53,9 +72,11 @@ export const useWallet = () => {
   return {
     ...walletState,
     ...walletActions,
+    isWalletLoading,
     unlockWallet,
     setIsConnectModalOpen,
     disconnectWallet,
     connectXdefiWallet,
+    connectMetamask,
   }
 }

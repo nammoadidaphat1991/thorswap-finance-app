@@ -18,7 +18,7 @@ import {
 import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
-import { TxParams, MultiSendParams } from './types'
+import { TxParams, MultiSendParams, WalletOption } from './types'
 
 export interface IBnbChain extends IClient {
   getClient(): BncClient
@@ -32,18 +32,14 @@ export class BnbChain implements IBnbChain {
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public walletType: WalletOption | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = BNBChain
     this.client = new BncClient({
       network,
-      phrase,
     })
+    this.walletType = null
   }
 
   /**
@@ -57,7 +53,20 @@ export class BnbChain implements IBnbChain {
     return this.balances
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  connectKeystore = (phrase: string) => {
+    this.client = new BncClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+    this.walletType = WalletOption.KEYSTORE
+  }
+
+  disconnect = () => {
+    this.client.purgeClient()
+    this.walletType = null
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**

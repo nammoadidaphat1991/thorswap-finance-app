@@ -3,7 +3,7 @@ import React, { useCallback, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Grid } from 'antd'
-import { Asset, Amount } from 'multichain-sdk'
+import { Asset, Amount, hasConnectedWallet } from 'multichain-sdk'
 
 import { CurrencySelector } from 'components/CurrencySelector'
 
@@ -27,7 +27,7 @@ import * as Styled from './Header.style'
 
 export const Header = () => {
   const { themeType, baseCurrencyAsset, setBaseCurrency } = useApp()
-  const { wallet, walletLoading, setIsConnectModalOpen } = useWallet()
+  const { wallet, isWalletLoading, setIsConnectModalOpen } = useWallet()
   const { refreshPage } = useGlobalState()
   const { stats } = useMidgard()
 
@@ -35,15 +35,15 @@ export const Header = () => {
 
   const isDesktopView = Grid.useBreakpoint()?.sm ?? false
 
-  const isConnected = !!wallet
+  const isConnected = useMemo(() => hasConnectedWallet(wallet), [wallet])
 
   const handleClickWalletBtn = useCallback(() => {
-    if (!isConnected && !walletLoading) {
+    if (!isConnected && !isWalletLoading) {
       setIsConnectModalOpen(true)
     } else {
       setDrawerVisible(true)
     }
-  }, [isConnected, walletLoading, setIsConnectModalOpen])
+  }, [isConnected, isWalletLoading, setIsConnectModalOpen])
 
   const handleCloseDrawer = useCallback(() => {
     setDrawerVisible(false)
@@ -91,7 +91,7 @@ export const Header = () => {
         <Styled.WalletBtn
           onClick={handleClickWalletBtn}
           connected={isConnected}
-          loading={walletLoading}
+          loading={isWalletLoading}
         />
         <WalletDrawer visible={drawerVisible} onClose={handleCloseDrawer} />
         <Refresh onRefresh={refreshPage} />

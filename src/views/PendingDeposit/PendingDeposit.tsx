@@ -281,6 +281,7 @@ const PendingDepositView = () => {
         visible={visibleConfirmModal}
         onOk={handleConfirmWithdraw}
         onCancel={handleCancel}
+        inputAssets={[Asset.RUNE()]}
       >
         {renderWithdrawConfirmModalContent}
       </ConfirmModal>

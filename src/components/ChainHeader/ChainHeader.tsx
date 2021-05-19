@@ -5,11 +5,12 @@ import { ExternalLink } from 'react-feather'
 import { CopyOutlined, SyncOutlined, QrcodeOutlined } from '@ant-design/icons'
 import { chainToString, Chain } from '@xchainjs/xchain-util'
 import copy from 'copy-to-clipboard'
+import { WalletOption } from 'multichain-sdk'
 
 import { multichain } from 'services/multichain'
 
 import { QRCodeModal } from '../Modals'
-import { CoreButton, Tooltip, Notification } from '../UIElements'
+import { CoreButton, Tooltip, Notification, WalletIcon } from '../UIElements'
 import * as Styled from './ChainHeader.style'
 
 export type ChainHeaderProps = {
@@ -17,7 +18,9 @@ export type ChainHeaderProps = {
   address: string
   totalPrice?: string
   onReload?: () => void
+  viewPhrase?: () => void
   walletLoading?: boolean
+  walletType: WalletOption
 }
 
 type QrCodeData = {
@@ -26,7 +29,14 @@ type QrCodeData = {
 }
 
 export const ChainHeader = (props: ChainHeaderProps) => {
-  const { chain, address, onReload, walletLoading = false } = props
+  const {
+    chain,
+    address,
+    walletType,
+    viewPhrase = () => {},
+    onReload,
+    walletLoading = false,
+  } = props
 
   const [qrCode, setQrcode] = useState<QrCodeData>()
 
@@ -61,6 +71,12 @@ export const ChainHeader = (props: ChainHeaderProps) => {
     [chain],
   )
 
+  const handleClickWalletIcon = useCallback(() => {
+    if (walletType === WalletOption.KEYSTORE) {
+      viewPhrase()
+    }
+  }, [viewPhrase, walletType])
+
   return (
     <Styled.Container>
       <Styled.ChainInfo>
@@ -69,6 +85,20 @@ export const ChainHeader = (props: ChainHeaderProps) => {
             <Styled.ToolWrapper>
               <SyncOutlined spin={walletLoading} />
             </Styled.ToolWrapper>
+          </CoreButton>
+        </Tooltip>
+        <Tooltip
+          placement="top"
+          tooltip={
+            walletType !== WalletOption.KEYSTORE
+              ? `${walletType} Connected`
+              : 'View Phrase'
+          }
+        >
+          <CoreButton onClick={handleClickWalletIcon}>
+            <Styled.WalletType>
+              <WalletIcon walletType={walletType} />
+            </Styled.WalletType>
           </CoreButton>
         </Tooltip>
         <Styled.InfoLabel weight="bold" color="primary">

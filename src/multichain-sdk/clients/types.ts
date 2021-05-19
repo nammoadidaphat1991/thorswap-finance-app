@@ -12,8 +12,6 @@ import { AssetAmount, Pool, Percent } from '../entities'
 
 export type Network = 'testnet' | 'mainnet'
 
-export type WalletType = 'phrase' | 'xdefi'
-
 export type TxParams = {
   assetAmount: AssetAmount
   recipient: string
@@ -60,13 +58,6 @@ export const supportedChains = [
 ] as const
 export type SupportedChain = typeof supportedChains[number]
 
-export type ChainWallet = {
-  address: string
-  balance: AssetAmount[]
-}
-
-export type Wallet = Record<SupportedChain, ChainWallet>
-
 export type ApproveParams = {
   spender: string
   sender: string
@@ -80,3 +71,19 @@ export type DepositParams = TxParams & {
 export type UpgradeParams = {
   runeAmount: AssetAmount
 }
+
+export enum WalletOption {
+  'KEYSTORE' = 'KEYSTORE',
+  'XDEFI' = 'XDEFI',
+  'METAMASK' = 'METAMASK',
+  'TRUSTWALLET' = 'TRUSTWALLET',
+  'LEDGER' = 'LEDGER',
+}
+
+export type ChainWallet = {
+  address: string
+  balance: AssetAmount[]
+  walletType: WalletOption
+}
+
+export type Wallet = Record<SupportedChain, ChainWallet | null>

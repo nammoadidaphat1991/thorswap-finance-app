@@ -166,6 +166,14 @@ const WithdrawPanel = ({
     inputAsset: Asset.RUNE(),
   })
 
+  const sendAsset = useMemo(() => {
+    if (liquidityType === LiquidityTypeOption.ASSET) {
+      return poolAsset
+    }
+
+    return Asset.RUNE()
+  }, [liquidityType, poolAsset])
+
   const feeLabel = useMemo(() => {
     if (liquidityType === LiquidityTypeOption.ASSET) {
       return `${inboundAssetFee.toCurrencyFormat()} (${inboundAssetFee
@@ -629,6 +637,7 @@ const WithdrawPanel = ({
         visible={visibleConfirmModal}
         onOk={handleConfirmWithdraw}
         onCancel={handleCancel}
+        inputAssets={[sendAsset]}
       >
         {renderConfirmModalContent}
       </ConfirmModal>

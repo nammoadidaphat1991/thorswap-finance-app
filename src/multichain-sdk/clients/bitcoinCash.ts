@@ -15,7 +15,7 @@ import {
 import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
-import { TxParams } from './types'
+import { TxParams, WalletOption } from './types'
 
 export interface IBchChain extends IClient {
   getClient(): BchClient
@@ -28,18 +28,15 @@ export class BchChain implements IBchChain {
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public walletType: WalletOption | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = BCHChain
     this.client = new BchClient({
       network,
-      phrase,
     })
+
+    this.walletType = null
   }
 
   /**
@@ -53,7 +50,20 @@ export class BchChain implements IBchChain {
     return this.balances
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  connectKeystore = (phrase: string) => {
+    this.client = new BchClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+    this.walletType = WalletOption.KEYSTORE
+  }
+
+  disconnect = () => {
+    this.client.purgeClient()
+    this.walletType = null
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -83,6 +93,8 @@ export class BchChain implements IBchChain {
     }
 
     this.client.transfer = transfer
+
+    this.walletType = WalletOption.XDEFI
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {

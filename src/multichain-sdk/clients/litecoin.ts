@@ -14,7 +14,7 @@ import {
 import { XdefiClient } from '../../xdefi-sdk'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
-import { TxParams } from './types'
+import { TxParams, WalletOption } from './types'
 
 export interface ILtcChain extends IClient {
   getClient(): LtcClient
@@ -27,18 +27,15 @@ export class LtcChain implements ILtcChain {
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public walletType: WalletOption | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = LTCChain
     this.client = new LtcClient({
       network,
-      phrase,
     })
+
+    this.walletType = null
   }
 
   /**
@@ -52,7 +49,20 @@ export class LtcChain implements ILtcChain {
     return this.balances
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  connectKeystore = (phrase: string) => {
+    this.client = new LtcClient({
+      network: this.client.getNetwork(),
+      phrase,
+    })
+    this.walletType = WalletOption.KEYSTORE
+  }
+
+  disconnect = () => {
+    this.client.purgeClient()
+    this.walletType = null
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -82,6 +92,8 @@ export class LtcChain implements ILtcChain {
     }
 
     this.client.transfer = transfer
+
+    this.walletType = WalletOption.XDEFI
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {

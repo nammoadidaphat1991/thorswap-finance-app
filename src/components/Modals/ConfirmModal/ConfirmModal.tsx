@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 
 import { LockOutlined } from '@ant-design/icons'
 import { Form } from 'antd'
+import { Asset, isKeystoreSignRequired } from 'multichain-sdk'
 
 import { useWallet } from 'redux/wallet/hooks'
 
@@ -15,6 +16,7 @@ import * as Styled from './ConfirmModal.style'
 const MODAL_DISMISS_TIME = 60 * 1000 // 60s
 
 export type ConfirmModalProps = {
+  inputAssets: Asset[]
   visible: boolean
   onOk?: () => void
   onCancel: () => void
@@ -24,13 +26,18 @@ export type ConfirmModalProps = {
 export const ConfirmModal: React.FC<ConfirmModalProps> = (
   props,
 ): JSX.Element => {
-  const { visible, onOk, onCancel, children } = props
+  const { inputAssets, visible, onOk, onCancel, children } = props
 
-  const { keystore, walletType } = useWallet()
+  const { keystore, wallet } = useWallet()
 
   const [password, setPassword] = useState('')
   const [invalidPassword, setInvalidPassword] = useState(false)
   const [validating, setValidating] = useState(false)
+
+  const isKeystoreSigning = useMemo(
+    () => isKeystoreSignRequired({ wallet, inputAssets }),
+    [wallet, inputAssets],
+  )
 
   // dismiss modal after 60s
   useTimeout(() => {
@@ -70,7 +77,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
   )
 
   const handleOK = useCallback(async () => {
-    if (walletType === 'xdefi') {
+    if (!isKeystoreSigning) {
       handleConfirm()
       return
     }
@@ -91,7 +98,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
     }
 
     setValidating(false)
-  }, [keystore, password, handleConfirm, walletType])
+  }, [keystore, password, handleConfirm, isKeystoreSigning])
 
   const renderModalContent = () => {
     const modalIcon = (
@@ -128,8 +135,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = (
     <Overlay isOpen={visible} onDismiss={handleCancel}>
       <Styled.Content>
         {children && <Styled.ModalData>{children}</Styled.ModalData>}
-        {walletType === 'keystore' && renderModalContent()}
-        {walletType === 'xdefi' && (
+        {isKeystoreSigning && renderModalContent()}
+        {!isKeystoreSigning && (
           <Styled.Button onClick={handleOK}>Confirm</Styled.Button>
         )}
       </Styled.Content>
