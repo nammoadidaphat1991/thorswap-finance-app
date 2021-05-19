@@ -103,6 +103,8 @@ export class EthChain implements IEthChain {
     this.walletType = null
   }
 
+  // TODO: connectMetamask
+
   connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 

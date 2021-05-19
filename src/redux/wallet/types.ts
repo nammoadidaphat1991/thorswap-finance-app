@@ -3,7 +3,7 @@ import { Wallet } from 'multichain-sdk'
 
 import { SupportedChain } from 'multichain-sdk/clients/types'
 
-export type WalletType = 'keystore' | 'xdefi' | null
+export type WalletType = 'keystore' | 'xdefi' | 'metamask' | null
 
 export interface State {
   walletType: WalletType

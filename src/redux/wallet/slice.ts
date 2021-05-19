@@ -61,6 +61,9 @@ const slice = createSlice({
       state.walletType = 'xdefi'
       saveXdefiConnected(true)
     },
+    connectMetamask() {
+      // not sure
+    },
     setIsConnectModalOpen(state, action: PayloadAction<boolean>) {
       state.isConnectModalOpen = action.payload
     },

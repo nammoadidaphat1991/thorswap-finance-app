@@ -43,6 +43,7 @@ const WalletModal = () => {
   const {
     unlockWallet,
     connectXdefiWallet,
+    connectMetamask,
     setIsConnectModalOpen,
     isConnectModalOpen,
     walletLoading,
@@ -66,9 +67,11 @@ const WalletModal = () => {
     if (metamaskStatus === WalletStatus.NoWeb3Provider) {
       window.open('https://metamask.io')
     } else if (metamaskStatus === WalletStatus.XdefiDetected) {
+      // TODO: Should disable xdefi wallet
     } else {
+      connectMetamask()
     }
-  }, [metamaskStatus])
+  }, [metamaskStatus, connectMetamask])
 
   const handleConnectXDefi = useCallback(async () => {
     if (!xdefiInstalled) {

@@ -37,6 +37,17 @@ export const useWallet = () => {
     }
   }, [dispatch])
 
+  const connectMetamask = useCallback(async () => {
+    try {
+      await multichain.connectMetamask()
+
+      dispatch(actions.connectMetamask())
+      dispatch(walletActions.getWalletByChain('ETH'))
+    } catch (error) {
+      console.error(error)
+    }
+  }, [dispatch])
+
   const setIsConnectModalOpen = useCallback(
     (visible: boolean) => {
       dispatch(actions.setIsConnectModalOpen(visible))
@@ -57,5 +68,6 @@ export const useWallet = () => {
     setIsConnectModalOpen,
     disconnectWallet,
     connectXdefiWallet,
+    connectMetamask,
   }
 }

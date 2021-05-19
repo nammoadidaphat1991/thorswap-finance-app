@@ -19,6 +19,7 @@ import {
   LTCChain,
   BCHChain,
 } from '@xchainjs/xchain-util'
+import { MetaMaskClient } from 'metamask-sdk'
 import {
   MidgardV2,
   NetworkType as MidgardNetwork,
@@ -46,6 +47,7 @@ import {
   SupportedChain,
   AddLiquidityTxns,
   UpgradeParams,
+  WalletOption,
 } from './types'
 
 // specifying non-eth client is needed for getFees method
@@ -77,7 +79,7 @@ export interface IMultiChain {
   validateKeystore(keystore: Keystore, password: string): Promise<boolean>
 
   connectXDefiWallet(): Promise<void>
-  connectXdefiWallet(): Promise<void>
+  connectAllClientsToXDefi(): Promise<void>
 
   getMidgard(): MidgardV2
 
@@ -122,6 +124,8 @@ export class MultiChain implements IMultiChain {
   private phrase: string
 
   private xdefiClient: XdefiClient | null = null
+
+  private metamaskClient: MetaMaskClient | null = null
 
   private wallet: Wallet | null = null
 
@@ -176,13 +180,36 @@ export class MultiChain implements IMultiChain {
 
     this.resetClients()
 
-    await this.connectXdefiWallet()
+    await this.connectAllClientsToXDefi()
 
     this.resetWallets()
   }
 
+  connectMetamask = async (): Promise<void> => {
+    this.metamaskClient = new MetaMaskClient(this.network)
+
+    if (!this.metamaskClient.isWalletDetected()) {
+      throw Error('metamask wallet not detected')
+    }
+
+    // TODO:
+    // await this.eth.connectMetamask(this.metamaskClient)
+
+    const metamaskAddress = this.eth.getClient().getAddress().toLowerCase()
+
+    if (!this.wallet) this.initWallets()
+
+    if (this.wallet) {
+      this.wallet[ETHChain] = {
+        address: metamaskAddress,
+        balance: [],
+        walletType: WalletOption.METAMASK,
+      }
+    }
+  }
+
   // patch client methods to use xdefi request and address
-  connectXdefiWallet = async () => {
+  connectAllClientsToXDefi = async () => {
     if (!this.xdefiClient) throw Error('xdefi client not found')
 
     await this.thor.connectXdefiWallet(this.xdefiClient)
@@ -193,8 +220,7 @@ export class MultiChain implements IMultiChain {
     await this.eth.connectXdefiWallet(this.xdefiClient)
   }
 
-  // reload wallet address and reset balance
-  resetWallets = () => {
+  initWallets = () => {
     this.wallet = {
       [BTCChain]: null,
       [BNBChain]: null,
@@ -203,6 +229,11 @@ export class MultiChain implements IMultiChain {
       [ETHChain]: null,
       [THORChain]: null,
     }
+  }
+
+  // reload wallet address and reset balance
+  resetWallets = () => {
+    this.initWallets()
 
     this.chains.forEach((chain: SupportedChain) => {
       const chainClient = this.getChainClient(chain)
