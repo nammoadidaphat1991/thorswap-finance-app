@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useState, useMemo, useEffect } from 'react'
 
 import {
   PlusOutlined,
@@ -48,6 +48,10 @@ const WalletModal = () => {
     isConnectModalOpen,
     walletLoading,
   } = useWallet()
+
+  useEffect(() => {
+    if (isConnectModalOpen) setWalletMode(WalletMode.Select)
+  }, [isConnectModalOpen])
 
   const metamaskStatus = useMemo(() => metamask.isWalletDetected(), [])
   const xdefiInstalled = useMemo(() => xdefi.isWalletDetected(), [])
