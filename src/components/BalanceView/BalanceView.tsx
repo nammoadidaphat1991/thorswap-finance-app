@@ -143,6 +143,10 @@ export const BalanceView = (props: BalanceViewProps) => {
       {Object.keys(wallet).map((chain) => {
         const chainBalance = wallet[chain as SupportedChain]
 
+        if (!chainBalance) {
+          return null
+        }
+
         return renderChainBalance(chain as SupportedChain, chainBalance)
       })}
     </Styled.Container>

@@ -38,7 +38,7 @@ import { ETHAssets } from '../constants/erc20Assets'
 import { TCRopstenAbi } from '../constants/thorchain-ropsten.abi'
 import { AmountType, Amount, Asset, AssetAmount } from '../entities'
 import { IClient } from './client'
-import { TxParams, ApproveParams, DepositParams } from './types'
+import { TxParams, ApproveParams, DepositParams, WalletOption } from './types'
 
 // from https://github.com/MetaMask/metamask-extension/blob/ee205b893fe61dc4736efc576e0663189a9d23da/ui/app/pages/send/send.constants.js#L39
 // and based on recommendations of https://ethgasstation.info/blog/gas-limit/
@@ -61,22 +61,19 @@ export class EthChain implements IEthChain {
 
   public readonly chain: Chain
 
-  constructor({
-    network = 'testnet',
-    phrase,
-  }: {
-    network?: Network
-    phrase: string
-  }) {
+  public walletType: WalletOption | null
+
+  constructor({ network = 'testnet' }: { network?: Network }) {
     this.chain = ETHChain
 
     this.client = new EthClient({
       network,
-      phrase,
       etherscanApiKey: ETHERSCAN_API_KEY,
       ethplorerApiKey: ETHPLORER_API_KEY,
       infuraCreds: { projectId: INFURA_PROJECT_ID },
     })
+
+    this.walletType = null
   }
 
   /**
@@ -90,7 +87,23 @@ export class EthChain implements IEthChain {
     return this.balances
   }
 
-  useXdefiWallet = async (xdefiClient: XdefiClient) => {
+  connectKeystore = (phrase: string) => {
+    this.client = new EthClient({
+      network: this.client.getNetwork(),
+      phrase,
+      etherscanApiKey: ETHERSCAN_API_KEY,
+      ethplorerApiKey: ETHPLORER_API_KEY,
+      infuraCreds: { projectId: INFURA_PROJECT_ID },
+    })
+    this.walletType = WalletOption.KEYSTORE
+  }
+
+  disconnect = () => {
+    this.client.purgeClient()
+    this.walletType = null
+  }
+
+  connectXdefiWallet = async (xdefiClient: XdefiClient) => {
     if (!xdefiClient) throw Error('xdefi client not found')
 
     /**
@@ -286,6 +299,8 @@ export class EthChain implements IEthChain {
         return Promise.reject(error)
       }
     }
+
+    this.walletType = WalletOption.XDEFI
   }
 
   loadBalance = async (): Promise<AssetAmount[]> => {

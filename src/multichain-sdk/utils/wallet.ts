@@ -11,7 +11,7 @@ export const getWalletAssets = (wallet: Wallet | null) => {
 
   Object.keys(wallet).map((chain) => {
     const chainWallet = wallet[chain as SupportedChain]
-    chainWallet.balance.forEach((data: AssetAmount) => {
+    chainWallet?.balance.forEach((data: AssetAmount) => {
       assets.push(data.asset)
     })
   })
@@ -37,7 +37,7 @@ export const getInputAssets = ({
 
   Object.keys(wallet).map((chain) => {
     const chainWallet = wallet[chain as SupportedChain]
-    chainWallet.balance.forEach((data: AssetAmount) => {
+    chainWallet?.balance.forEach((data: AssetAmount) => {
       if (poolAssets.find((poolAsset) => poolAsset.eq(data.asset))) {
         assets.push(data.asset)
       }
@@ -64,7 +64,7 @@ export const getInputAssetsForAdd = ({
 
   Object.keys(wallet).map((chain) => {
     const chainWallet = wallet[chain as SupportedChain]
-    chainWallet.balance.forEach((data: AssetAmount) => {
+    chainWallet?.balance.forEach((data: AssetAmount) => {
       if (poolAssets.find((poolAsset) => poolAsset.eq(data.asset))) {
         assets.push(data.asset)
       }
@@ -92,7 +92,7 @@ export const getNonPoolAssets = ({
 
   Object.keys(wallet).map((chain) => {
     const chainWallet = wallet[chain as SupportedChain]
-    chainWallet.balance.forEach((data: AssetAmount) => {
+    chainWallet?.balance.forEach((data: AssetAmount) => {
       if (!poolAssets.find((poolAsset) => poolAsset.eq(data.asset))) {
         assets.push(data.asset)
       }
@@ -137,10 +137,10 @@ export const getAssetBalance = (asset: Asset, wallet: Wallet): AssetAmount => {
   )
 
   if (asset.chain in wallet) {
-    const { balance } = wallet?.[asset.chain as SupportedChain]
+    const chainWallet = wallet?.[asset.chain as SupportedChain]
 
     return (
-      balance.find((assetData: AssetAmount) => {
+      chainWallet?.balance.find((assetData: AssetAmount) => {
         return assetData.asset.eq(asset)
       }) || emptyAmount
     )

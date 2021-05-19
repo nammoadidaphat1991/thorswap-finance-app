@@ -18,7 +18,7 @@ export const useWallet = () => {
   const unlockWallet = useCallback(
     async (keystore: Keystore, phrase: string) => {
       // set multichain phrase
-      multichain.setPhrase(phrase)
+      multichain.connectKeystore(phrase)
 
       dispatch(actions.connectKeystore(keystore))
       dispatch(walletActions.loadAllWallets())
