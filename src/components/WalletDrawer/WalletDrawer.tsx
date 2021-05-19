@@ -39,6 +39,11 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
     disconnectWallet,
   } = useWallet()
 
+  const handleConnectAltWallet = useCallback(() => {
+    onClose()
+    setIsConnectModalOpen(true)
+  }, [onClose, setIsConnectModalOpen])
+
   const handleRefresh = useCallback(() => {
     if (wallet) {
       dispatch(loadAllWallets())
@@ -78,7 +83,7 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
         )}
         {wallet && (
           <Styled.HeaderAction>
-            <Button onClick={() => setIsConnectModalOpen(true)} round>
+            <Button onClick={handleConnectAltWallet} round>
               Connect
             </Button>
             <Button
