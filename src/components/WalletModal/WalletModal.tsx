@@ -99,7 +99,7 @@ const WalletModal = () => {
             <Label>Connect MetaMask Wallet</Label>
           )}
           {metamaskStatus === WalletStatus.XdefiDetected && (
-            <Label>Uninstall Xdefi Wallet First</Label>
+            <Label>Disable Xdefi Wallet</Label>
           )}
           {metamaskStatus === WalletStatus.NoWeb3Provider && (
             <Label>Install MetaMask Wallet</Label>
