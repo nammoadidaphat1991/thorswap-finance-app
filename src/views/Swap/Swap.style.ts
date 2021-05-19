@@ -46,6 +46,10 @@ export const ConfirmModalContent = styled.div`
   padding: 10px;
 `
 
+export const RecipientAddrWrapper = styled.div`
+  margin-top: 14px;
+`
+
 export const SwapInfo = styled.div`
   display: flex;
   flex-direction: column;

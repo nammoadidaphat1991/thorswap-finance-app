@@ -3,8 +3,10 @@ import { Wallet } from 'multichain-sdk'
 
 import { SupportedChain } from 'multichain-sdk/clients/types'
 
+export type WalletType = 'keystore' | 'xdefi' | null
+
 export interface State {
-  walletType: 'keystore' | 'xdefi' | null
+  walletType: WalletType
   keystore: Keystore | null
   wallet: Wallet | null
   walletLoading: boolean
