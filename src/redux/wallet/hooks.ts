@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { Keystore } from '@xchainjs/xchain-crypto'
+import { SupportedChain } from 'multichain-sdk'
 
 import { RootState } from 'redux/store'
 import * as walletActions from 'redux/wallet/actions'
@@ -14,6 +15,15 @@ export const useWallet = () => {
   const dispatch = useDispatch()
 
   const walletState = useSelector((state: RootState) => state.wallet)
+
+  const { walletLoading, chainWalletLoading } = walletState
+  const walletLoadingByChain = Object.keys(chainWalletLoading).map(
+    (chain) => chainWalletLoading[chain as SupportedChain],
+  )
+  const isWalletLoading = walletLoadingByChain.reduce(
+    (status, next) => status || next,
+    walletLoading,
+  )
 
   const unlockWallet = useCallback(
     async (keystore: Keystore, phrase: string) => {
@@ -62,6 +72,7 @@ export const useWallet = () => {
   return {
     ...walletState,
     ...walletActions,
+    isWalletLoading,
     unlockWallet,
     setIsConnectModalOpen,
     disconnectWallet,
